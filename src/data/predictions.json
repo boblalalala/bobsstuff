@@ -1,0 +1,9 @@
+[
+  { "id": "p01", "question": "Who gets slapped first tonight?", "options": ["Rachel", "Jordan"] },
+  { "id": "p02", "question": "Which team wins the buzzer round?", "options": ["Team Rachel", "Team Jordan"] },
+  { "id": "p03", "question": "How many matches out of 10 will Rachel and Jordan get?", "options": ["0–3", "4–6", "7–10"] },
+  { "id": "p04", "question": "Who cries first tonight?", "options": ["Rachel", "Jordan"] },
+  { "id": "p05", "question": "Who falls asleep first tonight?", "options": ["Rachel", "Jordan"] },
+  { "id": "p06", "question": "Who is more competitive?", "options": ["Rachel", "Jordan"] },
+  { "id": "p07", "question": "Which team wins the categories game?", "options": ["Team Rachel", "Team Jordan"] }
+]

@@ -1,0 +1,60 @@
+{
+  "rules": {
+    "secret": {
+      ".read": false,
+      ".write": false
+    },
+
+    "hosts": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid && (!newData.exists() || (root.child('secret/hostPin').exists() && newData.val() === root.child('secret/hostPin').val()))"
+      }
+    },
+
+    "players": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('secret/hostPin').exists() && root.child('hosts/' + auth.uid).val() === root.child('secret/hostPin').val()",
+      "$uid": {
+        "name": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 24"
+        },
+        "role": {
+          ".write": "auth != null && auth.uid === $uid && root.child('config/testMode').val() === true",
+          ".validate": "newData.isString() && newData.val().matches(/^(audience|rachel|jordan|friendR|friendJ)$/)"
+        },
+        "joinedAt": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.isNumber()"
+        },
+        "online": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.isBoolean()"
+        },
+        "lastSeen": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.isNumber()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+
+    "config": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('secret/hostPin').exists() && root.child('hosts/' + auth.uid).val() === root.child('secret/hostPin').val()"
+    },
+
+    "game": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('secret/hostPin').exists() && root.child('hosts/' + auth.uid).val() === root.child('secret/hostPin').val()"
+    },
+
+    "scores": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('secret/hostPin').exists() && root.child('hosts/' + auth.uid).val() === root.child('secret/hostPin').val()"
+    }
+  }
+}

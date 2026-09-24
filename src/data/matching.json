@@ -1,0 +1,20 @@
+[
+  { "id": "m01", "type": "text", "question": "Who said \"I love you\" first?" },
+  { "id": "m02", "type": "text", "question": "Who's the better cook?" },
+  { "id": "m03", "type": "text", "question": "Where was your first date?" },
+  { "id": "m04", "type": "text", "question": "Who takes longer to get ready?" },
+  { "id": "m05", "type": "text", "question": "Who apologises first after an argument?" },
+  { "id": "m06", "type": "text", "question": "Dream holiday destination?" },
+  { "id": "m07", "type": "text", "question": "How many kids do you want?" },
+  { "id": "m08", "type": "text", "question": "Who's more likely to get lost?" },
+
+  { "id": "m09", "type": "choice", "question": "Beach or Mountains?", "options": ["Beach", "Mountains"] },
+  { "id": "m10", "type": "choice", "question": "Kopi or Teh?", "options": ["Kopi", "Teh"] },
+  { "id": "m11", "type": "choice", "question": "Chilli crab or Black pepper crab?", "options": ["Chilli crab", "Black pepper crab"] },
+  { "id": "m12", "type": "choice", "question": "Staycation or Overseas trip?", "options": ["Staycation", "Overseas trip"] },
+  { "id": "m13", "type": "choice", "question": "Early bird or Night owl?", "options": ["Early bird", "Night owl"] },
+  { "id": "m14", "type": "choice", "question": "Cats or Dogs?", "options": ["Cats", "Dogs"] },
+  { "id": "m15", "type": "choice", "question": "Hawker centre or Restaurant?", "options": ["Hawker centre", "Restaurant"] },
+  { "id": "m16", "type": "choice", "question": "Netflix night or Night out?", "options": ["Netflix night", "Night out"] },
+  { "id": "m17", "type": "choice", "question": "Left or Right? (pure 50/50, just for fun)", "options": ["Left", "Right"] }
+]

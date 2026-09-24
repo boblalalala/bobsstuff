@@ -1,0 +1,32 @@
+[
+  { "id": "b01", "category": "PSLE Maths", "type": "open", "question": "A cake is cut into 8 equal slices. Jordan eats 3/8 of the cake and Rachel eats 1/4 of it. What fraction of the cake is left?", "answer": "3/8" },
+  { "id": "b02", "category": "PSLE Maths", "type": "open", "question": "The party starts at 7.45 pm and lasts 3 h 50 min. What time does it end?", "answer": "11.35 pm" },
+  { "id": "b03", "category": "PSLE Maths", "type": "open", "question": "There are 150 guests and each table seats 8. What is the smallest number of tables needed?", "answer": "19" },
+  { "id": "b04", "category": "PSLE Maths", "type": "open", "question": "Rachel buys 3 cups of kopi at $1.60 each and 2 kaya toast sets at $2.30 each. She pays with a $20 note. How much change does she get?", "answer": "$10.60" },
+  { "id": "b05", "category": "PSLE Maths", "type": "open", "question": "A square has a perimeter of 36 cm. What is its area?", "answer": "81 cm²" },
+  { "id": "b06", "category": "PSLE Maths", "type": "open", "question": "The ratio of Jordan's shoes to Rachel's shoes is 2 : 7. Rachel has 35 more pairs than Jordan. How many pairs does Jordan have?", "answer": "14" },
+  { "id": "b07", "category": "PSLE Maths", "type": "open", "question": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost?", "answer": "5 cents" },
+
+  { "id": "b08", "category": "PSLE Science", "type": "mc", "question": "Which part of a plant makes its food?", "options": ["Root", "Stem", "Leaf", "Flower"], "answer": "C" },
+  { "id": "b09", "category": "PSLE Science", "type": "mc", "question": "Which material is attracted to a magnet?", "options": ["Copper", "Aluminium", "Iron", "Plastic"], "answer": "C" },
+  { "id": "b10", "category": "PSLE Science", "type": "open", "question": "What is the process called when water turns into water vapour at room temperature?", "answer": "Evaporation" },
+  { "id": "b11", "category": "PSLE Science", "type": "mc", "question": "Which of these is NOT a mammal?", "options": ["Bat", "Whale", "Penguin", "Dolphin"], "answer": "C" },
+
+  { "id": "b12", "category": "PSLE English", "type": "mc", "question": "\"Neither the bride nor the groom ___ ready yet.\"", "options": ["is", "are"], "answer": "A" },
+  { "id": "b13", "category": "PSLE English", "type": "mc", "question": "Which is spelt correctly?", "options": ["Accomodate", "Accommodate", "Acommodate"], "answer": "B" },
+  { "id": "b14", "category": "PSLE English", "type": "open", "question": "Rearrange the letters of LISTEN to make a word meaning \"quiet\".", "answer": "SILENT" },
+
+  { "id": "b15", "category": "Singapore", "type": "open", "question": "In what year did Singapore become independent?", "answer": "1965" },
+  { "id": "b16", "category": "Singapore", "type": "open", "question": "What is Singapore's national flower?", "answer": "Vanda Miss Joaquim" },
+  { "id": "b17", "category": "Singapore", "type": "open", "question": "How many stars are on the Singapore flag?", "answer": "5" },
+  { "id": "b18", "category": "Singapore", "type": "open", "question": "What does MRT stand for?", "answer": "Mass Rapid Transit" },
+  { "id": "b19", "category": "Singapore", "type": "mc", "question": "Which is NOT one of Singapore's four official languages?", "options": ["Malay", "Tamil", "Hokkien", "English"], "answer": "C" },
+
+  { "id": "b20", "category": "General Knowledge", "type": "open", "question": "Which planet is known as the Red Planet?", "answer": "Mars" },
+  { "id": "b21", "category": "General Knowledge", "type": "open", "question": "What is the chemical symbol for gold?", "answer": "Au" },
+  { "id": "b22", "category": "General Knowledge", "type": "mc", "question": "Which country gave the Statue of Liberty to the USA?", "options": ["England", "France", "Spain", "Italy"], "answer": "B" },
+  { "id": "b23", "category": "General Knowledge", "type": "open", "question": "How many players does one football team have on the pitch?", "answer": "11" },
+
+  { "id": "b24", "category": "Couple Trivia", "type": "open", "question": "In what year did Rachel and Jordan meet?", "answer": "[FILL IN]" },
+  { "id": "b25", "category": "Couple Trivia", "type": "open", "question": "Where did Jordan propose?", "answer": "[FILL IN]" }
+]
