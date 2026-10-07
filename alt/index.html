@@ -48,7 +48,7 @@ h1,h2,h3{font-family:var(--f-display);font-stretch:112%;margin:0;text-wrap:balan
 .eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--muted)}
 
 /* ---------- page frame ---------- */
-.stage{display:grid;grid-template-columns:minmax(0,320px) 430px;gap:40px;justify-content:center;align-items:start;padding-inline:24px;padding-block:24px}
+.stage{display:grid;grid-template-columns:minmax(0,320px) 393px;gap:40px;justify-content:center;align-items:start;padding-inline:24px;padding-block:24px}
 .guide{position:sticky;top:24px;display:flex;flex-direction:column;gap:16px;min-width:0}
 .brand{display:flex;align-items:baseline;gap:10px}
 .brand b{font-family:var(--f-display);font-stretch:125%;font-weight:800;font-size:34px;letter-spacing:-.01em;color:var(--forest)}
@@ -71,9 +71,15 @@ h1,h2,h3{font-family:var(--f-display);font-stretch:112%;margin:0;text-wrap:balan
 .guide details summary{cursor:pointer;font-weight:700;list-style:none}
 .guide details summary::-webkit-details-marker{display:none}
 
-.phone{background:var(--surface);border-radius:34px;box-shadow:var(--shadow);border:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column;height:min(880px,calc(100dvh - 48px));position:relative}
+/* iPhone 15/16 Pro screen: 393 × 852 points */
+.phone{background:var(--surface);border-radius:55px;box-shadow:var(--shadow),0 0 0 10px #1b1f1d,0 0 0 11px #3a403d;overflow:hidden;display:flex;flex-direction:column;width:393px;height:852px;position:relative;margin:11px}
+.statusbar{height:54px;flex:none;display:grid;grid-template-columns:1fr 126px 1fr;align-items:center;padding:0 26px 0 34px;background:var(--surface);font:600 16px/1 -apple-system,'SF Pro Text',var(--f-body);color:var(--ink)}
+.statusbar .island{height:37px;border-radius:20px;background:#000;margin-top:2px}
+.statusbar .icons{display:flex;gap:6px;justify-content:flex-end;align-items:center}
+.statusbar svg{height:12px;fill:currentColor}
+.tabs::after{content:"";grid-column:1/-1;justify-self:center;width:134px;height:5px;border-radius:3px;background:var(--ink);margin:2px 0 8px}
 .screen{flex:1;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
-.appbar{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:0;z-index:5}
+.appbar{display:flex;align-items:center;gap:10px;padding:6px 16px 10px;border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:0;z-index:5}
 .appbar .logo{font-family:var(--f-display);font-stretch:125%;font-weight:800;font-size:20px;color:var(--forest);letter-spacing:-.01em}
 .appbar h1{font-size:17px;font-stretch:100%;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .iconbtn{border:0;background:var(--surface-2);width:36px;height:36px;border-radius:50%;display:grid;place-items:center;flex:none}
@@ -134,7 +140,7 @@ h1,h2,h3{font-family:var(--f-display);font-stretch:112%;margin:0;text-wrap:balan
 .row{display:flex;align-items:center;gap:10px;min-width:0}
 .row > .grow{flex:1;min-width:0}
 .stack{display:flex;flex-direction:column;gap:8px}
-.toast{position:absolute;left:16px;right:16px;bottom:76px;background:var(--ink);color:var(--bg);padding:11px 14px;border-radius:12px;font-size:14px;font-weight:600;z-index:20;box-shadow:var(--shadow);animation:pop .25s ease}
+.toast{position:absolute;left:16px;right:16px;bottom:100px;background:var(--ink);color:var(--bg);padding:11px 14px;border-radius:12px;font-size:14px;font-weight:600;z-index:20;box-shadow:var(--shadow);animation:pop .25s ease}
 @keyframes pop{from{transform:translateY(8px);opacity:.4}}
 @media (prefers-reduced-motion: reduce){.toast{animation:none}}
 
@@ -162,6 +168,15 @@ h1,h2,h3{font-family:var(--f-display);font-stretch:112%;margin:0;text-wrap:balan
 .tripcard{padding:0;overflow:hidden}
 .tripcard .art{height:70px;background:var(--surface-2);position:relative}
 .tripcard .art svg{position:absolute;inset:auto 0 0 0;width:100%;height:100%}
+.tripcard .art.has-photo{height:150px}
+.ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.photohero{position:relative;height:210px;background:var(--surface-2);overflow:hidden}
+.photohero .credit{position:absolute;right:8px;bottom:6px;font-size:10.5px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+.photohero .change{position:absolute;right:10px;top:10px;background:rgba(0,0,0,.55);color:#fff;border:0}
+.titleblock{padding:14px 16px 0;display:flex;flex-direction:column;gap:6px}
+.titleblock h2{font-size:24px}
+.addphoto{position:absolute;right:12px;bottom:12px}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .tripcard .body{padding:12px 14px;display:flex;flex-direction:column;gap:6px}
 .tripcard h3{font-size:17px}
 .banner{position:relative;height:150px;background:var(--surface-2);overflow:hidden}
@@ -226,6 +241,7 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;f
 .entry{padding:0;overflow:hidden}
 .entry .photo{height:84px;position:relative;background:var(--surface-2)}
 .entry .photo svg{position:absolute;inset:0;width:100%;height:100%}
+.entry .photo.has-photo{height:130px}
 .entry .photo .grade{position:absolute;left:12px;top:12px}
 .entry .photo .pill{position:absolute;right:10px;top:10px}
 .entry .body{padding:12px 14px;display:flex;flex-direction:column;gap:6px}
@@ -264,7 +280,9 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;f
   .stage{grid-template-columns:minmax(0,1fr);gap:12px;padding-inline:0;padding-block:0}
   .guide{position:static;padding-inline:16px;padding-block:16px 4px;gap:12px}
   .guide .long{display:none}
-  .phone{border-radius:0;border:0;box-shadow:none;height:auto;overflow:visible;padding-bottom:70px}
+  .phone{border-radius:0;border:0;box-shadow:none;width:auto;height:auto;margin:0;overflow:visible;padding-bottom:70px;zoom:1!important}
+  .statusbar,.tabs::after{display:none}
+  .appbar{padding-top:14px}
   .screen{overflow:visible}
   .appbar{top:env(safe-area-inset-top,0px)}
   .tabs{position:fixed;left:0;right:0;bottom:0;z-index:10}
@@ -442,6 +460,30 @@ function reset(){
   S = {persona:'mei', tab:'home', stack:[], notes:true, mapMode:'mine', mapSel:null, trainFilter:'all', gradeFilter:0, form:null, toast:null};
 }
 reset();
+
+/* ---------- trail photos ----------
+   Add a bundled photo by putting a data: URI (or a path to a file published next to this page) in PHOTOS.
+   Until then, a viewer can add their own photo from the trip page; it stays in their browser only. */
+const PHOTOS = {
+  // datuk: {src:'img/datuk.jpg', credit:'Photo: …'},
+};
+const LOCAL_PHOTOS = {};
+try { const raw = localStorage.getItem('alt-photos'); if (raw) Object.assign(LOCAL_PHOTOS, JSON.parse(raw)); } catch (e) {}
+const photoOf = id => LOCAL_PHOTOS[id] ? {src:LOCAL_PHOTOS[id], credit:'Your photo', local:true} : PHOTOS[id] || null;
+function savePhoto(id, src){
+  LOCAL_PHOTOS[id] = src;
+  try { localStorage.setItem('alt-photos', JSON.stringify(LOCAL_PHOTOS)); } catch (e) {}
+}
+function photoImg(t){ const p = photoOf(t.id); return p ? `<img class="ph" src="${p.src}" alt="${esc(t.name)}">` : ''; }
+function photoHero(t, title, sub){
+  const p = photoOf(t.id);
+  const pick = `<label class="btn sm ${p ? 'change' : 'soft addphoto'}" for="ph-${t.id}">${p ? 'Change photo' : '＋ Add a photo of ' + esc(t.short)}</label><input type="file" accept="image/*" id="ph-${t.id}" class="visually-hidden" data-photo="${t.id}">`;
+  if (!p) return `<div class="banner topo">${silhouette(t, 430, 150, {top:.45, op:.22})}
+      <div class="over"><div class="row">${gradeBadge(t.grade, true)}<span class="eyebrow">${GRADES[t.grade].name} · ${esc(t.region)}</span></div><h2>${esc(title)}</h2><div class="meta">${sub}</div></div>${pick}</div>`;
+  return `<div class="photohero">${photoImg(t)}<span class="credit">${esc(p.credit || '')}</span>${pick}</div>
+    <div class="titleblock"><div class="row">${gradeBadge(t.grade, true)}<span class="eyebrow">${GRADES[t.grade].name} · ${esc(t.region)}</span></div><h2>${esc(title)}</h2><div class="meta">${sub}</div></div>`;
+}
+
 const me = () => DB.members[S.persona];
 const M = id => DB.members[id];
 const trip = id => DB.trips.find(t => t.id === id);
@@ -670,7 +712,7 @@ function tripCard(t){
     right = `${statusPill(r)}${joined ? '<span class="pill verified">Joined</span>' : ''}`;
   }
   return `<button class="card tap tripcard" data-a="push" data-v="trip" data-id="${t.id}">
-    <div class="art">${silhouette(tr, 400, 70, {top:.1})}</div>
+    <div class="art${photoOf(tr.id) ? ' has-photo' : ''}">${photoImg(tr) || silhouette(tr, 400, 70, {top:.1})}</div>
     <div class="body">
       <div class="row">${gradeBadge(tr.grade)}<h3 class="grow">${esc(t.title)}</h3></div>
       <div class="meta">${t.dates} · <span class="num">${t.participants.length + t.others}/${t.cap}</span> spots taken</div>
@@ -817,15 +859,14 @@ function screenTrip(id){
     </section>`;
   }
   return `<div>
-    <div class="banner topo">${silhouette(tr, 430, 150, {top:.45, op:.22})}
-      <div class="over"><div class="row">${gradeBadge(tr.grade, true)}<span class="eyebrow">${GRADES[tr.grade].name} · ${esc(tr.region)}</span></div><h2>${esc(t.title)}</h2><div class="meta">${t.dates}</div></div>
-    </div>
+    ${photoHero(tr, t.title, t.dates)}
     <div class="pad">
       <div class="facts">
         <div><b>${tr.dist} km</b><span>distance</span></div><div><b>${n0(tr.gain)} m</b><span>climb</span></div>
         <div><b>${n0(tr.max)} m</b><span>summit</span></div><div><b class="num">${t.participants.length + t.others}/${t.cap}</b><span>spots</span></div>
       </div>
-      <button class="link" style="align-self:flex-start" data-a="push" data-v="trail" data-id="${tr.id}">Trail details, elevation &amp; grade breakdown ›</button>
+      <section class="sec"><h2>Elevation profile</h2><div class="card">${elevationChart(tr)}</div>
+        <button class="link" style="align-self:flex-start" data-a="push" data-v="trail" data-id="${tr.id}">Trail details &amp; grade breakdown ›</button></section>
       ${body}
       <section class="sec"><h2>Leaders</h2>${leaders}${lcHtml}
         ${note('Every trip lists the certifications its leaders must hold, such as first aid, plus altitude for Grade 4 and above. The app warns when a certification runs out before the trip.')}
@@ -867,9 +908,7 @@ function screenTrail(id){
   const maxPart = 8;
   const trips = DB.trips.filter(x => x.trail === id);
   return `<div>
-    <div class="banner topo">${silhouette(t, 430, 150, {top:.45, op:.22})}
-      <div class="over"><div class="row">${gradeBadge(t.grade, true)}<span class="eyebrow">${GRADES[t.grade].name}</span></div><h2>${esc(t.name)}</h2><div class="meta">${esc(t.region)} · ${t.time}</div></div>
-    </div>
+    ${photoHero(t, t.name, t.time)}
     <div class="pad">
       <div class="facts">
         <div><b>${t.dist} km</b><span>distance</span></div><div><b>${n0(t.gain)} m</b><span>total climb</span></div>
@@ -896,7 +935,7 @@ function screenTrail(id){
 function entryCard(j, who){
   const t = TR[j.trail];
   return `<article class="card entry">
-    <div class="photo topo">${silhouette(t, 400, 84, {top:.2, op:.35})}${gradeBadge(t.grade)}<span class="pill ${j.status}">${j.status === 'verified' ? 'Verified' : 'Awaiting check'}</span></div>
+    <div class="photo topo${photoOf(t.id) ? ' has-photo' : ''}">${photoImg(t) || silhouette(t, 400, 84, {top:.2, op:.35})}${gradeBadge(t.grade)}<span class="pill ${j.status}">${j.status === 'verified' ? 'Verified' : 'Awaiting check'}</span></div>
     <div class="body">
       <div class="row"><h3 class="grow">${esc(t.short)}</h3><span class="meta">${fmt(j.date, {month:'short', year:'numeric'})}</span></div>
       ${who ? `<div class="meta">${esc(who.name)}</div>` : ''}
@@ -1063,6 +1102,10 @@ function render(keepScroll){
   const scr = phone.querySelector('.screen');
   const y = keepScroll ? (scr ? scr.scrollTop : 0) : 0, wy = window.scrollY;
   phone.innerHTML = `
+    <div class="statusbar" aria-hidden="true"><span>9:41</span><span class="island"></span><span class="icons">
+      <svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg viewBox="0 0 16 12"><path d="M8 2.2c2.4 0 4.6.9 6.2 2.5l1.3-1.3A10.6 10.6 0 0 0 8 .4 10.6 10.6 0 0 0 .5 3.4l1.3 1.3A8.8 8.8 0 0 1 8 2.2zm0 3.6c1.4 0 2.7.5 3.7 1.5L13 6a7 7 0 0 0-10 0l1.3 1.3c1-1 2.3-1.5 3.7-1.5zM8 9.4l2.1-2.1a3 3 0 0 0-4.2 0z"/></svg>
+      <svg viewBox="0 0 27 12" style="height:13px"><rect x=".5" y=".5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="24.5" y="4" width="2" height="4" rx="1" opacity=".4"/></svg></span></div>
     <header class="appbar">
       ${top ? `<button class="iconbtn" data-a="back" aria-label="Back">${icon('back')}</button>` : `<span class="logo">ALT</span>`}
       <h1>${esc(title)}</h1>
@@ -1155,7 +1198,24 @@ document.addEventListener('input', e => {
   if (t.name === 'note') S.form.note = t.value;
   if (t.name === 'evidence') S.form.evidence = t.checked;
 });
-document.addEventListener('change', e => { if (e.target.name === 'evidence' && S.form) S.form.evidence = e.target.checked; });
+document.addEventListener('change', e => {
+  if (e.target.name === 'evidence' && S.form) S.form.evidence = e.target.checked;
+  const id = e.target.dataset && e.target.dataset.photo, file = e.target.files && e.target.files[0];
+  if (!id || !file) return;
+  const url = URL.createObjectURL(file), img = new Image();
+  img.onload = () => {
+    // shrink to a reasonable size so it fits in browser storage
+    const k = Math.min(1, 1000 / img.width), c = document.createElement('canvas');
+    c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(url);
+    savePhoto(id, c.toDataURL('image/jpeg', .82));
+    toast(`Photo added to ${TR[id].short}`);
+    render(true);
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); toast('That file could not be read as an image. Try a JPG or PNG.'); render(true); };
+  img.src = url;
+});
 document.addEventListener('submit', e => {
   if (e.target.id !== 'logform') return;
   e.preventDefault();
@@ -1166,5 +1226,14 @@ document.addEventListener('submit', e => {
   render(false);
 });
 
+// shrink the iPhone frame to fit shorter desktop windows
+function fitPhone(){
+  const ph = document.getElementById('phone');
+  if (window.matchMedia('(max-width: 900px)').matches){ ph.style.zoom = ''; return; }
+  const k = Math.min(1, (window.innerHeight - 40) / 874);
+  ph.style.zoom = k < 1 ? k.toFixed(3) : '';
+}
+window.addEventListener('resize', fitPhone);
 render(false);
+fitPhone();
 </script>
