@@ -1,0 +1,1170 @@
+<title>ALT Hiking App</title>
+<meta name="description" content="Clickable prototype of the ALT hiking club app with example data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: a phone-width app column beside a demo-guide rail; topo contour rings in headers; trail-blaze orange marks status. */
+:root{
+  --bg:#E7ECE8; --surface:#FAFCFA; --surface-2:#EFF3F0; --ink:#14221C; --muted:#56665E; --line:#D2DBD4;
+  --forest:#1E4B3B; --forest-ink:#FFFFFF; --blaze:#C9501C; --blaze-soft:#FBE4D8; --contour:rgba(30,75,59,.10);
+  --sea:#D5E2E7; --land:#F4F2EA; --land-line:#B5C1B9; --grid:rgba(30,75,59,.10);
+  --ok:#21784A; --ok-soft:#DCEFE3; --warn:#9A6208; --warn-soft:#F7EACD; --bad:#AE3828; --bad-soft:#F6DDD8;
+  --g1:#3B8A57; --g2:#2B739A; --g3:#A97806; --g4:#C4532A; --g5:#7A3569; --g-ink:#FFFFFF;
+  --note-bg:#FFF6D8; --note-line:#D4AE42; --note-ink:#56430A;
+  --shadow:0 1px 2px rgba(20,34,28,.06),0 10px 30px rgba(20,34,28,.10);
+  --f-display:'Archivo','Arial Narrow',system-ui,sans-serif;
+  --f-body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0C1310; --surface:#141D19; --surface-2:#1A2520; --ink:#E3EBE5; --muted:#94A49B; --line:#29372F;
+  --forest:#8CCBA9; --forest-ink:#0C1310; --blaze:#F0814F; --blaze-soft:#3A2318; --contour:rgba(140,203,169,.08);
+  --sea:#0E1A20; --land:#1C2823; --land-line:#34463D; --grid:rgba(140,203,169,.10);
+  --ok:#6FCB94; --ok-soft:#163025; --warn:#E3B04F; --warn-soft:#33280F; --bad:#EE8576; --bad-soft:#3A1A16;
+  --g1:#6CC08A; --g2:#68B4DB; --g3:#E2B341; --g4:#F0855A; --g5:#CF8CBE; --g-ink:#0C1310;
+  --note-bg:#2A2410; --note-line:#8C7428; --note-ink:#EED98E;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.4); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0C1310; --surface:#141D19; --surface-2:#1A2520; --ink:#E3EBE5; --muted:#94A49B; --line:#29372F;
+  --forest:#8CCBA9; --forest-ink:#0C1310; --blaze:#F0814F; --blaze-soft:#3A2318; --contour:rgba(140,203,169,.08);
+  --sea:#0E1A20; --land:#1C2823; --land-line:#34463D; --grid:rgba(140,203,169,.10);
+  --ok:#6FCB94; --ok-soft:#163025; --warn:#E3B04F; --warn-soft:#33280F; --bad:#EE8576; --bad-soft:#3A1A16;
+  --g1:#6CC08A; --g2:#68B4DB; --g3:#E2B341; --g4:#F0855A; --g5:#CF8CBE; --g-ink:#0C1310;
+  --note-bg:#2A2410; --note-line:#8C7428; --note-ink:#EED98E;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.4); color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--blaze);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);font-stretch:112%;margin:0;text-wrap:balance;line-height:1.1}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+
+/* ---------- page frame ---------- */
+.stage{display:grid;grid-template-columns:minmax(0,320px) 430px;gap:40px;justify-content:center;align-items:start;padding-inline:24px;padding-block:24px}
+.guide{position:sticky;top:24px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand b{font-family:var(--f-display);font-stretch:125%;font-weight:800;font-size:34px;letter-spacing:-.01em;color:var(--forest)}
+.brand span{font-size:13px;color:var(--muted)}
+.guide p{margin:0;color:var(--muted);font-size:14px}
+.ctl{display:flex;flex-direction:column;gap:8px}
+.persona-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.persona{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;line-height:1.2;text-align:center}
+.persona .av{width:30px;height:30px;font-size:12px}
+.persona small{color:var(--muted);font-size:11px}
+.persona[aria-pressed="true"]{border-color:var(--forest);box-shadow:inset 0 0 0 1px var(--forest)}
+.ctl-row{display:flex;gap:8px;flex-wrap:wrap}
+.tour{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:t}
+.tour li{counter-increment:t}
+.tour button{width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px 10px 42px;position:relative;display:flex;flex-direction:column;gap:2px}
+.tour button::before{content:counter(t);position:absolute;left:12px;top:10px;width:20px;height:20px;border-radius:50%;background:var(--surface-2);font:700 11px/20px var(--f-mono);text-align:center;color:var(--forest)}
+.tour button:hover{border-color:var(--forest)}
+.tour b{font-size:14px}
+.tour span{font-size:12.5px;color:var(--muted)}
+.guide details summary{cursor:pointer;font-weight:700;list-style:none}
+.guide details summary::-webkit-details-marker{display:none}
+
+.phone{background:var(--surface);border-radius:34px;box-shadow:var(--shadow);border:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column;height:min(880px,calc(100dvh - 48px));position:relative}
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+.appbar{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:0;z-index:5}
+.appbar .logo{font-family:var(--f-display);font-stretch:125%;font-weight:800;font-size:20px;color:var(--forest);letter-spacing:-.01em}
+.appbar h1{font-size:17px;font-stretch:100%;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iconbtn{border:0;background:var(--surface-2);width:36px;height:36px;border-radius:50%;display:grid;place-items:center;flex:none}
+.iconbtn svg{width:18px;height:18px}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:var(--surface);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs button{border:0;background:none;padding:8px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--muted)}
+.tabs svg{width:22px;height:22px}
+.tabs button[aria-current="page"]{color:var(--forest)}
+.tabs button[aria-current="page"] svg{stroke-width:2.3}
+
+/* ---------- shared bits ---------- */
+.pad{padding:16px;display:flex;flex-direction:column;gap:18px}
+.sec{display:flex;flex-direction:column;gap:10px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.sec-h h2{font-size:16px}
+.link{border:0;background:none;color:var(--forest);font-weight:600;font-size:13px;padding:0;text-decoration:underline;text-underline-offset:3px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.tap{text-align:left;width:100%;display:block}
+.tap:hover{border-color:var(--forest)}
+.topo{background-color:var(--surface-2);background-image:repeating-radial-gradient(circle at 88% 115%,transparent 0 13px,var(--contour) 13px 14.5px)}
+.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;background:var(--forest);color:var(--forest-ink);flex:none}
+.btn{border:0;border-radius:999px;padding:9px 16px;font-weight:700;font-size:14px;background:var(--forest);color:var(--forest-ink);display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn.ghost{background:transparent;color:var(--forest);box-shadow:inset 0 0 0 1.5px var(--forest)}
+.btn.soft{background:var(--surface-2);color:var(--ink)}
+.btn.blaze{background:var(--blaze);color:#fff}
+.btn.sm{padding:6px 12px;font-size:13px}
+.btn.wide{width:100%;padding:12px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--forest);color:var(--forest-ink);border-color:var(--forest)}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--surface-2);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;border-radius:999px;padding:7px;font-weight:700;font-size:13px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.grade{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:22px;padding:0 7px;border-radius:6px;background:var(--gc);color:var(--g-ink);font:700 12px/1 var(--f-mono);flex:none}
+.grade.lg{height:30px;min-width:42px;font-size:15px;border-radius:8px}
+.g1{--gc:var(--g1)}.g2{--gc:var(--g2)}.g3{--gc:var(--g3)}.g4{--gc:var(--g4)}.g5{--gc:var(--g5)}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.ready{background:var(--ok-soft);color:var(--ok)}
+.pill.ontrack{background:var(--warn-soft);color:var(--warn)}
+.pill.notyet{background:var(--bad-soft);color:var(--bad)}
+.pill.override{background:var(--surface-2);color:var(--forest)}
+.pill.pending{background:var(--warn-soft);color:var(--warn)}
+.pill.verified{background:var(--ok-soft);color:var(--ok)}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:5px}
+.tag.physical{background:var(--blaze-soft);color:var(--blaze)}
+.tag.skills{background:var(--surface-2);color:var(--forest)}
+.note{background:var(--note-bg);border:1px dashed var(--note-line);color:var(--note-ink);border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.45}
+.note b{display:block;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;margin-bottom:2px}
+.bar{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--forest);border-radius:inherit}
+.bar.blaze i{background:var(--blaze)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--surface-2);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat b{font:700 17px/1.1 var(--f-mono);font-variant-numeric:tabular-nums}
+.stat span{font-size:11.5px;color:var(--muted)}
+.row{display:flex;align-items:center;gap:10px;min-width:0}
+.row > .grow{flex:1;min-width:0}
+.stack{display:flex;flex-direction:column;gap:8px}
+.toast{position:absolute;left:16px;right:16px;bottom:76px;background:var(--ink);color:var(--bg);padding:11px 14px;border-radius:12px;font-size:14px;font-weight:600;z-index:20;box-shadow:var(--shadow);animation:pop .25s ease}
+@keyframes pop{from{transform:translateY(8px);opacity:.4}}
+@media (prefers-reduced-motion: reduce){.toast{animation:none}}
+
+/* ---------- hero ---------- */
+.hero{border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.hero h2{font-size:24px}
+.hero .sub{font-size:14px;color:var(--muted)}
+
+/* ---------- sessions ---------- */
+.sess{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;align-items:start}
+.date{border-radius:12px;background:var(--surface-2);text-align:center;padding:6px 0;display:flex;flex-direction:column;line-height:1.1}
+.date b{font:700 20px/1.1 var(--f-mono)}
+.date span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.sess h3{font-size:15px;font-stretch:100%;font-family:var(--f-body);font-weight:700;margin-top:4px}
+.meta{font-size:13px;color:var(--muted)}
+.counts{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.counts span{font-size:11.5px;font-weight:600;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--muted)}
+.counts span.mine{border-color:var(--blaze);color:var(--blaze)}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.done{font-size:13px;font-weight:700;color:var(--ok)}
+.week{font-family:var(--f-display);font-stretch:112%;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding-top:4px}
+
+/* ---------- trips / trails ---------- */
+.spark{display:block;width:100%;height:46px;color:var(--gc)}
+.tripcard{padding:0;overflow:hidden}
+.tripcard .art{height:70px;background:var(--surface-2);position:relative}
+.tripcard .art svg{position:absolute;inset:auto 0 0 0;width:100%;height:100%}
+.tripcard .body{padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.tripcard h3{font-size:17px}
+.banner{position:relative;height:150px;background:var(--surface-2);overflow:hidden}
+.banner svg{position:absolute;inset:0;width:100%;height:100%}
+.banner .over{position:absolute;left:16px;right:16px;top:14px;display:flex;flex-direction:column;gap:6px}
+.banner h2{font-size:24px}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.facts div{background:var(--surface-2);border-radius:10px;padding:8px;display:flex;flex-direction:column;min-width:0}
+.facts b{font:700 14px/1.2 var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.facts span{font-size:11px;color:var(--muted)}
+.check{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line)}
+.check:first-of-type{border-top:0}
+.tick{width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:13px;font-weight:800;border:1.5px solid var(--line);color:var(--muted)}
+.tick.on{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.dots{display:inline-flex;gap:3px;margin-left:6px;vertical-align:middle}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--ok)}
+.path{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.path.met{border-color:var(--ok);background:var(--ok-soft)}
+.path h4{margin:0 0 4px;font-size:13px;display:flex;justify-content:space-between;gap:8px}
+.or{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--muted)}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.leader{display:flex;gap:10px;align-items:flex-start}
+.certs{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.cert{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--surface-2)}
+.cert.warn{background:var(--warn-soft);color:var(--warn)}
+.alert{border-radius:12px;padding:10px 12px;font-size:13px;display:flex;gap:8px;align-items:flex-start}
+.alert.warn{background:var(--warn-soft);color:var(--warn)}
+.alert.ok{background:var(--ok-soft);color:var(--ok)}
+.roster .r{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.roster .r:first-child{border-top:0}
+.roster .why{font-size:12px;color:var(--muted)}
+.scale{display:flex;flex-direction:column;gap:6px}
+.scale .s{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;font-size:13px}
+.trailrow{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:12px;align-items:center}
+.trailrow .mini{height:40px;border-radius:8px;background:var(--surface-2);overflow:hidden}
+.trailrow h3{font-family:var(--f-body);font-stretch:100%;font-size:15px;font-weight:700}
+.chart{width:100%;height:auto;display:block}
+.chart .ax{fill:var(--muted);font:500 10px var(--f-mono)}
+.chart .gl{stroke:var(--grid);stroke-width:1}
+.factor{display:grid;grid-template-columns:minmax(0,1fr) 70px 40px;gap:8px;align-items:center;font-size:13px;padding:5px 0}
+.factor .bar{height:6px}
+.factor b{font-family:var(--f-mono);text-align:right;font-size:12.5px}
+.scorebar{position:relative;height:28px;display:grid;grid-template-columns:2fr 1.5fr 2fr 4.5fr 3fr;gap:2px;margin-top:6px}
+.scorebar div{border-radius:4px;background:var(--gc);opacity:.35;display:grid;place-items:center;font:700 10px var(--f-mono);color:var(--ink)}
+.scorebar div.cur{opacity:1;color:var(--g-ink)}
+ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+
+/* ---------- map ---------- */
+.mapwrap{border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--sea)}
+.map{display:block;width:100%;height:auto}
+.map use{fill:var(--land);stroke:var(--land-line);stroke-width:.6}
+.map .grat{stroke:var(--grid);fill:none;stroke-width:.8}
+.map .pin{cursor:pointer}
+.map .pin circle{stroke:var(--surface);stroke-width:2.5}
+.map .pin text{font:700 12px var(--f-mono);fill:var(--g-ink);pointer-events:none}
+.map .pin.sel circle{stroke:var(--ink)}
+.map .lbl{font:600 13px var(--f-body);fill:var(--muted);letter-spacing:.06em}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;gap:4px;align-items:center}
+.legend i{width:10px;height:10px;border-radius:50%;background:var(--gc)}
+.entry{padding:0;overflow:hidden}
+.entry .photo{height:84px;position:relative;background:var(--surface-2)}
+.entry .photo svg{position:absolute;inset:0;width:100%;height:100%}
+.entry .photo .grade{position:absolute;left:12px;top:12px}
+.entry .photo .pill{position:absolute;right:10px;top:10px}
+.entry .body{padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.entry h3{font-size:16px}
+.rate{display:flex;gap:14px;font-size:12.5px;color:var(--muted)}
+.rate b{color:var(--ink);font-family:var(--f-mono)}
+.entry p{margin:0;font-size:14px}
+
+/* ---------- form ---------- */
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lab{font-size:13px;font-weight:700}
+.field select,.field input[type=date],.field textarea{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;width:100%}
+.field textarea{min-height:80px;resize:vertical}
+.pick{display:flex;gap:6px}
+.pick button{flex:1;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 0;font:700 14px var(--f-mono)}
+.pick button[aria-pressed="true"]{background:var(--forest);border-color:var(--forest);color:var(--forest-ink)}
+.cb{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.cb input{width:18px;height:18px;margin-top:2px;accent-color:var(--forest)}
+
+/* ---------- me ---------- */
+.badges{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.badge{border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.badge.got{border-color:var(--forest);background:var(--surface-2)}
+.badge .ico{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--surface-2);color:var(--muted)}
+.badge.got .ico{background:var(--forest);color:var(--forest-ink)}
+.badge .ico svg{width:20px;height:20px}
+.badge b{font-size:14px;line-height:1.2}
+.badge small{font-size:12px;color:var(--muted);line-height:1.3}
+.badge .reward{font-size:11.5px;font-weight:700;color:var(--blaze)}
+.ladder{display:flex;flex-direction:column;gap:8px}
+.ladder .bar{height:12px}
+.soon{display:flex;flex-direction:column;gap:4px}
+
+/* ---------- small screens ---------- */
+@media (max-width: 900px){
+  .stage{grid-template-columns:minmax(0,1fr);gap:12px;padding-inline:0;padding-block:0}
+  .guide{position:static;padding-inline:16px;padding-block:16px 4px;gap:12px}
+  .guide .long{display:none}
+  .phone{border-radius:0;border:0;box-shadow:none;height:auto;overflow:visible;padding-bottom:70px}
+  .screen{overflow:visible}
+  .appbar{top:env(safe-area-inset-top,0px)}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:10}
+  .toast{position:fixed;bottom:84px}
+}
+@media (min-width: 901px){ .guide .short{display:none} }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><path id="land" d="M393,557.2L392.7,557.6L392.3,557.5L392.1,557L392.1,556.7L392.5,556.4L392.8,556.6ZM433.6,704L433.7,703.4L433.5,702.8L433.9,702.5L435.8,702.4L436.3,701.7L436.6,701.1L436.8,701.4L437.1,702.7L438.2,703.5L441.4,703.5L443.2,703L444,703.3L445.2,703.5L446.5,702.9L447.3,702.4L448.6,703.1L449,703.7L449.3,702.3L450.1,701.9L450.9,701.6L452,701.8L452.4,701.7L451.5,700.7L451.5,699.8L451.5,698.5L451.6,697.2L451.9,696.4L449.7,694.6L447.5,694.3L445.9,694.7L445.3,694.4L443.8,693L442.5,692.4L442.4,692.1L444,691L444.7,691.2L445.6,692.2L446.2,692.5L446.7,692.4L446.9,691.7L447.4,691.3L448.2,691.5L450.7,693.1L452,694.7L452.7,694.3L454,693.4L455.1,693.6L455.8,694.1L456.8,696L457.6,697L459.5,697.2L460.5,697.6L461.5,698.2L462.8,698.2L465.6,698.4L468.2,699.6L469.3,700.4L470.6,700.6L471.3,700.9L472.7,701L474.8,700.2L475.7,700.9L476.2,701.5L478.1,702.5L480.2,702.8L481.7,701.8L483.9,701L485.4,699.8L486.5,699.3L487.6,698.3L488,698.3L487.1,699.3L487.1,699.8L487.7,700L487.7,700.3L486.7,700.9L485.6,702.1L485.6,702.7L486.1,703.1L486.6,702.9L487.3,702.4L488.2,702.1L489,702.5L489.2,704L433.6,704ZM492.4,704L492.5,703.8L492.1,702.6L491.7,702.3L491.9,701.8L493.8,699.8L494.9,699.8L495.7,701.9L496.9,702.9L498.2,702.8L498.9,703.1L499.3,704L492.4,704ZM552.2,704L553.4,701.2L554.1,700.1L554.6,700.6L555.1,700.9L555.2,700.1L555,699.2L556,696.2L557.1,692.1L557.4,688.4L559.2,687.7L560.1,686.8L560.6,685.7L561.6,685.7L562.3,686.2L561.9,687L561.7,687.6L563.6,689.1L564.2,690.3L564.5,691.4L564.9,692.5L565,693.9L565,696.2L565.3,698.3L565.9,699L566.5,699.4L567.4,699.5L568.7,699.8L568.7,699.8L568.4,701.2L567.8,702.3L567.8,702.9L567.9,703.8L568.2,704L552.2,704ZM397,556.6L397.9,556.8L398.7,556.8L399.1,556.3L399.2,555.6L399.7,554.4L400.6,553.6L401.3,553.5L401.8,553.1L401.7,552.3L401.7,551.4L402.5,550.5L404.7,549.1L406,548.7L407.7,548.5L407.9,549L407.7,549.7L408,550.8L407.8,553.7L407.4,554.1L405.7,555.1L403.9,555.9L403.3,556.3L402.9,557.1L402.9,557.9L404.4,558.9L406.8,559.9L407.3,560.4L407.6,561.1L407.7,562L408.3,562.4L409.1,562.6L409.6,563L410,563.6L406,562.3L405,561.7L403.7,561.6L402.5,561.4L401.2,560.9L399.8,560.8L399.2,561.1L398.9,561.9L398.7,562.7L399.1,563.7L399,564.3L398.8,565.5L399.8,568.8L401,571.4L402.8,574.1L403.7,575.1L404.7,575.9L403.1,575.7L402.6,574.8L400.5,573.9L400.1,573.3L398.8,570.7L398.4,570.2L397.1,569.3L396.6,568.7L396.4,567.8L396.5,566.9L396.5,565.6L396.5,564.4L396.8,562.8L396.3,562.3L395.7,561.8L395.1,560.6L394.9,559.2L394.9,558.4L395.2,557.8L395.6,557.2L395.7,556.6L394.7,555.7L393.7,553.4L393.6,552.1L394.9,549.7L394.8,548.5L395.1,547.9L395.2,547.1L395.9,545.5L397,544.2L398.9,542.3L399.6,541.9L400.4,541.6L400.5,542L400.3,542.5L399,544.4L398.8,544.8L398.7,545.7L399.4,546.1L400.1,547.1L400.3,548.4L400.3,549.8L400.1,551.2L399.9,551.7L398.7,553.1L396.1,554.7L395.9,555.1L395.9,555.6L396.4,556.2ZM281.3,471.9L280.2,472.7L280.3,471.7L280.6,470.8L281.7,468.8L282.4,468.2L283.7,466.7L284.4,466L286.1,464.5L287.6,462.9L288.1,462.8L288.7,462.7L289.2,462.6L290.2,461.7L292.7,458.8L294.8,456.7L297,453.9L298,453.1L298.3,452.8L300.3,450.3L300.9,450L301.6,449.7L302.1,449.4L302.5,448.9L303.2,447.8L303.5,446.6L303.3,445.8L302.9,444.8L303.4,443.3L303.8,442.7L305.2,439.7L305.6,439.1L306.1,439.5L306.2,440L305.9,441.3L305.9,441.9L306.3,442.5L305.9,443.6L306.9,446.4L307.6,448.1L307.7,448.7L306.6,449.7L306,450L304.7,450.3L304.1,450.6L303.2,451.5L302.6,452.6L302.4,453.2L302.1,453.6L299.4,454.4L298.2,454.9L297.6,455.3L297.3,455.9L297.5,457L295.2,460.9L294.5,461.8L293.7,462.7L292.8,463.3L291.5,463.7L290.4,464.5L289.7,465.8L288.8,467L287.7,467.9L286.5,468.6L285.3,469.2L284.1,469.6L283.8,470.1L283.5,470.8L283,471.1L282.4,471.3ZM338.9,436.1L340.1,436.6L341.4,436.2L342.7,436.3L343.7,437L343.3,437.5L343.3,438L345.6,436.9L346.2,437L346.2,438L346.1,438.9L345.8,439.8L345.3,440.8L344.6,441.7L343.8,442.4L342.7,442.8L342.3,443.2L342.1,443.7L342.1,444.4L341.9,445L340.8,445.3L339.1,446.5L335.5,447.3L334.5,447.8L333.9,448.5L333.2,449.2L332.8,449.3L332.7,449L332.6,448.8L333.1,447.1L333,446.4L332.8,445.8L332.9,444.5L333.6,443.3L333.9,441.9L334,439.3L334.5,435.8L334.5,435.3L334.1,434.8L332.7,434.4L332.1,434.1L332.4,433.4L332.9,432.9L333.7,432.9L334.3,433.3L336.6,434.3L337.8,435.1ZM345.9,464.9L345.2,465L344.4,464.9L343.9,464.4L343,462L341.9,461.4L340.7,461L340.1,460.6L339.6,460.2L337.9,457.8L337.8,456.3L338.1,455.5L338.6,454.8L339.1,454.6L340.5,454.6L341.3,454.5L342.9,453.4L343,452.9L343,451.1L342.8,449.9L342.4,448.7L342.9,448.1L343.4,447.5L344,446.5L344.1,445.7L344.1,444.9L344.3,444.3L344.7,444L346.9,443.2L347.3,443.1L350.1,443.9L350.7,445.1L350.7,445.5L350.3,446.9L349.9,447.8L349,449.2L348.3,450.7L347.7,452.9L347.4,453.7L346.5,455.1L346.3,455.9L346.3,457.5L346.1,458.2L346.1,458.8L347.9,461.6L348,462L348,462.5L347.7,463.2L347,464.2L346.6,464.6ZM361.9,439.1L362.7,439.5L363.6,439.4L364.7,438.5L365.9,438.8L366.6,440.1L367,440.6L367.2,441.5L367.1,443.6L366.8,445.5L367.1,445.8L367.6,446.2L368.1,446.6L368.5,447.1L368.8,447.7L368.9,449.2L369.6,450.4L369.7,450.9L369.5,451.4L368.3,451.3L368.2,451.7L368.3,452.2L367.9,451.9L367.2,450.7L366.5,450.2L366.7,452.1L366.9,453L367,454L365.9,453.3L364.6,452.8L364.2,452.4L364.4,451.2L364.3,450.6L363.8,449.4L364.4,446.6L364.4,446.1L364.3,445.5L363.8,444.4L362.9,443.5L362.4,443.5L361.1,444.1L360.5,443.9L360.1,441.3L359.6,438.8L359.3,438.2L359,437.5L359.2,437L359.7,437.2L360.4,437.9L361.3,438.2L361.7,438.6ZM369.3,425.7L370.1,426.6L370.3,427.3L370.2,428L370.6,428.4L371.2,428.5L372,428.8L372.6,429.5L372.3,430.2L372.4,431.1L371.7,432.2L371.8,434.3L372.2,434.9L372.2,435.6L372.1,436.3L372.3,436.9L373.3,438.7L373.5,439.4L373.1,439.9L373.1,440.3L373.7,440.4L374.5,441.2L375,442.2L374.9,442.5L374.2,441.7L373.7,441.5L371.5,441.8L370.1,441.4L369.3,441.4L368.4,440L367.7,439.8L367.1,439.2L366.1,437.6L365.7,436.7L366.5,435.8L366.7,435.1L366.6,434.4L365.9,434.5L365.4,434.2L364.7,433.4L364.4,432.9L363.9,432.4L363.1,431.5L361.9,431.1L361.5,430.8L360.5,430L359.9,428.9L359.2,427.1L358.8,425.2L361.9,425.7L364.9,425.6L368.3,425.2ZM318.9,414.8L319.5,414.9L321.3,414.6L322,414.8L322.5,415.4L323.1,415.6L323.6,416L324.5,415.4L325.4,416L326.2,417.3L327.1,418.2L328,418.8L328.2,419.3L327.7,420.1L327.5,421.1L327.6,422.2L328.2,424.4L328,425L327.3,425.9L326.8,426.9L326.9,427.3L326.7,427.6L326.6,428.3L326.2,428.1L325.8,428.2L325.5,428.6L324.9,429.2L323.9,429L323.5,428.8L323.4,428.2L323.1,427.8L322.8,427.6L321.8,426.6L321.4,425.9L321.3,425.1L321.1,424.4L320.6,423.7L320,423.2L319.7,422.7L319.7,422.1L319.6,420.7L318.7,418.8L318.3,418.4L317.5,417.9L316.8,417.3L316.5,416.8L316.2,415.8L316,415.7L315.4,415.7L314.9,415.6L315,414.9L315.6,414.4L316.3,414.4L318.4,414.6ZM517.1,658.3L514.4,659.7L510.9,659.5L509.7,659.4L507.7,659.8L507.2,659.5L507.6,658.1L509.3,654.4L511.2,651.2L512,650.3L513.2,649.5L514.4,648.9L517.2,648.2L519.7,648.4L520,648.6L521.1,649.7L521.8,650.6L522.1,651.8L521,653.9L519.9,655.9L517.9,657.4ZM419.5,597.9L422.1,599.1L423.4,599.3L425.6,599.1L426.5,599.2L428.6,600.8L429.2,601.9L429.3,602.8L429.7,603.7L430.2,603.9L430.8,604L431.6,605.3L431.8,605.7L431.2,608.9L428.7,607.7L426.3,606.3L425.2,605.8L422.5,604.6L422,604.2L421.7,603.7L420.5,603L418.1,602.9L417.2,602.9L416.8,603L416.9,603.4L416.9,604.2L416.3,604.4L414.8,603.9L413.5,603.7L412.3,603.3L410.7,603L410.6,602.8L410.7,602.4L410.7,602L410.3,601.9L409.6,602L408.9,602.3L408.3,602.7L407.5,603.8L407.1,604.2L405.7,604.4L405.2,604.3L404.7,604L403.1,602L402.6,601.6L402,601.3L401.5,601.1L400.9,601.4L400.6,602L400.5,602.7L400.3,603.2L399.7,604.3L399.1,605L398.9,604.9L399.2,603.8L399.2,603.2L398.9,602.5L398.7,601.8L401.3,598.6L402.2,597.9L406.3,597.6L408.8,597.8L410.1,597.7L411,597.5L411.8,597.6L411.9,598.2L412.4,598.7L413.1,598.6L414.2,598.1L415.3,597.4L415.9,597L416.5,597L417.1,597L417.8,597.2ZM387.3,600.3L389.2,601.2L389.6,601.8L389.9,602.4L390.3,602.8L390.7,603.1L391.4,603.7L391.6,604.6L391.5,606.4L390.6,606.6L389.9,606.8L388.3,607.9L387.5,608.1L386.6,608.1L386,608.4L385.4,608.5L383.9,608L382.3,607.3L380.2,606.1L379.8,605.8L379.4,605.2L378.4,604L378.2,603.3L378.1,601.3L378.3,600.8L378.8,600.5L380.2,601L381.2,600.5L383.9,600.1L386.8,600.1ZM342.1,662.1L340.5,662.5L339.5,662.8L338.6,663.4L338,663.4L336.9,663.5L335.4,663.4L334.4,663.6L331.5,664.9L330.4,665L329.5,665.3L329.1,664.8L328.7,664.4L327.8,664.3L326.8,664.3L325.9,665.5L324.3,665.2L323.7,665.4L323.2,665.6L322.6,665.7L322,665.6L319.8,664.7L317.2,664.2L314.7,664.4L312.5,663.9L311.3,664.3L310.1,664.8L309.8,664.3L309.3,663.8L309,663L309,662.2L309.1,661.6L309.4,661.1L309.6,660.5L309.7,659.9L310.2,660.2L310.7,660.1L312.2,659.4L313.7,658.5L315.1,658.1L315.9,658L316.5,658.2L317.2,658.1L317.9,657.9L319,658.7L319.5,658.8L321,658.9L322.3,659.3L323.5,660L325.3,660.6L326.4,661.4L327.2,661.7L327.8,661.8L328.3,661.7L329,661.1L329.8,660.9L330.5,660.9L331.8,660.7L332.4,660.6L333,660.3L333.6,660.5L334.1,660.8L336.3,662.2L336.9,662.3L338.1,661.9L338.5,661.6L338.7,661L339.1,660.5L339.5,660L340.1,659.7L341.7,659.2L342.8,658.6L343.5,657.7L341.8,657.3L342.1,656.6L342.7,656.2L343.5,656.4L344.2,656.9L344.5,658.9L343.9,659.2L343.6,659.5L343.4,659.9L342.3,660.6L342.7,661.5L342.5,661.9ZM311.3,670.7L311.8,671.1L313.6,672.1L313.9,672.5L314,673.2L314.3,673.7L315.2,673.8L316.1,673.7L316.7,674L317.3,674.5L318.1,675.5L318.9,676.6L319.8,677.2L320.4,678.1L320.1,678.9L318.9,680L318.2,680.3L317.4,680.3L316,681L315.5,680.7L313.9,680.4L312.7,680L311.7,679.1L311.1,678.2L310.3,677.3L309,676.8L306.7,675.1L305.2,675L304.6,675.1L304,675.1L300.9,674.4L300.5,674L300.1,673.4L299.7,672.9L299.5,672.3L299.9,671.8L300.3,671.4L302.1,670.8L303.3,670.6L304.7,670.6L306.8,670.4L308.9,670.7L309.5,670.5L310.5,669.8L310.8,670ZM291.6,658.8L292.1,659.2L292.7,659.2L293.7,658.5L294.3,658.2L295,658.2L295.7,658.3L296.3,658.8L296.6,659.6L296.8,659.9L297.2,658.9L297.7,658.6L298.3,658.5L299.2,658.5L299.9,659L300.5,660.3L300.5,661.5L300.7,661.9L301.1,662.3L301.5,662.7L301.2,663.2L300.9,663.4L300.1,663.6L299.7,663.5L299.3,663.2L298.9,663.1L298,663.2L297.2,663.4L297.3,663.9L298,664.1L298.2,664.3L298.1,664.6L297.9,664.6L297,664.2L296.4,664.3L294.2,664.8L293.7,664.8L293.3,664.3L293.3,663.1L293.1,662.8L291.5,664.3L291,664.6L290.3,664.8L289.7,664.8L287.3,665.7L286.6,665.5L285.9,665.5L283.4,666.5L282.1,666.8L281.4,666.8L280.7,666.7L280.1,666.8L279.6,667.2L278.5,667.5L277.3,667.3L276.3,666.9L275.4,666.5L275.2,665.9L275.3,665.2L275.7,664.3L275.4,662.7L275.6,661.9L275.9,661.2L276.5,660.9L277.3,660.9L278.5,660.2L279.6,659.3L280.3,659.4L281.7,660L282.6,660.1L284.1,660L284.7,660.3L284.9,661.2L285.3,661.5L285.7,661.7L286.7,663.2L287.7,663.1L288.5,663.4L290.1,662.5L291.2,662.5L291.5,661.8L290.8,661.1L290,660.5L289.6,660.4L289.1,660.4L288.7,660.3L286.9,659L286.3,658.3L286,657.5L286.2,656.9L287.4,656.3L288,656.2L290.2,656.6L290.6,656.9L291.1,658.2ZM273.8,662.1L272.4,664.4L272.9,664.8L273.2,665.1L270.9,665.6L269.9,665.4L269.3,665.4L267,665L265.3,664.5L265.1,664.1L265.2,663.5L265.7,663.7L267,663.8L267.5,663.6L267.5,662.1L267.3,660.1L269.1,658.5L270.1,657.9L271.1,657.5L273.9,658.4L274.3,658.6L274.7,659L274.8,659.5ZM260.5,656.9L261.7,657.5L263.3,659.3L263.4,659.8L262.9,660.2L261.8,661L259.3,662.1L258.9,662.6L258.3,663.7L258.2,664.2L258,664.4L257.7,664.6L257.2,664.7L256.6,664.5L257.1,663.8L257.1,663L256.7,662.3L256.2,661.6L255,660.8L253.8,660L252.6,659.6L251.3,659.4L250.8,659.1L250,658.1L249.8,657.6L249.7,657.1L249.7,656.5L250.1,656.5L251.3,656.6L253.7,657.2L254.9,657.3L255.5,657.1L257.3,655.9L257.7,656L259.3,656.5ZM156,584.6L156.4,585.3L157,586L157.4,586.8L157.9,590.3L159.6,593.4L164.6,594.6L163.8,595.1L163.4,595.6L163.1,596.1L162.4,598.2L162.4,598.7L162.8,599.4L163,600.2L162.3,600.2L161.6,600L161,599.7L160.5,599.3L160,599L159.4,598.8L158.3,598.2L157,597.8L155.5,597.4L154.8,596.5L154.5,595.4L154.9,593.7L154.5,593.3L154,592.9L153.4,591.7L153.2,590.3L152.3,589.7L151.1,589.4L150.6,589.1L148.2,589.6L147.7,589.5L147.2,589.1L145.9,588.7L146,587.9L146.6,587.3L148,586.7L148.6,586.2L148.7,585.5L148.5,585L148.6,584.4L149,583.9L149.6,583.5L150.9,583L151.6,583.9L151.8,584.7L152.2,585.3L152.8,584.5L152.4,583.1L153.5,582.8L154.6,582.7L155.3,583.1L155.8,583.7ZM392.2,660L390.2,661.8L387.9,663.2L386.6,663.7L385.2,664L384.1,664.5L383.2,665.4L382,665.9L380.7,666.1L379.6,666.4L378.6,666.9L377.2,667.8L376.6,667.9L376,667.9L374.9,668.2L371.2,669.5L369,671L366.7,672.8L366.3,673.9L364.9,675L363.4,676.7L362.3,677.6L361.2,678.7L360.3,679.4L359.2,679.6L357.5,679.8L355.3,681L354,681.6L352.7,681.6L351.6,681.2L351.2,680.7L351.3,680.1L351.7,679.6L352.1,679.1L352.4,678.6L351.1,677.9L351,677.3L351.5,675.9L351.9,674.4L352.3,673.4L354.2,671.5L355.3,670.6L357.8,669.3L361.9,668.2L362.7,667.7L363.4,667.1L365.5,666.1L367,664.9L368,663.1L368.7,662.5L370.3,661.8L370.9,661.7L375.6,660.7L376.7,660.7L379.7,660.7L383.7,660.5L384.7,660.3L385.9,659.9L387.2,659.4L387.8,659L388.5,658.7L389.5,659.1L391.3,659.4L391.7,659.6ZM377.9,462L378.7,462.7L379.9,462.5L379.9,464.2L380.1,464.7L381.2,466.1L381.3,467.3L380.7,468.5L380.2,469L379.3,469.8L379.3,470.1L379.7,470.5L380.9,470.8L381.9,471.4L382,473.2L382.9,474.6L382.9,475.2L382.5,477.7L382.6,478.7L383.3,479.6L383.8,479.9L384.1,480.5L384.4,481.9L384.3,484.4L384.3,485.3L383.9,486.1L382.7,487.9L381.1,489.4L380.2,489.3L379.9,489.7L380.5,491L380.3,493.8L379.9,495.8L379.4,494.8L379,493.8L378.7,491L378.3,489.8L377.6,488.7L377.3,487.7L376.7,486.7L375.8,484.3L375.3,484.4L374.3,485.1L374.1,485.6L374,486.3L373.8,486.9L372.7,487.9L371.8,489L371.1,490.3L370.9,491.5L371.5,492.4L372.1,492.8L372.9,493.6L373.2,494L374.1,496.7L374.1,499.5L373.4,500.7L371.7,503L370.5,503.7L369.9,503.3L369.3,501.9L369.3,501.4L369.6,500.1L369.7,498.9L369.3,498.4L368.8,498.5L368.6,498.7L367.5,500.3L367.1,500.7L366.4,500.7L365.9,500.6L362.6,499.2L360,497.9L357.9,496.6L356.4,494.7L356.1,493.3L356.1,491.8L355.4,489.6L355.3,488.8L355.4,488.1L356.1,486.8L356.9,486.1L357.3,485.6L357.7,485L357.9,484.3L357.9,483.6L357.6,483.2L356.3,481.6L355.2,480.6L352.9,479.7L352.4,479.2L351.9,478.9L351.2,478.7L350.6,478.7L349.9,479L349.7,479.6L349.8,480.1L349.7,480.6L348.8,483.5L347.6,482.8L346.4,482.1L346.1,481.6L346,481L345.8,480.6L345.5,480.2L345,481.2L344.3,481.9L343.5,482.1L342.7,482.1L342.4,481.8L342.1,479.9L341.3,479.4L340.2,479.5L338.9,480.5L338.6,480.9L338.3,481.8L336.9,484.2L336.1,486.1L335.3,488L334.9,488.6L334.4,489L333.7,488.8L332.9,488.4L332.3,487.2L332.5,485.8L333.3,484.9L333.9,484L334.6,480.7L334.7,479.5L334.8,479L336.1,477.5L337.1,476.5L337.6,476.3L339.9,475.8L340.8,475.3L342.3,475.3L343.5,475.1L344.4,474.4L344.5,473.6L344.4,472.8L344.7,472.4L345,472L345.5,471.4L346.1,471L347.7,470.8L348.3,470.4L348.7,469.9L349.3,468.9L350,469.2L350.7,469.6L352,469.9L353.1,470.7L353.9,472L354,472.6L354.2,474.7L353.9,475.2L352.8,476.2L353.3,476.3L354.8,475.4L355.5,475L357.3,474.6L357.8,474.3L358.1,473.8L358.7,472.5L359.2,471.1L359.5,470.6L360.1,470.1L360.6,470L362.5,471L363.7,470.5L364,469.1L364.3,467L364.5,466.5L365.2,465.9L366.1,466.1L367.2,466.8L368.3,467.1L368.6,466.5L369,465.3L369.4,465.3L370.9,465.7L372.2,465.4L372.6,464L372.3,462.5L371.3,458.1L371.9,457.1L372.5,457.1L373.8,458.2L376.4,459.8L377.3,460.8ZM323.3,355.4L325.1,356L328.8,358.2L330.2,358.8L331.6,359.2L332.7,359.3L333.8,358.8L334.2,358.3L335,356.9L335.8,356.8L336.3,357.3L336.7,357.9L336.9,358.9L336.6,359.9L335.8,360.8L335.3,361.9L335,365.5L335,366.6L335.3,367.6L336,369.2L336.3,369.7L337.4,370.3L337.7,370.7L337.7,371.5L337.9,372.2L338.5,372.5L339.1,372.8L338.9,373.6L338.5,374.4L338.1,376.4L335.9,380.8L335.7,381.8L334.9,383.7L333.1,384.1L331,385L329.9,385.7L328.9,386.6L328.5,387.9L328.8,388.5L329,389.1L329,389.7L328.7,390.2L327.7,391.5L327.3,392.6L326.8,393.1L326.6,393.7L326.7,394.3L327.1,394.9L328.3,397.4L329.6,399.8L329.9,400.1L329.9,400.4L329.2,401.1L329.2,402.2L329.4,403.4L330.6,406.2L330.7,407L331.1,407.6L331.7,408.2L332.4,408.7L334.2,409.5L334.9,409.7L335.7,409.7L335.9,409.1L336.5,408.9L336.4,408.4L335.6,407.6L335.6,407.2L336,406.9L336.5,406.7L337.6,405.9L338.8,405.2L340.3,405.3L341.8,405.6L342.9,406L343.7,406.7L344.6,408L345.3,409.3L345.2,410L345.1,410.7L345.1,411.3L345.6,411.8L347,411.8L347.7,410.8L347.9,409.6L347.3,409.2L347.6,408.6L348,408.2L348.7,408.6L349.3,409.3L351.5,410L352.1,410.1L352.5,410.2L353.5,410.8L354,411.2L353.4,412.1L351.2,412.3L350.5,412.9L351.2,414.3L352.3,415.4L352.9,416.3L353.5,417.2L353.5,418.1L353.2,419L354.1,419L355.1,419.2L356.3,420L356.7,420L357.1,419.9L357.1,422.7L356.2,425.2L355.1,424.9L354.2,423.9L354.4,422.5L355,421.3L354.7,421L354.1,421.1L353.4,421.4L352.6,421.5L351.4,421.3L348.9,419.9L347.9,419.8L347.7,419.2L347.7,417.9L346.7,416.3L346.6,415.7L346.3,415.3L343.3,413.6L342.9,413.3L342,411.9L339.9,409.9L339.4,409.7L338.7,409.7L338.5,410.2L338.8,410.9L338.9,411.6L338.9,412.3L339,412.8L340,413.9L340.1,414.4L340.8,415.8L340.9,417.4L340,418.1L339.1,417.3L339,416.7L338.9,416.2L337.9,414.7L337.5,414.4L335.6,412.9L334.1,411.3L330.9,409.6L330.5,409.5L329.9,409.6L329.4,409.8L327.8,410.7L327.2,411.3L327.2,412.2L326.1,412.9L324.5,413L323.3,412.5L322.3,411.7L321.5,411.6L320.5,410.2L319.2,410L318.2,411.1L318,409L318,406.7L318.3,406.1L318.8,405.5L321.4,403.2L321.7,402.5L321.6,401.5L321,400.7L320.1,400.2L319,400L318.2,399.5L317.6,398.8L317.2,400.1L317.6,402.1L317.7,403.4L317.3,403.8L316.6,403.8L316,403.7L315.5,403.2L315.2,401.9L314.3,401L313.9,399.8L313.5,399.6L312.7,399.7L312,399.1L311.6,397.7L311.5,396.1L311.2,394.8L310.7,393.5L310.4,392.5L309.9,387.8L309.8,387.3L309.6,387L309,386.4L308.5,385.8L308.5,385.2L308.6,382.9L308.8,382.4L309.2,382.1L309.9,382.6L310.3,383.1L310.9,383.4L311.5,383.7L312.5,385.1L312.9,385.3L314.1,385.3L314.9,385.1L315.2,384.6L315.4,384L315.5,383.3L314.7,381.2L314.5,379.8L314.5,378.4L314.7,377.1L315.7,374.8L315.8,373.2L315.7,371.1L315.9,369.9L315.8,369.2L315.3,368.1L315.1,366.9L316.7,360.7L317.3,359.6L317.6,358.3L317.8,356.7L319,356.2L320.2,355.6L320.8,355.6L321.4,355.8L322.8,355.5ZM600,655.9L597.9,655.1L597.5,654.8L597,654.7L595.1,654.6L594.1,654.4L592.1,653.6L591.1,653.4L589.8,653.3L588.6,653L588,652.7L587.6,652.2L587.4,651.1L586.4,651.2L585.4,651L584.4,650.6L583.5,650.3L582.8,650.7L582.6,651.6L582.3,651.6L581.7,651.5L581.4,651.6L580.8,652L580.3,652.6L579.4,652.5L577.5,651.9L576.7,651.5L575.9,650.9L575.3,650.1L574.7,649.6L573.9,649.1L574.9,650.1L577.1,654.6L576.6,654.7L576,654.5L576.5,655.4L575.9,655.5L575.3,655.5L574.1,655.1L572.8,655L572.4,655.2L572.7,655.5L573.1,656.5L573.5,657.4L571.7,657.9L569.8,658.2L567.7,658.7L565.6,658.7L564.5,658.4L563.4,658.2L562.4,658.4L561.4,658.8L560.5,658.7L560,658L559.7,657.5L559.4,657.1L558.6,657.1L557.9,657.4L559.2,657.4L559.6,658L559.9,658.7L560.8,659.3L562,659L564.4,659.1L566.8,660.2L567.4,660.3L567.9,660.5L569.1,661.6L570.1,662.6L570.9,663.8L571,664.2L571,665.4L570.7,666L569.2,666.8L567.5,667.5L565.1,668.7L562.7,670.1L561.5,669.8L560.4,669.1L560,668.9L558.8,668.5L558.1,668.3L555.3,668.7L552.5,668.8L551.3,668.8L550.2,668.6L548.9,668.1L547.7,668.3L546.9,668.8L545.9,668.9L543.6,667.4L542.1,666.1L540.7,664.7L539.8,663.4L538.8,662.2L534.5,658.6L533.4,657.4L533.1,657.1L533.3,656.8L533.7,656.1L534.6,654.3L533.7,655.5L532.6,656.3L531,656.4L529.5,656.6L528,657.1L526.5,657.3L525.8,657.1L525.3,656.4L525.1,655.7L525,655L524.4,656.2L523.1,656.8L521.5,658.1L521,657.9L520.7,657.3L520.6,656.8L520.9,656.3L521.2,655.6L521.5,654.2L522.3,653.4L522.7,651.7L523.1,651.2L523.2,650.6L522.8,649.9L522.1,649.7L521.5,649.3L520.9,648.2L520.6,647.8L519.9,647.3L519.4,646.8L520,646.4L520.7,646.2L521.3,646.3L522.4,646.5L522.9,646.5L524.2,646.1L523.5,646.2L522.8,646.2L520.5,645.5L519.1,644.8L517.8,643.3L517.8,643L518.7,642.7L520.7,642.4L520.1,641.6L519.2,641L518.9,639.8L518.3,639.1L516.9,637.9L516,636.6L515.2,634.1L514.4,632.2L514.6,631.6L515.3,631.1L514.3,631L513.3,630.6L513.8,629.7L514.9,629.2L513.9,629.3L513,629.6L512.5,629.6L512.1,629.6L511.9,629.2L511.8,628.7L511.9,627.7L511.8,626.8L510.9,626.4L510.3,625.8L509.9,625.5L509.3,625.5L508.9,625.1L508.5,624.5L503.4,621.8L503.1,621L502.7,621.4L502.2,621.5L501.6,621.1L501,620.8L500.3,620.8L499.7,620.6L499.1,620.5L498.4,620.4L495.8,619.6L493.3,618.3L491.2,617.7L490,617L488.7,616.4L485.7,615.8L482.8,615.4L481.7,615.4L480.8,615.6L479.9,615.5L475.1,612.7L474.2,611.4L474.3,610.6L474.5,610L476.5,609.8L475.1,609.6L474.5,609.7L473.4,610.2L472.7,610.3L471.9,609.9L471,609.5L469.6,609.9L468.9,609.2L468.7,608.6L468.3,608.2L467.8,608.3L467.1,608.5L466.4,608.5L465.9,608L465.6,607.4L465.1,606.9L464.5,606.6L463.6,605.8L463.1,604.7L463.1,602.8L463.3,602.1L464.3,601L464.9,600L464.1,599.9L463.3,600.3L463,600.8L462.9,601.4L462.8,603.4L462.2,604L461.3,604L461.6,605.1L461.2,606.2L460.2,607.5L460.1,608.1L460.3,608.7L460,609.4L458.3,611.2L457.8,611.3L456.5,611.3L455.2,611.5L454.6,611.1L454.1,610.6L453.7,609.9L453.2,608.6L452.8,607.2L454.1,605.5L453.7,604L452.8,602.6L450.6,600.8L448.3,599.1L447.3,598.7L445.6,598.6L445.1,598.4L444.5,597.8L444.1,597L445.2,596.7L447,595.8L448.1,595.9L450.9,596.3L451.7,596.8L452.5,597L454.4,595.6L455.9,593.7L456.9,593.3L457.7,593.1L458.5,593.3L460.1,593.9L461.4,594.3L462.3,594.3L462.8,594.9L463.3,595.2L463.5,594.3L463.9,593.3L464.8,592.9L465.3,592.9L465.6,592.6L465.5,591.6L464.3,591.5L465,590.7L465.6,590.3L465.8,589.9L465.8,589.4L463.5,590.3L461,590.7L459.5,590.6L458.1,590.6L455.1,591.3L454.1,591.2L451.5,591L450,590.7L448.9,590.9L447.9,590.9L446.7,590.2L445.8,589.3L445.3,588.6L444.7,588.1L444.4,587.5L443.7,585.1L443.7,583.4L442.6,583.3L441.5,583.1L436.6,581.5L436,581.9L435.3,582.1L434.7,582.2L434,582.1L433.3,581.8L433.3,581.4L433.9,580.3L434.3,579.9L435,579.5L435.5,579L436.2,577.2L436.2,576.6L436.1,576L436.2,575.5L436.6,575.3L438.5,574.7L442.3,573.8L443.2,573.3L444,572.5L445,572L445.4,571.5L445.9,571.1L448.8,570L450.1,569.9L451.4,570L454,570.7L456.4,571.7L458.5,573.1L460.8,574.1L460.8,574.1L463.6,574.2L465,574.1L466.4,574.3L466.9,574.6L467.9,575.4L467.6,576L467.5,577.1L468,578.3L468.8,579.4L469.4,580.6L469.5,581.2L469.3,582.4L469.1,583L468.3,584L467.9,585.1L468.1,586.5L468.3,587.9L468.3,589.2L468.4,590.4L468.8,591.7L470.7,595.1L471.8,597.5L472.1,596.2L472.1,594.7L472.4,594.2L473,593.9L473.7,594.2L473.8,594.8L473.9,596.1L474.5,598.6L475.2,598.7L476.1,598.4L476.2,599.1L476.1,600.6L476.5,601.7L476.9,602.1L478.2,603.1L478.8,603.2L480.6,603.5L481.9,603.5L483.2,603.2L484,602.3L484.7,601.4L487.3,599.3L488.1,598.3L488.8,596.7L489.1,596.4L491.6,594.7L491.9,594.1L492.3,593L492.8,591.9L493.2,591.3L495.7,590.7L498.3,590.4L500.8,589.4L501.9,588.5L502,587.9L501.4,586.9L501.4,586.5L502,586L504.2,584.7L506.9,583.4L509,582.5L510.1,582.5L511.2,583.3L512.3,584L518.3,585.9L519.3,586.5L520.1,587.3L521.3,587.9L522.7,588.2L523.9,588.7L525,589.4L527.6,590.6L531,592.1L531.9,592.2L535.1,592.1L535.6,592.4L536.1,592.8L536.6,592.9L540.3,593.2L540.8,593.5L541.3,593.9L541.7,595L545.6,595L546.5,595.2L552.1,597.6L553.7,598.6L554.3,598.8L554.9,598.9L555.4,598.9L557.9,600.3L561.7,601.6L565.6,602.9L566.9,603.2L568.1,603.3L570.9,603.8L572.3,604.2L574.5,605.7L575.5,606.2L576.5,607.1L577.9,608.1L578.5,608.3L579.1,608.4L580.5,608.5L581.9,608.3L582.5,608.4L583.1,608.6L583.6,608.9L583.9,609.5L584.7,610.4L586,610.8L587.1,611.6L588.2,612.6L589,613.6L589.9,614.4L591.2,614.7L592.6,614.8L597.4,619.7L597.7,620.4L597.7,623.6L597.2,626.1L598.4,626.9L600,627.2L600,627.2L600,655.9ZM365.5,555L363.3,556.8L362.7,557.8L362.1,558.7L361.3,559.8L360.3,560.8L359.8,561.1L358.7,561.6L358,561.8L356.7,561.9L352.8,562.6L351.6,562.7L350.3,562.7L347.9,562.5L347.4,562.4L346.5,561.4L345.4,560.6L344.4,560.5L343.5,560.6L336.5,560.7L334,560.8L331.6,561.2L330.3,561L328.9,560.6L328,560.5L327,560.5L322.4,561.1L321.2,561.1L318.9,560.3L317.5,560.1L316.2,560.3L315,561L314.5,561.5L313.3,563L312.5,564.2L312,565.6L311.5,567L311.3,568.2L311.3,569.4L311.5,570.8L311.8,572.2L312.2,573.2L313.8,575.7L314.1,576L315.9,576.7L316.9,577.6L317.9,580L318.5,581.2L319.2,581.2L320,581.2L321.3,581.3L322.6,581.7L323.9,580.9L324.6,579.5L325.3,578.4L327,576.4L328,575.5L328.6,575.2L329.3,575.3L329.8,575.9L330.4,576.3L331.7,576.5L333,576.4L334.4,575.7L334.9,575.3L335.3,574.8L336.5,574.4L339.2,574.4L340.7,574.6L343.2,574.4L343.2,574L342.7,573.6L342.5,573.3L343,573.1L344.7,572.7L346.3,572.4L347.6,572.6L348.7,573.2L349.1,573.9L349.3,574.7L348.9,576.7L348.7,577.2L347.8,577.4L347,577.1L346.1,576.1L345,575.7L343.4,576L342.8,576.3L342.3,576.8L341.4,577.8L340.6,579.1L339,581L337.1,582.7L336.1,583.3L335.1,583.7L331.8,584.8L330.9,585.6L330.2,586.7L329.5,587.1L328.6,587.2L327.9,587L326.6,586.4L326.2,586.9L326.1,587.6L326.7,587.9L327.8,588.7L328.6,589.9L329.1,590.2L330.3,590.5L330.8,590.9L331.7,591.9L333,594.3L333.5,595.6L334.3,596.6L336.6,598.3L336.7,598.8L336.6,599.4L336.7,599.9L337.6,600.9L337.8,601.6L336.9,602.4L336.8,603.6L336.3,605.2L336.1,605.8L336.1,606.3L336.5,606.7L337,607.1L337.6,607.3L338.2,607.6L339.2,608.9L339.8,609.2L340.1,609.6L340.1,610.3L340.6,610.7L341,611.4L341.7,611.6L342,611.4L342.2,611.1L342.8,611.2L343.1,611.7L343.3,612.3L343.3,613.1L343.3,614.4L343,614.9L342.4,614.8L341.3,614.3L341.3,614.7L341.4,615.1L340.8,615.2L340.2,615.1L338.6,615.2L335.7,616L334.6,616.5L333.9,617.4L333.9,618L334.1,619.3L333.8,619.8L332.4,619.9L330.5,619.6L329.4,619.2L328.8,619L327.9,618.1L327.6,617L328.3,613.6L328.4,613.2L328.7,612.8L329,612.2L329.1,611.5L328.2,610.7L326.9,610.3L325.7,609.6L321.3,605.6L321,605.2L321,604.5L321.2,603.9L322.7,601.7L322.8,601.2L323,599.5L323,598L322.8,596.6L322.1,595.7L320.9,595.4L319.6,595.4L318.4,595.7L317.2,596.4L314.9,597.9L314,598.8L313.9,600L314.5,601.1L315.1,602.1L315.5,603.2L316,607.2L315.9,607.7L315.4,608.8L315.1,611.5L315.4,615.1L315.8,617.4L315.6,618.6L314.6,621.2L314.3,622.7L314.2,623.3L315.5,626L315.7,627.1L315.9,628.2L314.6,627.7L314,627.7L313.3,627.9L312,628.1L310.6,628.1L310.1,628.3L309.1,629L308.5,629.3L308,629.4L306.2,628.5L305.1,627.5L304.2,626.4L304,625.2L304.3,623.9L304.8,622.5L305.8,620.3L305.7,618.8L306.1,617.5L306.6,616.3L306.8,615.2L306.9,610.9L306.8,610.5L305.5,607.9L305.3,607.5L305.3,606.8L305.5,606.1L305.5,605.5L305.2,605.1L304.7,604.6L304,604.5L302.7,604.6L299.9,605.3L299.1,604.7L298.5,603.8L298.1,602.5L297.9,601.1L298,599.8L298.4,598.6L298.1,597.7L297.6,596.7L297.6,596.3L297.9,595.8L298.4,595.5L299,595.3L299.5,594.9L301,593.6L301.5,592.5L301.5,591.1L301.9,589.8L302.7,588.6L303.6,587.5L303.9,586.3L303.4,584.5L303.6,583.6L303.5,582.6L303.5,581.7L304,579.8L305.7,576.1L307.3,574.1L307.9,573.6L308.7,574.5L309.4,575.6L309.4,574.6L309.2,573.6L308.6,571.4L308,567L308.2,566.6L308.7,566.6L309.3,566.3L309.6,565.6L309,563.9L309,563.4L310.1,561.1L311.1,560.2L311.5,559.7L311.7,558.3L312.2,557.8L312.9,557.4L313.7,556.4L314.1,555.2L314.4,555.1L314.7,555.1L315.2,556.2L315.7,556.6L316.9,556.9L317.8,556.5L318.1,556L318.5,555.5L319,555.1L319.5,554.5L320.1,553.2L320.8,552.1L321.3,551.7L321.9,551.4L322.5,551.3L323.1,551.3L324.5,552L325.4,552.1L326.2,552.1L326.7,552.2L327.1,552.5L327.5,553.2L327.9,553.7L328.3,554L328.8,554.1L331.9,553.9L334.5,554.5L338.2,554.7L339.5,555.1L340.7,555.6L342.1,556.4L342.7,556.6L343.3,556.6L344,555.8L344.6,555.6L345.2,555.6L347.5,555.7L353.9,556.7L354.8,556.6L358.6,554.6L360.1,552.9L361.5,552.4L361.9,551.5L362.2,550.5L362.7,550.3L363.9,550L364.3,549.7L365.1,548.5L366.1,547.4L366.5,547.1L367.9,547.3L368.5,547.8L369.3,549.3L369.1,549.6L368.3,550.4L368,550.7L367,552.9L366.3,554ZM170.8,632.9L171.9,634.2L172.9,634.8L174.1,635.2L175.3,635.3L176.5,635.4L177.9,635.9L179.3,636.1L180,636L180.6,635.8L181,635.8L181.4,636L182.4,637.1L183.5,638.1L183.8,638.6L184.5,641L185.3,641.6L186.4,641.8L187.8,641.8L189.1,641.9L192.2,642.5L193.4,642.4L194.4,641.9L195.4,642.2L198,642.9L199.3,643L200.7,642.8L202.2,642.8L202.9,643L203.6,643.3L204.1,643.4L204.7,643.4L205.8,642.8L206.5,641.8L207.1,640.5L207.5,639.2L207.8,638.6L208.2,638.1L208.7,637.8L209.3,637.5L210.8,637.7L211.1,638L212.8,640.3L213.1,640.5L214.9,640.6L215.4,640.6L216.5,640.1L217.1,640.1L218.3,640.6L218.8,641.1L219.3,641.4L222.1,641.8L223.2,642.8L223.7,642.9L225.7,642.8L227.1,642.9L228.2,643.2L228.7,644.6L229.2,646L229.5,646.5L230.6,646.9L231.1,647.4L230.9,648.8L231.1,650.2L233.5,651.3L236.1,652L238.9,652.1L241.7,651.9L243.1,651.6L244.9,651.1L245.2,651.1L248.7,652.6L249,652.9L249.4,654L249.4,655.2L248.7,658.1L248.7,658.9L248.7,659.7L249.5,661.5L249.8,662L251.1,662.9L251.1,663.4L250.9,663.8L249.5,663.5L248.7,663.1L248.2,662.5L247.5,662.1L246.2,662.2L243.8,661.6L241,660.6L236.1,658.4L234.8,658.4L233.5,658.7L232.2,659.3L230.8,659.6L229.8,659.8L228.7,659.7L226.1,659.2L223.5,658.8L216.8,658.6L214.9,658.1L211.7,657.9L209.2,657.5L206.7,656.9L200.4,654L198.4,653.3L192,651.9L191,651.8L188.7,651.9L187.3,651.5L186,651.5L184.1,651.9L183.5,652.2L182.8,652.9L181.5,652.9L180.2,652.7L176.8,652.1L175.6,651.7L174.4,651.1L173.3,650.3L172.7,650.1L169.8,649.3L167.4,649L162.6,648.6L161.5,648.4L160.6,648.1L160.1,647.5L160.2,646.7L160.5,646L161,645.3L161.3,644.6L157.8,643.2L154.9,642.4L153.7,642.3L152.5,642.3L151.1,642.4L149.8,642.3L149.1,642.1L148.4,642L147.8,642.2L147.3,642.1L147.1,641.5L147.5,641L148.2,640.3L148.6,640.2L148.7,641.2L148.9,641.4L149.6,641.6L149.8,641.5L150.9,640.3L151.2,639.7L151.7,638.1L152.3,638.4L152.8,638.2L153.2,637.9L154.1,634.1L154.8,633L155.9,632.1L156.4,631.8L157.4,632.4L159.4,632.6L160.6,633L161.9,633L163,633.2L164.7,633.9L165.3,633.8L165.9,633.6L166.8,632.9L167.2,631.7L168.4,632.3L170.4,632.6ZM49.9,507.8L51.3,507.9L53.8,507.3L55.2,507.4L56.5,507.8L57.7,508.1L60.6,507.8L61.1,507.8L61.6,508.1L62.1,508.5L63.4,509.9L65.6,511.7L66.3,512.9L66.6,514.2L66.9,514.5L69.4,516.9L69.7,518L69.3,519.4L70.1,520.5L72.5,521.6L74,522.3L74.3,522.8L74.5,523.4L75.3,524.2L76.3,524.8L79.4,526.2L83.6,529.2L85.9,530.6L87.8,532.8L88.6,533.8L89.1,535L90.3,536.6L92.3,538.6L92.8,539.2L93.3,540.1L94,540.9L94.7,541.7L95.6,542.3L96.5,542.5L98,543.9L98.8,544.4L98.6,543.2L98,542.2L98,541.6L98.1,541.1L98.6,540.6L99.3,540.5L100.5,540.9L102.5,542.6L103.3,543.6L104,545L104.5,546.5L105.3,547.2L106.4,547.4L107.6,547.5L108.7,548L111.3,550L112.2,550.9L112.8,552L113.3,553.3L113.6,554.7L113.8,555L115.4,556.7L116.3,557.3L117.4,557.7L120.5,558.1L121.6,558.6L122.6,559.6L123,560.5L122.3,561.4L119.8,562.7L117.2,563.6L119.8,563.3L121,562.9L122.2,562.3L123.4,561.6L125.3,560.5L126,560.3L126.8,560.4L127.5,560.7L128.6,561.7L129.7,562.8L130.5,564.1L131,565.5L130.1,566.2L128.8,566.8L127,568.1L126.8,568.7L127.2,569L126.7,570L127.7,570.7L127.9,571.2L127,571.9L127.1,572.4L128.1,574.4L128.6,574.9L130.2,575.9L132.6,576.9L134,577.4L135.5,577.7L136.2,577.7L137.3,577.6L137.6,577.9L138,579.9L138.3,581.2L138.6,583.8L139.1,584.9L139,586.2L139.6,587.4L140.8,588.1L142.1,588.7L142.7,589.3L142.7,590.1L142.5,590.8L142.1,591.4L140.8,592.5L140.5,593L140.3,594.3L140.6,594.9L141.1,594.9L141.5,594.6L143.1,592.9L143.5,592.6L144.1,592.4L144.7,592.2L147.6,592.2L148.8,592.5L149.9,593L150.9,593.7L154.4,598.1L156,600.6L156.2,601.2L156.2,601.8L155.9,602.3L154.4,603.9L154.3,604.4L153.8,606.2L153.9,607.5L154.4,608L154.8,608.6L154.8,609.2L153.8,611.9L153.7,612.3L154.3,616.7L154.3,617.9L154.2,619.3L154.3,621.7L153.5,629.2L153.4,629.6L152.8,630.8L152,630.8L151.3,630.6L150.8,630.1L150.6,629.6L150.2,629.1L148.3,627.8L147.8,628L145.8,629.7L145.3,630L144.7,629.7L143.7,629.2L140.4,627.4L140.2,628L140.2,628.8L140.8,630.8L140.9,631.6L140.3,631.8L140,631.7L138.7,630.6L137.4,629.3L136,627.7L135,626.8L134.1,625.9L131.4,622.5L130.8,622L126.7,619.6L125.9,619L124.9,618L123.8,617.1L121.3,615.7L117.1,612.2L115.2,610.2L113.2,606.9L112.5,606L109.1,603.6L107.2,602.1L106.4,601.2L104.6,598.2L104,597.2L103.4,596.3L102.3,595.6L101.3,594.8L99.4,592.1L98.8,591L98.3,589.8L98.4,587.5L94.3,580.5L93.2,578.3L92.3,575.2L92.1,574.9L89.8,572.2L89.1,571.3L88.1,570.5L87.3,569.5L85.8,566.4L85.2,565.5L84.4,564.9L81.5,563.7L80.4,563L79.5,562.1L79,560.9L78.4,558.4L77,554.5L75.5,549.4L74.5,547.1L73.3,545.3L72.9,544.9L67.6,541.6L66.7,541.1L65.8,540.8L64.4,540.6L63.3,539.8L62.9,538.3L62.7,536.3L62.4,535.1L62.1,534.4L59.9,532.9L59,531.8L58.3,530.6L57.6,529.6L55.2,526.3L54.4,525.4L53.3,524.8L50.3,524.1L49.4,523.6L47.9,521.7L47,520.7L44.3,518.6L39.8,514.2L38.8,513.1L38.1,511.9L37.6,510.7L35.6,507.2L35.8,506.5L36.1,505.8L36,505.2L35.8,504.6L35.8,504.1L36.4,503.8L37.7,503.4L39.1,503.4L40.3,503.6L41.5,503.9L42.7,504.7L44.7,506.5L45.9,507.1L47.2,507.4ZM275.7,491.5L275.4,492.5L275.7,492.4L276.8,491.8L278,490.3L278.7,489L279.2,488.4L280.3,488.7L280.6,489L280.5,489.9L280.6,490.5L281.1,491.7L282,492.4L283.3,492.8L284.6,493.5L285,493.9L285.2,494.5L285.5,495.3L285.5,496.2L284.6,497L285,498.4L284.9,499.2L284.7,499.9L283.3,500.5L286.9,499.9L287.7,499.5L288.9,498.6L289.6,499.4L290.2,500.8L289.7,501.1L288.2,501.6L288.1,501.8L288.6,502.5L289.3,502.4L290.5,502L291.7,501.2L292.2,501.2L292.8,501.4L294,501.9L294.6,502.2L295.1,502.8L295.5,503.8L296.8,504.1L299.5,505.6L300,505.7L300.6,505.8L302,505.6L302.5,505.8L302.9,506.3L303,507L302.9,507.7L302.8,508.2L302.5,508.6L301.5,509.3L299,510.1L296.4,510.8L295,510.8L293.1,510.2L292.5,510.2L291.8,510.5L290.9,512.3L292.5,514.1L295.1,515.9L295.5,516.4L295.4,517L295,517.3L294.4,517.5L292.9,517.8L291.4,518L290.2,518.3L289,518.7L287.7,518.6L286,517.8L285.5,517.7L285,518.1L284.5,519.3L284.1,519.7L283.3,520L282.9,520.7L284,521.7L284.1,522.3L284.9,522.9L285.9,523.8L285.9,524.1L286.3,524.5L286.4,525L285.7,525.5L284.8,525.6L284.1,525.1L283.5,524.5L283.3,525.3L282.8,525.7L281,525.6L279.7,525.6L278.4,525.7L279.1,525.8L279.6,526.1L281.6,527.9L282.1,528.6L281.4,530L281.7,530.5L282.5,530.8L283.4,531.5L284.1,531.6L284.6,531.9L284.6,532.6L284.9,533.2L284.1,533.5L284.9,533.6L285.5,533.9L285.2,534.2L284.9,534.6L285.2,534.8L286.1,535.2L286.5,535.5L286.7,536.4L287.6,537.8L289.3,539.6L289.6,540.3L289.6,540.9L289.4,541.4L288.4,542L287.7,542.8L287.6,543.1L286.5,543.5L287,543.8L287.4,544.1L288.1,545.3L289.8,547.1L290.7,547.8L294.1,550.3L296,551.4L298.4,553.8L299.6,554.4L299.9,555.1L298.8,556.2L297.3,556.7L294.8,557L292.3,556.6L291.1,556.3L289.9,555.7L289.1,554.5L287.9,553.8L288.4,554.5L288.7,555.3L288.5,556.1L288.1,556.8L287.3,557.3L286.4,557.6L286.1,557.9L283.9,562.2L283.6,563.4L282.9,568.2L282.9,569.6L283.9,572.2L284,573.5L284.2,574.1L284,574.6L283.6,574.9L281.7,575.7L280.5,576.3L279.4,577.2L278.6,578.4L277.8,579.2L276.8,579.6L276.1,579.5L275.5,579.2L275.1,578.4L274.9,577.6L274.7,578.2L274.8,578.8L275.1,579.4L275.3,580.1L275.1,580.8L274.6,581.3L273.5,581.9L272.8,582.4L272.7,583.3L272.4,583.8L272,584.2L270.4,585L270,585.4L269.7,585.9L270.6,585.8L271.4,585.9L271.5,586.7L271.7,587.4L271.4,588.8L270.2,589.8L270.8,590L271.3,590.3L272.5,590.5L272.9,591.6L272.8,592.8L272.5,593.9L271.7,594.2L271.1,594L270.6,594L270.2,594.4L270.1,595L270.9,594.7L270.8,596.1L270.6,597.5L270.3,598.3L269.9,598.9L269.2,599.1L268.5,598.6L268.4,599.2L268.6,599.6L269.5,600.8L268.9,601L268.5,601.4L268.3,602L267.3,603.2L266.9,604.2L266.7,605.2L266.2,606L258.4,609.5L252.2,612.4L251.7,612.2L251.4,611.7L251.2,607.2L250.4,604.9L250.3,603.5L249.4,604.7L248.9,604.6L248.3,604.3L247.8,603.9L247.8,603.4L248.3,602L247.7,602.8L247.1,603.4L246.4,603.3L245.9,603L245.7,602.5L245.4,602.5L244,603.8L242.2,604.4L241.2,604.4L240.4,604L240.4,603.1L240.3,602.1L240.1,601.5L239.6,601.3L239.2,601.4L237.9,601.9L237.4,601.8L237.1,602.1L233.7,598.6L233,601.4L230.7,602.9L228.9,603.8L227.2,603.5L225.4,602.9L223.6,603.6L221.7,605.3L221.2,605.5L220.7,605.5L220.3,605.3L220.4,604L220.4,602.8L220.3,600L220.1,599.5L219.6,598.7L218.9,598.1L218.4,598.5L218.1,599.1L216.6,599.1L215.2,598.6L214,598.9L211.6,600L210.3,600.1L209.7,599.9L209.2,599.3L209.5,598.8L210,598.4L209,598.7L208.2,599.2L207.8,599.6L207.4,599.4L206.4,598.2L204.2,598.6L203.9,598.8L203.4,599.2L202.9,599L202.6,598.5L202.5,595.9L201.4,590.8L201.1,588.3L200.9,587.7L199.6,586.7L199.6,585.4L200.3,584.3L200.4,583L200.2,581.6L199.8,580.2L199.3,579.1L198.6,578.3L197.6,577.3L196.4,576.5L193.9,575.7L192.6,575.7L192.1,575.4L191.8,575L191.9,574.1L192.4,573.6L193,573.4L193,573.1L191.7,572.4L190.7,571.5L190.3,571L190.2,570.4L190.2,569L190.6,568.1L190.7,567.6L191,566.1L191.8,565.7L191.6,565.4L191.3,565.2L190.9,564.7L190.5,564.2L189.7,563.2L188.3,562.1L188,560.1L187.8,557.2L188,555.9L188.4,553.4L189.2,552.6L189.9,552.4L190.4,552.1L190,552L189.6,552.2L189,552.2L189.5,550L189.7,549.4L190.7,548.2L191.9,547.1L192.4,545.8L193.1,544.7L195.9,543.5L196.6,545L196.9,545.4L198.5,546.4L199.8,546.9L201.3,547.1L202.7,547.2L203.3,547.1L203.9,546.9L204.5,547.1L207.5,548.8L208.7,549.1L209.9,549L210.5,549.1L212.2,550.4L212.7,550.6L213.6,550.5L212.5,549.9L211.8,549.5L211.5,548.7L211.6,547.9L212.3,547.3L212.8,546.7L213,544.9L213.3,544L213.9,543.1L214.1,542.2L213.5,541.6L213.3,540.5L213.4,539.6L213.8,538.9L214.4,539.4L215,539.7L215.6,539.7L216.1,539.6L216.1,539.1L216,538.2L216.1,536.7L216.8,535.5L218.1,534.7L219.2,534.3L223.5,533.6L230.4,531.9L232.5,531.2L233.2,530.9L233.8,530.4L234.9,528.8L236.9,526.4L238.3,524.4L241.3,521.5L243.6,518.8L243.9,518.3L244.3,516.8L244.3,516.2L244.3,515.5L244.6,515.1L245.1,514.9L246.4,515L247.8,514.8L249.2,514.2L250.5,513.5L251.6,512.6L252.7,511.7L253.8,511L255.5,510.1L256.1,510.2L256.1,510.8L255.9,511.5L257.1,511.5L259.7,511.1L260.3,510.7L261.3,509.8L261.7,509.3L262,508.2L260.7,507.6L260.3,506.7L260.2,505.8L261.7,504.1L262.3,503.7L262.5,504.3L263.2,504.4L263.8,504.4L264.4,504.4L265.3,503.5L265.8,502.3L267.3,500.5L267.9,499.2L268.2,497.8L272.2,493.4L272.7,492.7L275,488.3L275.3,488.2L275.9,488.6L276.1,490L276,490.6ZM557.6,0L560.2,3L563.4,7.8L565.4,10.1L567.5,12.2L569.9,14.3L572.4,16.2L573.9,17.1L575.1,18.5L575.8,18.7L575.8,18.7L577.2,18.8L577.9,18.7L578.9,18.9L583.1,21.3L584.4,21.6L585.7,21.6L586.7,21.4L587.5,20.8L590,17.9L592.7,15.3L593,15.4L593,16.1L592.8,16.9L591.6,19.3L590.3,22.5L590,24.1L590.5,25.7L591.3,27L591.9,28.7L592.7,31.2L593.7,31.5L594.3,31.6L595.4,30.8L596.4,29.9L597.3,29.8L598.1,29.9L596.9,30.6L595.8,31.4L594.9,32.9L594.5,33.1L593.4,33.1L592.7,33.1L591.5,33.8L590.3,34.5L589.2,35.3L588,35.8L586.7,35.9L584.8,36.6L583.5,36.7L581.1,36.1L580,36.2L577.5,37.6L575.1,39.6L573.1,41.9L571.5,44.6L570.8,46L570.4,47.6L570.3,48.6L570.1,49.6L569.8,50.3L569.3,50.9L567.9,50.5L565.6,49.1L561.2,47L556.5,43.8L553.9,42.2L549,42.7L544.3,45.8L543.9,45.5L542.1,43.4L541.2,42.5L540.2,42.3L539.4,42.3L538.7,42.5L537.6,43.6L537.2,44.3L536.9,45.2L536.9,45.9L537,46.5L538,47.9L539.2,48.9L539.7,49.1L540.9,49L541.5,49.1L543.5,51.2L545.7,53.1L546.1,53.8L545.3,54.5L544.5,54.8L543.4,54.7L542.4,54.5L540.7,53.6L539.9,54.3L538.8,55.8L538.1,57.3L537.6,58L536.3,59L535,59.5L534.3,59.3L533.7,58.7L533.5,58L533.3,57.2L533.6,55.4L534.3,53.8L534.5,52.2L534,49.9L533.6,49.4L532.2,48L531.5,46.7L531.3,45.1L531.4,44.2L531.8,42.2L532.1,41.1L532.8,40.8L533.5,40.6L534.6,39.9L535.8,38.9L537,37.8L538.1,36.5L538.7,35.1L537.7,33.3L537.5,32.2L537.7,31.2L538.7,30.7L539.8,31.1L542,32.5L542.5,32.7L543.9,32.8L546,33.1L547.2,33L547.7,32.8L548.6,31.6L549,30L548.9,28L548.9,26L549.4,24.4L551.1,21.7L551.6,20.2L551.8,16.4L552.4,14.7L552.9,13L553.1,9.4L552.5,5.8L551.7,4.1L550.9,2.5L551.1,0.9L551.4,0L557.6,0ZM547,60.2L547.4,60.5L549.5,59.7L549.1,62L548.9,64.3L549.1,68.1L549.2,69.8L549.6,71.4L550.5,72.6L551.6,73.4L553.3,76.1L554.2,79.4L554.9,80.9L555.3,82.6L555.5,83.4L555.5,84.1L555.3,85.1L555.5,86L555.3,88.6L554.5,91.6L554.5,93.1L553.8,93.4L553.4,94.2L553.1,94.5L552.7,94.7L552.1,94.8L551.8,95.1L551.6,95.9L551.4,96.7L550.9,97.4L550.5,98.1L550.2,100L550.1,101.9L549.7,103.2L548.5,103.6L547.3,103.5L545.7,104.1L545.3,104.5L544,106.8L543.7,108.2L543.7,109.6L544,111.4L544.5,113.2L544.9,116.4L544.5,121.3L544.1,122.9L543.3,124L542.7,124.5L542.1,125.1L541.5,126.6L540.3,129.8L540.2,130.6L540.2,131.5L539.9,132.5L539.7,133.6L539.9,134.8L540.3,135.9L541.8,138.9L542.4,139.7L543.1,140.5L540.5,141.4L540,141.8L538.4,143.5L537.9,145L538,146.8L537.7,147.4L537.3,148L536.8,148.3L535.1,149.1L534,149.9L532.9,151.1L532.5,151.8L531.6,151.6L531.1,151L531.6,150.3L531.5,149.4L531.7,147.2L531.4,146.4L532.3,145.7L532.7,144.6L533.7,143.8L534.3,143.1L534.4,142.4L533.8,141.8L533.2,141.3L532.3,141.3L531.5,141.4L531,142.1L530.8,142.9L530.8,143.3L530.7,143.7L529.5,144.8L529.6,146.1L530,146.7L530.5,147L530.3,147.4L529.7,148.4L529.3,148.5L528.5,147.1L527.5,146.3L526.3,146.3L525,146.6L524,147.6L523.7,148.3L523.5,149.1L523.6,151L523.2,152.6L522.4,154L522,154.5L521.1,155.4L520.4,155.5L519.9,155.1L519.6,154.5L520.1,152.1L520,150.8L521.1,150.1L520.2,149.1L519.1,148.7L517.5,149.2L517.1,149.8L516.8,150.6L515.9,151.6L515,152.5L513.9,154L513.2,155.9L510.9,155.3L509.6,155.1L508.3,155.2L506.1,155L503.5,155.3L500.7,156L500.9,155.5L503.2,154.4L503.3,154.1L503.1,153.5L502.5,153.5L501.1,153.7L500.4,153.6L500.1,152.9L499.6,152.6L499.3,152.9L499.4,154.2L499,154.4L498.6,154L498.7,153L498.4,151.6L498.4,150.7L498.9,149.9L498.4,149.6L497.8,149.7L497.1,150.1L496.6,150.6L495.3,153.2L494.8,154.8L495.7,156L498.3,157.7L498.7,158.1L498.7,158.8L498.4,159.5L497.7,159.9L494.9,160.4L492.6,161.5L491.9,162.6L489.7,166.9L488,169.8L485.5,170.8L482.8,169.8L482.2,168.9L481.6,167.6L480.6,166.5L479.7,165.3L479.2,163.8L479.3,161.4L478.9,160L479.3,159.6L480.7,158.8L481.2,158.3L482.1,157.2L482.4,156.5L482.4,155.6L481.7,155.1L480,155.1L478.3,155.4L477,155L475.4,153.8L474.9,153.6L473.2,153.5L471.9,153.7L470.7,154.1L469.4,154.3L469,154.5L467.5,155.9L466.3,156.8L465.3,157.2L463.1,157.4L462,157.6L460.8,158.1L460.5,158.1L459.3,158.7L457.9,159.3L457.1,159.8L455.8,159.5L453.1,160.5L451.7,160.6L450.4,160L449.1,159.2L447.9,159.5L447.1,160.8L446.7,163.5L446.2,164.6L446.1,166L445.5,165.8L441.8,163.3L441.6,163.2L438.6,163.6L437.9,163.8L436.9,164.4L435.9,164.6L435,164.2L434.1,163.6L433.3,163.8L432.4,164.2L432.1,160.4L432.3,159.9L432.8,159.2L433.4,158.6L434.8,158.4L436.3,158.6L437.3,158.3L438.1,157.6L439.1,156.5L440.1,155.6L441.5,154.9L442.9,154.1L444.1,153L445.2,151.8L446.2,150.9L447.3,150.1L449.1,148.3L451.3,146.2L452.2,144.7L452.7,144.3L454.7,143.5L457.3,142.8L458.5,142.8L459.7,144.2L460.4,144L461.1,143.6L462.4,143.5L463.8,143.7L465.1,143.7L466.5,143.5L469.1,143.1L470.4,142.5L471.7,141.8L476.5,141.4L479.7,140.2L480.2,140.3L480.7,140.6L480.8,141.4L480.4,142.3L480.8,142.9L481.4,143.2L484.5,143.4L485.3,143.6L486.6,142.9L487.8,142.2L489.1,141.1L489.9,139.9L489.1,138.5L489,136.9L489.7,135.2L490.6,133.7L491.8,132.8L492.9,131.8L495.1,128.9L496.7,126.5L497.2,123.6L496.9,120.2L498.3,117.6L499.6,117.2L502.2,116L503.6,115.6L503.8,116.1L503.7,116.8L501.7,119L500.5,119.9L499.8,120.2L499.2,120.5L498.9,121.3L499.9,122.6L500.2,123.5L500.1,124.4L500.2,125.2L501.4,126.1L502.7,126.4L503.3,126.4L503.8,126.1L505.4,124L505.7,123.6L510.1,122L512.3,120.8L513.5,120.5L514.7,119.9L517.2,117.5L518.1,116.3L519,115.1L519.7,113.7L520.2,112.1L520.9,111.1L525,108.8L526.3,107.5L526.7,106.9L527.2,105.1L527.5,103.3L528,101.8L528.7,100.4L529.5,99L530.5,97.8L531.1,96.4L532,93.2L532.4,91.5L532.7,90.8L533.1,90.3L533.5,89.6L533.7,88.8L533.9,88.1L534.1,85.8L533.9,84L533.3,82.4L532.7,82L532.1,82L531.2,82.1L530.5,81.5L530.6,80.9L531.4,80.8L531.9,80.5L532.3,80L533,78.3L533.5,76.5L533.5,75.8L532.9,74.3L532.5,72.5L532.5,71.6L533,70.5L533.7,69.6L534.3,69.4L535,69.4L535.6,69L536.1,68.5L536.5,68L537,66.5L537.1,65.6L536.9,63.3L537.2,62.7L537.6,62.3L538.3,62.6L538.9,62.7L539.6,62.6L540.3,62.8L540.5,63.4L540.9,67.3L541.1,67.8L541.7,68.2L542.2,68.1L542.7,67.6L543.1,66.7L543.7,66.6L545.8,67.5L546.5,66.8L546.9,65.9L547.4,64.2L547.2,62.7L546.7,62.1L546.2,62.2L545.7,62.6L545.2,62.9L542.2,63.7L542.3,62L542.9,59.4L543.3,58.6L543.7,58.3L545,58.7L545.6,59ZM470.7,160.4L472.2,161L473.7,160.9L473.7,163.3L473.9,164.1L474.4,164.9L474.2,165.9L474.9,166.3L472.8,167.5L470.9,169.1L470.1,170.2L469.4,171.4L468.9,172.6L468.7,173.9L468.1,173.4L466.2,171.3L465.1,170.7L463.2,170.4L462.6,170.4L458.7,172.4L458.2,173.9L457.2,176.1L456.7,176.8L456.1,177L455.7,177.4L455.3,179.3L454.1,180.5L453.4,180.5L452.1,180.2L451.6,180.4L452.3,178.5L451.1,178.3L449.9,178.3L449.9,177.1L449.2,176.4L449.7,175.5L449.7,174.8L450.1,174.4L450.2,173.8L450.1,173.3L449.4,173.2L448.9,172.8L449,171.5L448.6,171.4L447.6,171.7L445.4,172.7L444.8,172.7L445.7,172L447.7,171L448.5,170.4L450.4,168.8L451.6,168L452.2,166.7L452.4,165.9L452.8,165.1L453.2,164L453.8,163.6L454.9,162.6L455.5,162.7L456.1,163.9L457.1,164.9L457.7,164.8L458.9,164.3L459.5,164.2L460.8,164.3L462,163.7L462.5,163L462.7,162.1L462.3,160.6L462.9,160.8L463.4,160.7L464.7,159.8L466.1,159.2L467.5,159.1L469.1,159.6ZM435.3,169.2L436.8,169.6L437.4,169.6L438,169.5L438.9,168.9L439.8,168.5L440.5,168.7L441.1,169.2L441.4,169.8L441.2,170.5L440.2,172L439.3,173.6L441.3,173.9L443.3,173.8L442.8,174.8L442.8,175.6L443.4,176.1L443.9,176.6L443.7,177.1L443.5,177.6L444.5,178.3L444.5,178.8L444.2,179.3L441.5,182.6L440.7,184.3L440.1,186.1L439.6,187.5L439.3,188.9L438.9,190.4L438.5,191.9L438.6,193.3L438.5,194.7L437.1,198.2L436.1,198.1L434.9,197.7L434.1,197.8L433.7,198.5L434.4,200.1L432.3,202L429.9,203.2L429.8,202.6L430.1,202.2L430.4,201.8L430.7,201.4L431,199.9L430.8,198.5L430.1,196.6L430.1,195.9L430.5,195.6L430.9,195.6L431.1,195.3L431.1,194.7L430.9,194.2L430.2,194.1L429.5,194.1L429.1,194.8L428.4,196.1L428.1,197.4L428.2,198.2L428.5,198.8L429.4,199.9L429.1,200.6L428.8,201.1L425.7,200L425,199.9L424.5,199.6L423.9,198.1L425.1,197.8L425.5,197.6L425.6,197.1L425.8,195.6L425.2,194.4L424.7,193.9L424.3,193.4L424.6,192.4L424.4,191L424.4,189.2L424.6,188.9L425.8,188.5L426.6,187.5L427.4,186.4L428.5,184.4L429.3,182.3L428.5,182.1L427.8,181.8L428.5,180.7L428.3,179.4L427.1,177.9L426.5,176L425.4,175.2L424.9,174.9L424.2,175.3L423.6,175.8L424.1,177L424.1,178.1L424.2,179.2L424.7,179.2L425.3,179L425.9,179.2L426.1,179.7L426.2,180.4L426,181.2L425.5,181.5L424.9,181.5L424.4,181.1L423.9,180.5L422.8,180.2L421.7,180.9L420.6,182.2L419.7,182.9L420.1,181.9L420.3,180.8L419.9,180.1L418.8,178.9L418.5,178.2L418.5,177.3L418.7,176.4L419.8,177.4L420.3,178.6L421.1,179.2L422.1,179.2L421.4,177.4L421.1,176.9L420,176.1L418.5,174.7L417.6,174.1L417.9,172.6L418.5,172.4L418.9,172.4L420.5,172.9L420.7,172.2L420.4,171.9L420.3,171.4L421.3,170.8L423,170.3L423.4,170L423.7,169.5L424.1,169.3L425.3,169.3L426.3,168.8L427.1,167.4L427.3,166.7L427.6,166.1L429.7,165L430.2,164.9L431.5,165L432.8,165.6L433.5,166.9L434,168.3ZM322.3,307.9L321.7,309.3L321.1,310.8L320.9,312.2L320.9,313.6L320.7,314.9L320.5,316.2L319.4,315.9L318.8,314.9L318.7,313.4L317.9,311.6L317.6,311.1L316.5,310L315.4,309.5L314.6,308.8L314.7,308.8L314.1,307.8L313.7,306.7L312.8,303.6L312.5,302.9L312.1,302.2L311.9,301.5L312.1,300.7L312.5,299.6L312.7,298.5L312.5,296.9L312.6,295.4L312.9,294.7L318.1,285.4L319.5,283.4L320.4,282.4L321.1,281.3L321.8,279.9L322.7,278.6L323.3,278.2L326.3,277L327.2,275.9L328,275.6L328.8,275.6L329.4,276.1L329.9,276.8L330.4,277.1L331.7,277.7L332.3,278.3L332.5,279.3L331.7,280.3L331.3,281.1L331.3,282.1L331.4,283.4L331.4,284.7L330.4,287.7L329.3,289.6L329.1,290.5L328.7,292.9L328.1,295.2L327.5,298.2L326.7,301.2L326.1,302.5L325.5,303.7L324,306ZM209.9,339.2L210.4,339.8L210.8,340.5L211.1,341.9L211.3,343.2L210.1,344L209.1,344.4L207.1,347.5L206.7,348.5L206.4,348.9L206.3,349.3L206.3,349.8L205.8,351.3L205.3,353.1L205,353.9L204.5,354.5L203.7,354.8L203.3,354.8L202.8,355L201.7,356L200.5,356.7L200.7,357.1L200.7,357.4L200.2,357.8L199.6,357.7L198,358L197.3,358.6L196.7,359.6L196.4,359.7L195.4,360L194.6,360.1L193.3,359.4L192.7,359.1L190.9,358.8L189.2,358.3L188,357.8L185.6,356.4L185.3,353.9L184.8,352.5L184.8,352L185,347.8L185.2,347.4L185.5,346.9L186.6,346L187.8,345.3L189.6,343.7L190.9,343L192,342L191.3,342L190.8,341.9L191.3,341L191.8,340.5L192.4,340.3L193.5,340.5L194.6,340.3L195.4,339.5L196.1,339.3L199,339.6L200.9,339.2L201.9,338.5L202.4,338.5L203.8,338.7L204.4,339.4L204.3,338.9L204.4,338.4L204.7,338.5L206.5,339.4L206.5,338.3L206.7,338L207.3,337.5L207.5,337.5L208.3,338.4L209,339ZM500.2,0L497.8,2.2L497.1,3.7L495.6,5.2L494,7.7L491.7,10.1L491.2,11.8L490.5,12.9L488.7,13.7L487.5,14.7L483.7,20.9L483.2,22.1L483.1,23L480.7,25.3L479.3,27.8L476.9,29.3L474.4,31.4L468.4,35.2L466.8,36.6L463.5,38.4L462.1,38.4L459.2,39.4L457.3,40.4L456.2,40L455.5,38.7L454.7,38.8L454.1,39L452.3,37.7L450.9,37.8L449.8,37.2L447.8,37.6L448.2,32.2L447.9,31L447.1,32.1L444.8,34L443.9,34.4L443,34.4L443.3,33.2L444.6,31.6L444.2,31.3L443.8,31.2L442.2,31.9L441.4,32.7L439.1,35.9L437.7,38.5L436.6,39.3L436.1,40.4L435.1,41.5L433.6,41.2L432.7,41.4L430.6,40.8L430.1,41L431.5,43L430.3,46L429.9,46.4L429.3,46.8L428.5,46.5L427.3,46.4L425.7,47.7L424.9,48.1L424.2,49.4L423,50.2L422.3,51L421.4,52.4L420.9,53.8L419.5,55.2L418.7,56.9L418.7,58.4L419.5,59.9L419.6,61.2L419,63.9L419.4,66.7L419,67.8L414.9,69.8L413.9,70.7L412.3,73.2L410.5,74.1L409.4,75.1L407.8,75.7L406.8,77.5L405.7,78.4L404.4,79L403.4,79.8L401.2,79.9L399.6,80.4L398.5,81.8L395.2,83.5L394.7,84.7L395,86.7L395,88.1L394.7,89.3L394,89L393.6,89.4L393.1,90.5L393.3,91.7L394.4,92.2L395.3,92.7L396.7,92.9L397.6,93.5L399.7,96.2L401.4,97.4L401.8,97.8L402.8,98.4L403.7,99.3L404.2,100.1L406.9,106.5L409.5,110.5L411.7,113.5L414.9,119.1L415.8,122.1L415.9,124L416.4,126.5L415.9,128L416.1,130.3L415.9,131.5L415.5,132.3L415.5,134L415.6,134.9L415.6,136L415.9,136.5L416.2,136.7L416.8,136.2L417.5,136.1L417.4,137.5L416.5,141L415.8,143.6L414.8,145.9L413.5,147.9L412,148.7L410.9,149L408.9,149.1L407.1,148.8L405.7,149L405.1,149.5L404.7,150.2L405,151.3L404.9,152.2L404.3,152.1L403.1,151.6L401.7,151.6L401.1,151.3L400.4,150.1L399.7,150.1L398.6,150.9L396.8,151L396.2,151.4L396,151.9L396.3,152.5L397.1,153.3L396.9,154.2L395.9,154.6L395.2,153.6L394.7,152.6L394.2,152.5L393.4,152.8L393.2,153.9L393.6,154.6L394.2,155.5L393.3,156.5L393.1,157.2L392.5,157.7L390.8,156.6L391.1,155.8L391.8,155L391.9,154.2L391.7,153.7L389.2,155.7L387.7,158L387,157.8L386.6,157.2L386.2,157L384.6,158.5L384.3,159.6L383.7,159.7L383.4,159.2L383.4,158.1L383.1,157.3L381.5,155.9L380.7,154.8L381.1,154.2L382.5,154.5L383.6,154.5L383.4,154L383,153.7L383.8,153.4L384.4,152.8L383.9,152.6L383.1,153L382.5,152.8L382.2,151.3L381.4,149.8L381,148.3L381.8,147.5L382.2,146.1L382.9,144.2L383.3,143.6L384.3,143.1L384.6,142.6L384.1,142.4L383.2,142.2L383.2,141.6L383.8,141.3L384.5,140.7L385.7,139.9L386.1,138.5L385.8,138.2L385,137.8L385.2,137.1L385.5,136.6L385.4,136.2L384.4,135.3L383.8,134.5L384,133.5L383.8,132.1L383.9,130.9L383.9,130.2L383.4,128.7L383.2,127.2L382.6,127.4L382.1,127.8L380.3,127.2L379.8,127.2L379.6,126.1L380.2,124.7L381.7,123.5L382.5,123.4L383.2,122.8L384.2,122.7L385.4,123.5L386.5,123.7L387.1,125.1L387.5,125.4L387.5,124.8L388.4,124.2L388.6,123.8L388.5,123.5L387.5,123.3L386.5,121.5L386.4,120.7L386.1,120.3L386.6,118.8L385.5,117.2L385,116.7L385.1,115.3L384.5,114.3L384.2,113.8L384.1,112.9L384.2,112.5L384.7,112.4L384.8,112L384.7,111.9L384.1,111.8L381.9,110.6L380.1,111.4L379.6,112.3L379.1,112.5L378.3,110.8L377.1,110.7L375.2,109.1L374.4,109.4L374.2,110.1L373.1,111.5L371.7,112.7L371.2,112.9L370.7,112.8L370.7,112.5L370.1,111.1L367.8,110.6L367,110L366.5,109.9L368.8,108.4L369.4,108.1L369,107.8L368.5,107.6L366.6,107.8L365.7,107.3L364.2,107.5L363.3,107.1L365.3,105.6L365.4,104.8L365.3,104.1L366.4,102.1L367.4,101L370.1,99.5L371.3,99.3L372.1,99.4L372.8,99.2L372.1,98.6L371.4,98.3L370,98.4L368.5,97.5L368.4,96.6L371.2,90.6L371.3,90.1L370.8,88.6L370.7,87.2L368.7,86.4L367.8,86.3L365.2,84.7L364.2,83.8L363.8,84.1L363.7,85.4L363.3,85.7L362.7,85.9L362.3,84.4L361.7,83.4L360.1,82.3L359.4,81.7L359.7,80.4L359.6,80.3L359.5,80.2L358.5,81.4L356.7,82.6L352.9,82.9L351.7,82L351.3,82.6L350.9,83.4L349.9,83.7L348.3,83.8L347.5,84.3L347,84.9L344.8,85.1L344,85.8L342.7,86.1L337.1,89.5L335.9,90.9L334.7,92.5L333.9,93.4L333.1,94L332.5,94.2L331.8,94.8L331.2,94.9L330.5,94.6L329.7,94.7L329.3,95.4L329.7,96.3L329.5,96.7L328,97.1L325.8,97.5L324.9,98.1L324.5,98.4L324.1,98.6L323.6,97.4L323.4,95.9L324.3,95.5L325.1,95.3L329.8,93.2L329.2,91.6L329.6,90.9L330.7,89.8L331.3,89.2L330.9,89L327.9,89.4L326.2,89.3L325.3,89.2L325.6,88.2L325.4,87.3L325.2,86.9L326.7,85.8L327.5,85.5L328,85.6L327.9,84.9L327.5,83.9L328,82.6L331.1,81L331.9,79.7L333.1,78.4L335.5,75.1L335.6,74.6L336.3,73.1L336.4,72.4L335.3,71.6L334.9,70.3L331.8,68L331.5,66.1L331.2,66.2L330.7,67.5L330.3,68L328.9,68L328.2,67.5L324.2,67.2L323.2,68L322.3,69.4L321.4,70.4L320.5,70.9L319.7,71.8L316.5,77L315.2,77.4L309.5,80.5L306.6,81.7L304.3,83.9L303.6,85.2L302.9,86.7L302.5,88.9L300.5,91.6L299.7,92.1L299,92.3L298.1,92.3L297.3,92.4L295.9,92.2L294.1,93L292.2,93.8L290.5,91.9L289.3,91.5L287.4,92L286.5,92.8L284.6,96.8L283.9,99.1L284,100.1L285.1,102.9L286.3,104.5L289.1,106.3L294.9,107.6L296.3,107.1L297.8,107.1L299.3,108.3L300.3,110.3L300.4,111.6L300.4,112.1L300.8,112.5L301,113.1L300.4,113.7L299.9,114L299.5,116L299.5,118.3L300,119.1L301.3,120.1L303.2,121L305,121.2L308.5,120.8L309.9,119.4L309.8,118.8L309.8,118L312.9,116L314.6,114.2L314.3,113.8L314,113.4L314.3,113.3L315.2,113.1L319.5,111.3L322.8,112.8L324.7,114.5L326.5,114.9L327.9,115.7L329.3,116.5L331.3,116.6L332.9,116.7L333.5,116L334,115.5L334.5,115.6L335.2,116.6L337.1,117.3L338.8,117.2L340,117L340.7,117.3L339.7,118.5L339.9,120.4L339.1,121L338.3,122L338.7,122.6L339.1,122.9L339.1,123.7L338.4,124.1L337.1,125.3L336.4,125.3L336,125L335.8,124.6L335.6,123.9L335.1,123.5L333.9,123.3L332.6,123.5L329.7,125.2L326.8,126.6L323.8,127.7L322.8,128.3L322.1,128.5L320.9,128L320.1,128L320,128.4L320.9,129.3L321.2,130.1L321.1,130.6L320.5,130.9L319.7,130.5L319,131.1L318.7,132.1L318.7,134.4L318.2,135L316.9,135.3L315.5,136L315,135.7L314.8,135.3L314.9,134.2L314.8,133.6L314.1,133.7L313.1,134L312.4,134.7L312.2,135.1L313.1,136.5L314.1,136.7L314.3,137L313.5,137.7L311.7,138.7L311.4,139.5L310.9,140.3L310.1,141L309.6,141.6L309,142L308,142.4L306.8,144L305.9,145.5L304.8,146.3L303.9,148.9L302.4,150.2L301.9,152.5L302.3,153.8L303.9,153.8L304.7,154.3L306.5,156.1L308.6,157.2L310.7,157.9L313.3,159.5L314.1,160.2L314.7,161.6L315.9,165.7L316.7,167.7L316.7,168.7L318,170.7L319.3,174.1L320.8,177L321.1,179.3L320.6,180.3L320.6,181.7L322.1,182.9L325.5,184.4L326,184.8L326.7,185.5L326.7,187.7L327.2,188.4L327.7,188.8L329.7,189.7L330.6,190.5L331.5,191.7L331.7,192.8L331.9,194.3L330.7,194.3L329.8,194.2L326.1,192.2L325.2,192.2L323.9,192.5L321.9,192.1L319.9,190L318.5,189.3L316.9,189L313.2,190.8L312.2,190.7L311.9,190.9L311.5,191.2L313.3,191.6L315,191L316.7,190.1L319.1,190.6L319.5,191.4L319.9,192.7L321.5,193.7L322.9,194.1L324.5,195.2L326.1,197.1L329.6,199.3L331,201.3L331.5,202.6L332,204.5L330.8,205.1L329.7,205.2L328.1,205.5L326.9,206.1L325.7,207.3L322.2,209.1L321.5,210.3L321.1,211.3L320.3,211.8L318.1,211.3L316.1,211.3L313.9,212.7L313.3,213.2L313.7,213.1L314,212.9L315,213.1L316.6,212.4L318.1,214.6L321.2,214.3L324,212.4L325.1,212.4L326,212.7L327,213.4L329.8,216.6L331.3,216.9L332.7,217.7L333.5,217.8L334.3,218L332.3,219.1L329.7,221.6L328.6,222.2L327.9,222.9L329.9,222.6L331.4,221.4L332.1,221.1L332.7,221.4L333,222.8L332.4,227.4L331.7,227.4L331,226.2L330.2,225.8L329.5,226.1L328.2,226.1L327.7,226.6L327.2,227.4L328,227.6L329.6,228.9L329.8,229.7L329.3,230.2L328.2,230L329.6,231L329.2,232L328.8,232.4L328,232.7L327.5,233.6L328.2,235.1L328.9,237.1L329,238L327.9,237.6L326.2,238.8L325.3,238.9L324.6,237.4L323.9,237.6L323.3,238.1L322.6,239.8L321.8,241.3L321,241.7L320.1,241.6L319.4,241.6L319.6,242L320.4,242.5L320.4,243.1L318.7,244.9L318.5,245.6L318.5,246.3L317.7,247L318.1,248.2L317.9,249.1L317.1,250.3L316.3,251.1L315.4,252.3L314.2,253L312.7,255.7L312.2,257L312.1,258.4L311.6,258.8L310.8,259.4L309.8,259.1L309.8,258.2L309.4,258.1L309.1,257.5L309.1,256.8L309.2,256.2L308.8,256.3L308.5,257.1L307.9,257.6L307.3,257.4L306.5,256.9L306.6,257.6L306.9,258.3L307.1,259L308.1,259.1L308.7,259.9L309.3,261.1L309.3,261.5L309.7,262.1L309.8,262.5L308.9,263L307.7,263.7L306.3,265.1L305.1,266L304.1,266L303.5,265.9L302.6,265.4L301.5,265.2L302.9,267L303.7,267.3L304.7,267.2L305.6,266.6L306.9,266.6L307.2,267.7L306.9,268.8L306.1,270.4L306,271.7L306.9,273.6L306.9,274.2L306.6,274.5L305.5,274L304.7,273.3L303.8,273.5L302.9,273.2L302,273.4L301.6,273.9L301.9,274.6L302.7,275.2L303.2,276.1L302.6,276.5L300.3,276.2L299.7,276.4L299.1,277.4L299.5,278.9L299,279.8L298,280.1L296.7,280.8L296,281L296,281.3L296.6,281.6L296.9,282.1L296.2,283.6L295.1,284.1L293.5,283.9L292.2,284.2L291.1,283.6L289.9,283.5L289.1,284.4L289,285.3L288.2,285.4L287.7,285.3L287.1,285.4L287.2,285.9L287.5,286.4L289.2,286.6L289.5,287.2L289.5,288.2L287.8,289.9L287.1,291L286,291L285.2,291.9L284.8,293.2L284.2,292.9L283,293.1L282.6,293.7L282.9,294L282.9,294.4L282.4,295.8L281.9,296.2L281.6,295.6L281.5,294.7L281,294.7L280.3,295.5L279.4,296.1L278.7,296.3L278.1,295.8L276.8,295.5L276.3,297.8L275.1,298.7L274.6,299L273.7,299L274.3,299.4L274.5,300L274.1,300.5L273.2,300.7L272.7,301.1L272.5,303.2L271.9,304L270.5,304L269.5,303.5L269.1,303.9L269,304.3L268.4,304.7L267.4,304.8L265,305.7L264,305.4L262.7,305.1L261.8,305.4L261.5,306.1L261.1,306.7L259.8,306.7L258.8,306L257.7,305.5L256.6,305.9L255.7,306.8L254.6,307.1L254.4,307.6L253.9,307.9L252.8,307.8L252.3,306.5L251.7,306.3L251.1,306.9L250.8,307.5L250.5,307.9L250.6,309L250,309L249.1,308.3L248.2,308.2L247.4,308.8L247.7,309.3L247.6,309.8L248.1,310.1L248.2,310.6L247.7,310.8L247.7,311.4L247.4,311.8L246,311.2L244.8,310.8L243.7,310.9L243.4,310.6L243.3,310.2L244.5,309.5L244.6,309.2L243.7,309L242.5,308L241.7,306.5L240.7,305.7L240.2,305L240.1,303.7L239.9,303.1L239.9,302.4L240.2,301.8L239.1,302.1L238.3,302.6L238.5,303.4L238.3,304L237,304.4L237.1,304.7L237.2,304.9L238.1,305.8L238.3,306.6L238.7,307L239.5,308.2L239.5,310.5L239.9,311.1L239.7,311.8L239.4,312.7L238.9,312.9L238,313.2L237.4,313.4L237,313.6L236.3,314.3L235,314.4L234.3,312.8L233.4,313.9L233.2,316.1L232.8,316.4L232.3,316.8L231.2,316L230.3,316.5L229.6,317L229.3,317.5L228.7,318L227.7,317.5L226.9,316.8L227.1,316.2L227,315.8L226.6,315.5L226.2,315.6L226.4,316.3L226.6,317.7L226.2,318.1L225.6,318.4L224.4,318.2L223.5,317.6L222.5,317.2L221.6,317.1L221.4,318L220.8,318.7L220.3,318.8L219.7,318.7L219,319.5L218.7,320L217.8,320.6L215.5,320.9L214.7,321.5L213.6,321.4L212.7,321.5L212.2,321.5L211.8,321.2L211.3,321.2L211.1,322.2L209.8,322.6L208.6,322.7L207.3,324L206.3,324.7L205.6,324.8L205.1,324.5L204.8,323.4L204.6,323.2L204.4,324.3L204.2,325.2L203.7,325.7L202.2,326.8L201.7,327.9L202,329L204.1,329.2L204.3,329.8L204.1,330.2L203.6,330.6L203.5,331.2L205.7,333L205.8,333.7L205.4,334.1L205,334.9L203.9,335.7L201.4,336L199.3,335.7L198.7,334.8L198.7,334.3L199.2,334.4L199.8,334.4L199.6,333.8L199.4,333.5L198.4,333L197.7,331.8L197.8,330.7L197.4,329.9L197,329.2L196.5,328.8L196.2,328.3L196.7,326.6L196.4,325.7L197.3,324.6L197.6,323.2L199.1,322.8L199.2,321.6L198.1,321.5L197.3,320.6L197.1,321L196.5,321L195.5,319.3L195.2,319L194.7,319L194.9,320.9L193.7,321.6L192.7,321.9L191.3,322L190.5,322.2L189.8,322L190,321.5L190.4,320.8L190,320.2L189.2,319.8L188,319.8L187.2,319.7L186.4,319.7L186,319.5L185.3,318.6L184.6,318.1L184.3,317.5L184.6,316.9L184.4,316.5L183.1,316.5L183.1,317.4L183.2,318.5L183.6,319.3L183.4,319.7L182.7,320L182,319.2L181.7,319L181.4,319L181.1,319.8L180.5,320.6L179.4,320.5L178.5,321L177.5,321.2L177,321.3L175.6,321.3L174.5,322.4L173.7,322.9L172.5,323.3L171.2,323.9L170.8,325L170.8,325.8L170.6,326.6L168.5,327.9L167.9,327.8L167.5,327.3L166.9,327.4L166.4,327.6L166,327.6L165.4,327.9L164.7,327.8L164,327.4L163.6,327.3L163.1,327.3L163,327.7L163.7,329.6L163.9,330.4L161.7,332.9L161.9,334.5L161.3,335.7L160,336.7L157.4,339.2L156.2,339.3L155.4,339.9L153.5,344L153.4,345.4L153.2,346.5L153.2,347.5L152.4,349.4L151.5,350.3L151.4,351.3L152.6,353.5L152.7,353.9L153.4,355.1L153.8,355.9L154.3,356.8L156.3,358.9L157.2,359.6L158.2,360.1L160.1,362L161.1,363.3L160.6,364.1L160.9,365.9L159.5,365.4L159.7,365.6L161.3,366.6L163.7,370L165.8,371.7L168,373.7L168.7,375.5L170.6,376.7L172.8,378.4L172.7,378.8L173.2,379.3L174.7,380.2L175.6,381.2L175.9,382.1L176.4,382.3L177.1,382.1L177.7,382L178.1,382L178.8,383.1L179.6,384L180.1,384.8L180.4,384.7L180.7,384.8L180.8,385.5L181,386L182.2,387.3L182.7,388.6L184.2,390.7L185.2,391.8L186,392.5L186.9,393.1L187.8,395.3L188.2,397.4L189.1,399.7L189.8,400.7L189.8,402.6L190.4,404.5L191,405.8L191.2,407.1L191.4,407.8L191.6,408.3L192.2,410.5L192.1,411.6L191.6,410.6L191.7,413.6L192.1,415.2L191.9,417.1L192.3,417.8L193.1,420L193.6,420.8L193.6,423.5L193.8,424.9L193.1,424.1L192.6,423.1L191.9,423.6L191.3,424.4L192.3,427.3L191.2,427L191.3,430.9L191.7,431.8L191.8,432.2L191.6,432.7L191.3,432.2L191.3,431.6L191.1,431.7L191.1,432L190.7,432.7L190.6,433.6L191,434.3L191.1,434.8L190.8,435.5L190.4,436.2L189.3,436.3L189.1,437.7L188.7,439.2L186.9,439.5L185.6,440.8L183.9,441.3L182.4,442.6L180.8,443.8L179.7,443.9L178.8,444.2L177.8,446.2L176,446.4L172.9,448.1L171.9,448.8L170.9,449.2L169.6,449.8L169.3,449.6L168.8,449L167.6,448.7L167,448.1L166.9,447.2L166.7,446.9L166.5,447.4L166.3,449.4L166.1,449.8L165.6,450L164.6,449.4L163.6,448.3L162.3,449.1L162.7,449.2L163.3,449.1L163.8,449.3L164.2,450.1L164.2,450.5L164,451L162.7,451.1L161,450.9L160.7,451L162.2,451.7L163.6,452.2L164.3,452.6L164.3,453L163.5,453.6L162.9,454.4L162.8,454.9L162.8,455.5L162.2,455.9L161.7,455.8L160.5,455L157.1,451.8L157.6,452.7L161.2,456.4L161.8,457.5L161.9,458.4L161.5,458.8L160.9,459.3L159.8,459.3L157.8,458L154.7,454.8L153.7,454.3L156.8,458L157.3,458.9L157.8,460L157.7,460.6L157.4,461.1L150,464.5L148.9,466L148,467.8L146.6,468.8L145.7,469.8L143.2,470.3L141.9,470.1L143.3,468.5L142.4,467.8L142.4,463.5L142.7,458.8L143.4,456.4L144.3,455.8L145.5,455.5L145.5,455L145.4,454.4L144.8,453.6L144,453.2L143,453L142.2,452L141.6,452.1L140.7,452.4L140.1,452L139.9,451.3L139,450.5L138.1,449.7L136.2,448.2L132.6,447.7L132.2,447.1L131.9,446.9L131.6,447.8L129.6,448.6L128.7,448.1L128.1,447.5L128.2,446.8L128.8,446.2L129.8,445.8L130.2,444.3L129.5,442.4L128.8,441.8L128.1,441.4L127.4,442.1L126.8,443.3L126.2,443.9L125.2,444.1L123.9,444L123.4,442.2L123.2,440.6L123.4,438.9L123.6,437.8L122.3,436.4L122.2,435L121.6,434.3L121.5,434.6L121.5,435L121.2,435.1L120.9,434.3L119.9,433L119.6,431.6L118.4,430L117.7,429.4L117.5,429.9L117.1,430.5L115.9,429.7L114.9,428.8L114,427.2L113.9,427.6L113.6,427.9L112.6,426.7L111.5,425.7L110.5,425.3L109.9,424.9L109.3,424.4L108,423.9L104.9,424.6L101,424L99.5,424.6L98.8,424.3L98.5,423.6L98.8,422.4L98.9,419.9L99.4,418.2L99.2,416.9L99.4,416.2L99.6,415.4L99,415L96.2,414.4L95.6,413.8L94.8,414.5L91.5,414.8L90.2,415.3L89.1,416.3L88.8,417.5L89.4,418.4L89.9,419.8L88.7,422.9L88.5,423.8L89,427.7L88.8,429.8L88.1,431.2L87.1,432.4L86.6,434.6L85.8,435.5L84.7,437.8L84,440.6L83.5,441.9L83.2,444.3L80.9,447.9L80.4,449.9L79.6,450.7L79.9,451.3L79.9,452.4L79.6,455.1L79.6,457.3L79.9,458.5L81,460.9L80.7,461.6L80.6,462.6L81.5,463.1L82.2,463.2L85.8,462.1L87,462.4L87.5,463.4L87.8,464.3L88.4,469.3L88.8,470.2L89.5,471.1L90.3,472L90.6,471.9L90.6,471.5L90.7,471.1L91.4,472.1L92,473.8L93.9,483.1L94.5,484.3L94.9,485.5L93.8,484.9L93.4,482.8L93.1,482L92.7,481.9L92,481.9L92,481.5L92.5,480.8L92.4,480L91.7,479.4L90.6,479.9L90.7,481.3L91.2,482.4L93,484.9L93.6,485.9L94.3,486.2L95.4,486.1L96.7,487.1L97.7,488.1L100.2,489.6L101.7,489.4L103.4,489.1L104.4,489.2L105.5,489.6L106.8,490.8L108.9,493.9L112.2,496.5L114.2,497L114.9,497.3L117,500.8L119.9,503.2L121.1,504.1L122,504.5L123.3,505.8L124.4,507.5L126.8,512.1L127.2,514.1L127.4,517.2L126.9,521.8L126.2,524.1L126.4,525.2L127.2,526.9L127,528.5L127.2,529.8L127.1,533.4L127.6,534.5L128.2,535.2L131.2,537.3L131.5,538.1L133,540.9L135.8,546.9L136.5,549.6L136.4,550.3L136.1,550.6L135.3,550.8L134.6,550.3L134.4,549.9L134.4,549.5L134.2,549L133.5,548.5L133.1,548L133.2,548.8L133.2,549.8L132.4,549.9L131.3,549.6L129.9,549.9L128.3,551.2L127.6,551.3L127,550.1L126.6,549.4L126.2,548.8L121.1,546.1L119.2,545.4L117.2,543.3L112.7,541L109.9,538.8L108.7,537.4L105.8,536.2L104.5,534.7L103.9,534.5L103.3,533.9L103.9,532.5L103.6,531.1L103.3,529.8L101.3,527.4L100.3,525.7L98.3,524L97.6,523L96.8,521.9L97.3,521.5L97.7,521.3L97.3,520.4L96.2,519L95.7,517.4L95.7,514.3L94.2,509.9L92.8,503.8L93,501.7L92.7,499.4L91.8,497.2L90.6,495.6L90.2,494.3L87.4,490.8L85.5,489.4L85.8,486.9L85.2,486.3L84.5,486.3L83.9,485.6L84.4,484.1L83.6,484.3L82.6,484.3L81.8,483.9L81.1,481.8L80.7,481.1L79.8,480L78.6,480L78.2,479.5L78.3,478.1L77.5,477.3L76.4,476.6L75.4,476.2L74.5,474L73.7,473.4L73.1,473L72.2,473.3L71.9,474.1L71.3,474.8L70.7,474.7L70,474.3L69.3,472.1L69.2,470.7L69.4,468.2L70.3,466L70.8,462.3L71.6,460.1L72.1,459.3L72.9,456.2L74.5,452.2L74,452.3L72.9,453.9L72.4,453.1L72.2,452.3L72.5,450.4L71.8,446.7L72.2,446.2L72.6,446L73.3,444.6L74.2,443.2L74.2,441.5L74.9,440.3L74.8,439.3L74.8,438.1L75,437.1L74.9,436.3L75.4,435.5L76.4,434.9L76,434.7L75.6,434.2L74.4,434.9L73.7,434.7L73.6,433.9L73.8,433.2L73.8,432.7L74.3,432.2L74.3,431.2L74,430.3L74.4,429.1L73.7,429.1L73.3,428.9L73.5,428.3L74.2,427.7L73.6,426.7L74,425.6L74,424.2L73.7,422.9L73.7,422L73.3,420.5L73,418.5L72.1,417L71.3,414.8L69.4,411.9L69.4,410.7L69.3,409.6L68.9,409.1L68.3,412.9L67.9,412.2L67.8,410L67.5,409L67.8,407L66.6,405.1L66.4,403.6L65.6,401.4L65.9,400.9L66.9,401.4L66,400.1L65.2,400.4L64.6,399L64.4,395.3L63.8,393.9L64.2,392.5L63.4,387.3L62,385.7L62.3,384.2L62.7,383L62.6,380.6L62.9,379.9L63.6,379.3L63,379.5L62.4,379.7L61.2,379.8L59.7,379.8L59.2,378.1L58.5,377.3L57.9,375.5L57.5,373.6L57.8,373.2L56.7,372.4L56.4,371.9L55.2,370.6L53.9,369.6L54.2,370.3L54.6,370.7L53.9,371.9L54.5,373.9L54,375.2L53.4,376.9L53,377.7L51.4,379.4L50.1,379.9L49.2,380L48.5,379.9L47.6,379L47.4,378.2L47.2,377L46.9,376.8L46.5,377L47.1,378.6L47.1,379.3L48,380.7L47.7,381.1L45.9,381.9L45.3,381.8L44.9,381.9L44.8,382.6L44.6,383L41.8,383.9L41.2,385L40.9,386.1L39.5,387.8L37.6,389.1L37.2,389L36.7,388.7L36.8,387.3L37.4,386L37.2,384.8L37,385.5L35.8,387.3L35.3,387.9L34.2,387.7L32.7,388L32.1,386.1L32.1,385.4L32,384.9L32.2,384.3L32.1,383.8L31.8,384.7L31.6,385.5L31.1,386.2L29.6,387L29.5,386L29.4,385.1L29.8,384.3L29.7,383.1L30.2,381.3L30.2,380.6L30,380L29.8,381L29.6,382L29.3,382.3L28.8,382.5L27.7,383.7L27.1,384.8L25.5,385.8L24.7,385.7L24.6,384.4L25.2,379.9L25.8,379.3L26.2,378.5L26.6,375.8L27.2,374.8L27.5,372.7L27.7,372.4L28.5,370.7L28.8,367.7L28.4,366.2L27.7,364.7L27,360.3L25.2,356.7L25,355.5L24.1,354.1L25,354L23.2,352.7L23,352.2L22.6,349.2L22.7,347.5L22.5,347.8L22.2,348.8L21.6,349.2L21.8,351L21.8,351.4L21.4,352.1L20,351.4L19,350.6L17.8,348.7L16.6,346.6L17,346.3L17.5,346.2L19.2,347.8L20.3,348.1L21,347.7L21.8,347.1L22.2,345.7L21.8,345.3L21,345L20.4,344.6L19.6,343.8L19.6,343.3L19.3,342.7L18.5,342.3L17.9,341.8L18.4,340.9L19,340.2L17.6,340.2L16,339L15.6,338.7L15.1,338.4L13.9,338.3L12.8,338.7L13.3,340.3L13.2,340.9L12.6,340.8L11.1,338.3L11.6,337.6L12.2,337L11.9,336.9L11.3,336.9L11.8,334.7L11.5,334.3L11.3,335L11,335.7L9.8,337.3L9.2,337L8.8,336.6L9.4,335.8L9.7,335.6L9.9,335.1L9.4,334.2L8.7,333.6L8.2,332.5L7.9,332.5L8.1,333.8L8,335.6L6.8,333.6L4.2,330.6L3.6,329.8L3.4,329.8L2.8,328.7L2.2,327.5L0.6,325.2L0.1,321.1L0.1,319.1L0,318.9L0,0ZM596.8,353.7L596.4,354.2L596.1,353.8L596.1,353.2L596.6,353.3L596.7,353.4ZM596.8,381.9L596.6,382L596.2,382L596,381.8L595.9,381.5L596.6,381.5L596.9,381.7ZM591.8,407.1L591.3,407.6L590.9,407.5L590.7,407.3L590.6,407L591.5,406.7L591.9,406.8ZM247,312.8L246.7,313L246,312.1L245.9,311.8L246.5,311.8L247.2,312.2L247.2,312.5ZM103.5,532.8L103,533L103,532.7L103,532.3L103.4,531.9L103.6,532.1ZM474.6,638.9L474,639.1L473.7,638.1L474.2,637.9L474.8,638.5ZM351.1,585L350.3,585L349.8,584.7L349.9,583.1L350.3,582.7L350.5,582.8L350.7,583.3L350.9,583.7L351.3,584.1ZM386.1,159.3L386.3,159.9L385.5,159.8L385,159.2L385,158.6L385.6,158.6ZM152.5,683.3L152.2,684.1L151.6,683.6L150.9,683.5L151,682.9L151.6,682.8L151.9,682.8L152.3,682.6ZM324,498.4L324.6,499.2L325.4,499L326.6,499.2L326.8,499.6L326.8,499.9L325.5,500.7L324.7,499.9L323.1,500.4L322.4,500.1L321.5,500.4L320.9,499.7L321.1,499.1L322.7,498.2ZM249,645.5L248.9,645.9L248.3,645.8L247.8,645.1L248,644.9L248.3,644.8L248.7,644.9ZM470.6,157.4L470.4,157.7L470.2,157.6L469.5,158.2L469.3,157.6L468.8,157.2L468.7,156.9L470.3,156.7L470.8,156.9ZM242.7,645.2L242.5,645.3L240.6,645.2L239.4,646.2L238.6,646.4L235.5,646.4L235.2,646.3L234.9,646.3L234.7,646.5L233.8,646.4L230.7,645.5L230.3,644.8L230.8,644L231.9,642.9L234.1,642.6L244.2,642.6L245.3,643.5L245.4,643.9L243.2,644.5ZM473.3,483.8L472.6,484L472.3,483.1L472.4,482.1L472.9,481.4L473.3,481.1L473.4,481.1L473.9,480.1L474,480.6L473.7,482.4L473.3,483.1ZM597.5,361.7L597,362L597.7,360.8L597.9,360.6L598.2,361ZM597.3,395.9L597.2,396.2L596.7,396.1L596.5,396L596.8,394.9L597.6,394.5L598,394.4L597.7,394.9L597.6,395.4ZM586,417.4L585.5,417.4L585.1,417L585,416.7L585,415.4L586.6,414.3L587.1,413.2L587.5,413.3L587.9,413.5L588.2,413.8L586.5,415.6ZM596.3,397.8L595.8,398.3L595.5,397.4L595.4,397.1L595.8,396.7L596.1,396.7ZM512.7,460L511.9,460.9L511.8,460.6L512.1,460L512.4,459.4L512.7,459L513.2,458.9L513.5,459.4L513.1,459.9ZM451.1,692.4L450.8,692.6L449.9,690.8L450.2,690.3L449.8,689.4L450.4,689.3L450.9,688.6L451.1,689L451.1,690.2L451.5,690.9ZM558.6,685.7L557.7,686.3L557.1,686L556.9,685.2L557,684.9L557.8,684.4ZM559.3,679.9L558.7,680.6L558,680.3L557.7,680L558,679.4L558.9,679.3ZM557.4,679.4L557.1,679.7L556.7,679.1L557.2,678.3L557.7,678.7ZM495.5,693.3L494.7,694L494.7,693.5L495.1,693.1L496.1,691.4L496.5,691L496.8,690.8L497,690.2L497,689.3L497.6,689.1L497.1,691.2ZM492.7,695.8L490.9,696.7L491.9,695.5L493.9,694.5L494.2,694.3L494.1,694.8L493.1,695.6ZM427.3,696.7L428.3,697L428.7,697.3L428.9,697.8L429,698.2L427.8,698.5L425.7,697.7L423.7,698.3L423.1,698.3L422.7,697.9L423,696.7L423.8,696.9L424.4,696.5L424.3,695.1L423.9,694.4L425,693.1L425.5,692.8L426,692.8L426.4,693.8L426.5,694.8L427,695.7ZM429.1,693.2L430.6,693.3L432.4,692.5L433.2,692.9L433.6,692.8L434.9,692L435.7,691.7L436.3,691.1L436.9,691.8L438.2,692.5L438.6,693.3L439.1,693.7L439.3,693.9L438.5,694.8L438.4,695.6L437.6,695.6L436.6,697L432.8,699.5L429.4,697.4L427.9,696L426.9,694.1L426.7,692.4L426.3,691.4L426.5,691.2L426.7,691L427,691.1L428,692.2L428.5,692.5ZM281.7,474.4L281,474.7L280.8,474L280.9,473.3L281.5,473.4L281.7,473.6ZM278.7,478.1L278.1,479L277.5,478L277.5,476.6L277.7,476.3L278.7,476.1ZM310.2,448.8L308.8,449.2L308.5,448.1L309.5,447.1L310.6,447.5L311.2,447.9L310.9,448.3ZM309.6,437.1L309.8,437.7L309.5,438.6L309.2,438.8L308.9,438.4L308.1,438.1L308.1,437.7L308.5,437.7L309.2,437.2ZM312.2,429.8L312.8,430L313.3,429.8L313.7,429.2L314,430.1L314.9,430.8L314.6,431.6L313.8,431.6L313.1,431.5L312.2,431.8L311.2,431.6L310.7,430.9L310,429.7L309.6,429.4L309.7,428.9L309.9,428.6L309.8,428.5L309.9,428.3L310,428.1L310.2,428.1L310.7,428.6L312,429.4ZM311.5,435.1L310.7,435.4L310.5,435.2L310.4,434.7L310.4,434.3L309.6,432.2L310.2,431.9L310.6,432.2L311.1,432.5L311.5,432.6L311.9,433.3L311.8,433.7L311.9,434.2ZM340.5,449L340.3,449.2L340,449.1L339.3,449.5L339.1,448.8L339.3,447.5L340.3,446.5L340.5,446.2L340.8,446L341.1,446L341.5,446.4L341.5,446.9L340.9,448.7ZM348.6,460.5L348.1,460.8L348,460.1L348.1,459.1L348.9,455.6L348.7,454.7L350.2,452.7L351.1,450.9L352.3,449L352.5,448L353.7,446.1L354.8,443.4L354.7,442.6L355,442.1L355.2,441.5L355.2,440.9L356,439.9L356.2,440.6L356,441.8L356,442.4L356.1,442.7L356.1,443.9L355.9,445.7L356.1,447.7L355.6,449.8L355,450.8L354.2,451.4L353.2,451.8L352.2,452.9L351.6,454.1L351.5,455.2L349.9,459ZM352.9,439.8L353.5,441.3L352.6,441.3L352.3,440.2L352.7,439.9ZM362.2,456.7L362.1,457.2L361.2,457.1L360.9,457.2L360.1,458.2L359.6,458.5L356.9,458.9L354.9,458.6L354.1,458L353.7,457L353.5,456.4L354.1,455.7L354.5,455.2L356.2,454.3L356.6,453.6L357.5,452.8L359.3,452.5L359.5,452.7L359.7,452.9L360.1,452.9L361,453.6L362,454L361.7,455.7L362,456.3ZM364.5,464L364.2,464.7L363,464.1L362.7,463.6L362.8,463.1L363.4,462.9L363.7,462.9L364.3,463.5ZM352.2,462.9L352.3,464.1L351.3,464.4L350.5,464.1L349.9,463.4L349.9,463.2L350.4,463.2L351.4,462.6L351.7,462.5ZM313.9,507.5L313.6,508.2L313.3,508.5L312.8,508.3L312.4,508L312.2,508.5L311.3,508.7L310.7,509.5L309.7,509.7L309.1,509.6L309.2,508.9L310.9,507.8L312,507.4L312.9,506.7L313.4,506.6L313.7,507.2ZM334.4,494.4L333.3,494.6L332.9,494.6L332,493.4L331.9,492.9L331.2,492.4L331.5,491.8L332.4,491.7L334,490.9L336.5,492.1L336.9,492.5L336.1,492.7L335.6,493.8ZM378.5,457L378.3,457L377.7,456.2L377.8,455.2L378.6,453.7L379.2,455L379.2,455.6L379.1,455.9L379.7,456.6L379.3,457ZM374.3,455.3L374.1,455.6L373.9,455L373.2,454.4L372.6,453.3L372.2,453L372.5,452.2L372.5,450.8L373.1,450.2L373.4,450L373.9,449.4L374.1,449.4L374.3,449.9L373.9,451.6L374.5,453.5L374.3,454.7L374.4,455ZM314.1,411.7L314.1,412.5L312.3,411.4L312.2,411L312.3,410.7L312.5,410.5L313.5,410.9ZM332.4,414.2L333.1,414.2L333.3,414.1L334.6,415L334.5,415.5L334.7,416.2L333.9,417.2L333.8,417.6L333.4,418L332,417.1L331.5,416.6L331.3,415.5L331.9,413.9ZM334.4,427.7L333.5,430.5L332.9,429.5L333.1,428.9L332.6,428.4L332.5,427.9L332.7,427.3L333.2,426.7L333.3,424.9L334.5,424.3L334.9,424.3L334.8,424.7L334.8,425.6ZM336.8,425.7L336.5,426L336.3,426L336.1,425.4L336.4,424.9L336.5,425ZM340.6,428.2L340.1,428.4L338.9,427.3L338.2,426.8L338.1,426.5L338.6,426.1L340.1,426.1L340.8,426.9L340.9,427.4ZM347.6,422L348.5,423.7L347.5,422.5L346.3,421.7L345.1,420.4L344.1,419.9L343.9,419.6L344,419.1L344.7,419L344.9,419L346.7,421.4ZM353.1,426.5L353.1,427.5L352.7,427.2L351.3,425.2L351,424.5L351.3,424L352.3,424.7ZM352.4,428.4L354.5,429.8L356,432.1L356.2,433.8L356.1,434.5L355.4,433.7L353.9,432.7L352.8,432.4L352.5,432.2L352.6,431.7L351.9,431.1L351.9,430.9L351.3,430.7L350.3,429.5L349.7,429.2L349.1,429.5L347.7,431.3L346.2,432.5L346.2,432.1L346.8,430.5L347.2,428L347.4,427.2L347.1,426.1L347.1,425.1L348.2,425.5L349.6,426L350.7,426.6L350.8,427.1ZM359.5,413.1L359.2,413.8L358.8,413.6L358.3,413.6L357.5,414.3L356.2,413.4L356,412.7L356.9,411.3L356.9,409.1L357.3,408.6L357.6,408.2L358.1,408L359,409.5L359.3,409.7L360.2,410.4L360,411.8L360.1,412.6ZM335.3,408.3L335.3,408.8L332.9,407.1L332.7,406.8L332.7,406.5L332.9,406.3ZM333.7,397.4L333.9,397.8L333.7,397.7L333.5,397.8L333,398.6L333.6,400.2L333.2,401.3L332.6,401.4L332.3,401.2L332.5,400.7L332.6,400.4L332.5,399.7L332.1,399.3L331.8,398.4L331.3,397.8L331.6,397L333,396.9ZM332.5,352.2L331.8,353L331.4,352.8L331.8,352L331.8,351.7L332.1,351L332.7,350.8L333.2,351.4ZM325,350L325,350.7L324.4,350.3L324.3,349.7L324.3,349.3L324.6,348.8L324.9,349.2ZM328,346.7L328.1,347.7L327.5,347.7L326.5,347.1L326.4,346.7L326.4,346.5L326.6,346.2ZM332.9,334.8L332.7,335L332.4,334.9L332.7,333.8L333.3,333.5L333.7,333.6ZM332,329.9L331.5,330.8L331,330.8L331.1,330.3L331.7,329.2L331.9,329.2ZM600,618.7L599.5,618.9L598.9,618.7L598.7,617.9L598.9,617.2L599.5,616.7L599.9,616.5L600,616.6L600,618.7ZM573.2,660.6L572.7,660.6L570.7,659.9L570.3,659.3L572.5,659.4L573.1,659.6L573.3,660.4ZM573.2,662.3L573.4,662.8L571.8,662.1L570.3,661L569.5,660.7L569,660L569.9,660.5L571.6,661ZM482.1,573.3L484.4,573.7L485.3,573.7L486.1,574.1L487.1,573.9L487.7,574.1L489.7,575.8L490.6,576.9L492,577.9L493.1,578.2L492.3,579L490.7,579.5L490.1,579.5L488.9,579L487.9,579.1L487.1,578.5L486.9,577.4L486.1,575.2L484.9,575.8L483.6,574.8L483.3,574.7L483.1,574.9L482.6,574.6L482.1,573.8ZM483.1,583.7L487.5,584.3L488.6,584.2L491.1,584.4L493.2,585.1L496.9,585.3L498,585.5L498.8,586L496.8,586.4L495.8,586.8L494,587L492.5,586.8L491.4,587.1L491,586.7L489.5,586.3L487.4,585.5L483.2,584.5L483,584ZM477.4,578.4L476.9,578.6L476.3,578.4L475.7,577.5L475.9,576.9L476.5,576.4L477.1,576.9L477.3,577.5L477.7,577.5ZM470.8,589.6L470.5,589.8L470.4,589.3L470.6,588.7L470.8,588.5L471,588.6L471.3,588.8ZM521.1,659.6L520.5,659.7L517.7,659.4L517.4,658.9L517.4,658.7L518,658.2L518.6,657.4L519.6,657.1L520,657.1L521.1,659ZM461.9,613.2L462.5,613.8L461.1,613.4L459.3,612.4L459.1,611.7L460.7,612.7ZM426.1,584.8L426.3,585.5L426.9,586.1L426.7,587L426.5,587.2L426.6,587.6L426.9,587.9L426.4,588.2L426,588L425.4,588.3L425,588.8L423.7,588.9L423.3,588.6L421,588.1L419.5,587.1L419.3,586.8L422.1,585.6L423.4,585.2L424.5,585.3L425.8,584.8ZM433.4,580.6L433,580.9L431.6,580.6L430.9,580L430.5,579L430.1,578.3L430.1,577.7L429.7,576.9L429.7,576.7L432.2,575.9L432.7,576.2L433.7,576.2L434.2,576.8L433.9,579.2ZM432.3,574.6L432,575.2L431.5,575.6L426.7,576.3L427.1,575.9L427.3,575.5L427.6,575.3L428.1,575.3L428.3,575.2L428.5,575.2L428.8,575.2L429.3,575L430.3,575.2L431.3,575.1L431.2,574.5ZM429.2,571.9L428.5,571.9L427.4,571.4L428.1,571L428.5,570.9L428.9,570.7L429.1,570.7L429.5,570.9L429.8,571.2ZM431.3,566.1L433.2,566.5L433.6,566.5L436.4,567.7L436.9,568.3L436.7,568.7L437.1,569.2L436.2,570.1L435.8,570.2L435.3,569.9L434.4,569.7L433.4,570L432.7,569.8L432.2,569L431.2,568.5L429.8,566.9L429.1,567L429.3,567.6L429.9,568L430.7,569.2L431.1,569.4L431.6,569.3L432.2,569.8L432.2,570.6L430.6,570.9L430,570.4L429.9,569.3L429,569.7L428.6,570L428.3,570.1L427.7,569L426,568.9L424.9,568.3L425.4,567.7L425.5,567.1L426.3,566.8L427,567.1L427.8,566.7L428.3,566.8L428.7,566.5L430.3,566.4ZM417.2,568.1L416.7,568.1L416.3,567.5L415.2,566.8L414.5,565.5L417.1,567.6ZM405.1,543.2L403.3,543.4L402.9,542.9L402.4,540.5L403.7,538.6L405.3,537.5L406.3,537.2L406.7,537.1L407.7,538.5L406.9,541.3L406.1,542.7ZM393.9,566.1L393.9,566.4L393.5,566L393.3,565.8L393.5,564.6L393.7,564.4L393.9,565.3ZM393.6,558.9L393.2,559L393.1,559L392.9,558.5L393.1,557.8L393.6,557.8L393.8,557.9L393.9,558.4ZM391.7,571.5L391,571.8L390.2,571.8L390.1,570.6L390.3,569.1L391,568.9L392.1,569.2L391.7,569.6L392,570.4ZM392.2,574.7L392.1,574.9L390.9,574.6L390.6,574.5L391.2,572.9L391.8,572.9L392.3,574.4ZM395.2,569.6L396.5,571.2L395.6,572.8L396.2,573.7L397.8,573.7L398.2,574.1L398.5,574.5L398.7,575L398.3,575.4L397.3,575.8L396.3,575.3L396,574.7L395.8,574.5L394.4,574.9L394,575L393.8,574.2L394.1,573.2L393.1,572.7L392.2,571.6L392.2,571.1L392.5,570.4L392.5,569.8L393,569.7L393.9,570.5L394.4,569.8L394.7,569.4ZM401.7,584.5L401,584.9L400.7,585L399.1,584.7L397.1,584.8L395.1,585.2L394,584.9L393.3,584.3L393.3,583.7L394,582.2L395.5,581L396.1,580.8L397.1,581.1L398.9,582L400.4,583L401.7,583.8ZM475,629.5L474.9,630L474.9,630.8L475.1,631.5L474.6,632.2L475,633.4L475.1,633.9L475.1,634.7L474.9,635.1L474.6,636.1L474.3,636.5L474,636.6L473.7,636.9L471.6,636.5L470.6,635.8L469.8,635L469.6,634.7L468.6,633.8L468.4,633.5L468.4,633L469.2,632.9L470,632.9L470,632.5L470.5,630.9L469.2,629.9L468.9,629.5L469.4,629.2L470.5,629.6L471.7,627.9L472.1,627.5L472.3,626.5L473,626.4L473.5,626.5L473.9,627.1L474,627.7L473.9,628.1L474.5,628.4ZM472.6,637.7L472.5,638.5L472.3,639.4L471.3,640.4L470.6,641.9L470.3,642.3L468.9,643L467.7,642.1L467.3,641.4L467.9,638.1L468.4,638.2L468.7,638.2L468.8,637.9L468.1,637.6L467.9,635.7L467.9,634.9L468.5,634.8L469.3,635.3L470.2,636.3L471.3,637.1ZM454.7,631.7L453.9,632.7L454.7,630.4L454.9,629.3L455.7,628.6L456.8,625.1L457.1,625.2L457.5,625.5L456.9,628.1L455.3,629.8ZM453.4,631.1L452.7,632.2L452.3,631.8L452,631.8L451.9,631.2L452,629.9L451.5,628.4L452.2,628.4L452.4,628.9L452.7,629L453.4,630.4ZM408,605.4L408,605.9L407.9,606.1L407.3,605.9L406.9,605.9L406.5,605.1L406.6,604.9L407.4,605.1L407.7,605.2ZM406.3,605.9L404.3,606.5L404.8,605.4L405,605.1L406,605.4ZM403.1,606.9L402.8,607.3L402.1,607.5L401.6,607.5L401.8,607.1L401.6,606.9L401.2,607L400.6,607.3L399.8,608L399.3,607.6L399.2,607.1L399.2,606.9L400.2,606.1L401.3,605.9L402.9,605.1L403.7,605.1L403.5,605.6L403.3,606L403.1,606.4ZM346.5,616.6L346.7,619L346.6,619.7L346,618.7L345.8,618.6L345.6,618.7L345.4,618.8L345.1,618.8L344.7,619.8L344.6,620.6L344.3,621.2L344.1,623.2L344.3,623.7L344.7,623.5L345,623.4L346.1,624.1L346.7,624.7L346.5,625.3L345.8,626L344.9,626.3L344.3,626L344.1,626.2L343.7,626.5L343.4,627L343.5,627.4L342.8,628.8L342.4,629.1L341.5,628.7L340.9,629.1L340.5,629.1L339.9,627.7L339.9,627.1L340.5,626.4L340.5,625.9L340.8,625.3L341.5,624.6L341.9,624L341.9,623.6L342.2,622.2L342.3,621.7L342.5,621L342.8,619.8L342.8,617.4L343.9,615.4L344.9,614.9L345.3,614.8L345.2,615.3ZM340.5,624.7L340.2,625.4L339.6,626L339.1,626L338.6,625.9L337.7,625.4L337.5,625.9L336.7,625.9L336.5,625.2L337,623.2L337.7,622.4L337.7,621.6L337.1,619.9L337.5,619L339.2,618.4L340.7,617.6L341.1,617.4L341.6,618L341.8,620.9L340.2,623.2ZM333.8,626.5L333.1,626.8L331.8,625.5L331.2,624.5L331.3,623.9L331.7,623.4L331.9,623.3L331.9,622.7L332.4,622.4L333,622.5L333.3,623.2L333.8,623.4L334,624.1ZM347.1,611.8L346.1,613.1L345.3,613L344.4,612.1L344.1,611.2L344.1,610.8L344.7,610.3L346.8,610.5L347.2,610.9ZM378.4,593.3L378.2,593.5L377.5,592.9L377.1,591.2L376.7,590.7L376.3,589.1L376.4,588.6L376.9,588L377.4,588L377.7,588.4L377.5,590.1L378.5,592.3ZM378.1,585.9L381.5,586.3L381,586.7L377.3,587.3L376,587.2L372,587.6L371.5,587.6L371.4,586.9L371,586.5L371.6,586.1L372.5,586L374.7,586.2ZM366.3,585L367.4,585.4L367.7,585.4L368.1,584.9L368.3,584.8L368.8,585L368.9,585.8L369.5,585.7L370.1,586L370.2,586.1L370.2,586.9L368.2,587L366.7,587.6L364.8,587.1L362.7,588L361.3,588.3L360.2,588.3L359.2,586.7L359.8,584.8L360.2,584.5L360.9,584.3L362.9,584.2ZM353.9,587.8L354.1,588.2L353.4,588.2L353.1,587.3L353.1,586.9ZM346.8,579L347.1,579.7L346.7,580.3L347.1,581.5L348.2,580L349.3,579.8L349.9,580L350.3,580.3L350.5,580.9L350.1,582.1L349.4,582.7L348.5,582.8L348.1,582.1L347.5,582L347.1,583.5L346.9,583.8L346.4,584L345.9,583.5L345.8,583.3L346.5,582.6L346.1,580.5L345.6,580.9L344.3,582.8L343.2,583.7L342.9,583.2L342.3,581.9L342.6,580.3L343.4,579.1L344.1,579.2L346.2,578.9ZM346.1,586.2L345.3,587.1L345.3,586.6L345.4,586.2L345.6,585.9L346,585.7ZM331.8,570.5L332.3,571L332,571.6L331.7,571.5L330.6,571.5L330.3,571.5L329.8,571.9L329.5,571.9L329.7,571.3L330.5,570.5L331.1,570.7ZM386.9,521.2L386.4,521.4L385.7,521.3L385.6,520.7L386.3,519.7L386.8,518.6L386.3,518.4L385.8,517.7L385.8,516.9L386.2,515.4L386.8,515.6L387.4,516.2L387.6,517.4L388,518.3L387.2,519.5ZM385.8,522.9L385.8,523.4L385.1,522.3L384.9,521.1L385.4,521.5L386,522.5ZM387.3,524.1L387.1,524.2L386.7,523.9L386.4,523.6L386.5,523.3L386.7,523.1L387.3,523.6L387.3,523.9ZM374,527.8L373.7,528.2L372.3,527.5L372.4,526.6L372.3,526.1L371.9,525.6L371.7,525L371.9,524.5L372.7,525.2L373.2,526.3L373.8,527.4ZM371.2,536.5L371.1,536.8L370.7,535.5L371,534.8L371.5,535.1L371.6,535.3L371.2,535.9ZM317,636.1L316.5,638L316.3,637.4L316.2,635.6L315.9,634.8L316.1,633.9L316.1,631.4L316.4,630.3L317.1,631.7L317.2,632.5ZM444.3,646.2L444.1,646.8L443.6,646.5L443.2,645.9L442.5,645.8L442,645.6L441.7,645.3L443.6,645.2ZM431.8,658.8L430.9,659.1L431.5,658.2L433.6,656.2L434.3,656.6L435.3,656.7L433.8,657.6L432.3,657.9ZM436.9,655.2L436.8,655.3L435.4,655.2L434.6,655.2L434.7,654.3L434.3,653.7L434.9,652.7L434.9,651.7L435.5,651.5L435.5,650.9L436.2,649.3L436.6,648.9L437.2,648.8L437.9,647.8L438.3,647.5L438.7,646.8L439.3,646.5L439.2,645.8L439.6,645.5L440.5,645.3L441.1,645.5L441.5,646.2L440.5,647L441,648.9L440.3,651L439.8,651.6L438.9,652.2L438.6,652.7L437.5,653.7L437.2,654.6L437.1,655ZM420.4,654.7L419.8,655.7L419.1,655.6L417.7,654.3L417.8,653.3L417.9,653L418.4,652.9L420.1,653.2L420.5,654ZM407.5,646L406.9,646.3L406.1,645.7L405.9,645.5L406.4,644.9L407,644.8L407.3,645L407.5,645.3L407.4,645.5ZM398.1,656.3L400,656.8L401.1,656.7L401.3,657.1L400.3,658.1L398,657.3L397.6,656.5ZM393.5,651L392.9,651.2L393.1,650.4L393,649.7L394.2,649.9L394.2,650.5L394.1,650.7ZM386.7,651.5L386.8,652L386.8,652.3L385.5,652.4L384.2,653L383.5,653.7L383,654.6L381.3,654.3L379.7,654.2L379,653.9L378.2,653.9L377.3,654.2L375.9,655L375.5,655L375.7,653.9L376.1,653.1L377.5,651.4L378.7,651.8L380.2,651.9L381.8,651.6L382.9,650.8L384.5,650.4L385.9,651.4ZM373.9,656.8L373.1,658.7L372.3,658.3L373.2,657.2L373.6,656.9ZM349.1,681.1L348.1,681.5L348.1,680.7L348.9,679.6L349.5,679.3L349.9,679.7L350,679.9L348.9,680.3ZM343.9,688L342.9,688L342.5,687.9L342.4,686.9L342.7,686.3L345.1,685.6L346.1,684.9L347.4,683.5L348.2,683.2L348.4,683L348.6,683.1L348.7,684.1L349.1,684.7L349.1,685.1L347.9,685.6L346.9,686.8L344.5,687.6ZM332.1,684.4L331.5,684.5L330.3,684.2L330.1,684L331.1,683.4L331.9,682.7L332.8,682.6L333.3,682.7L333.1,683.7ZM361.9,656.8L362.2,657.5L363.1,657.1L363.9,657L365.8,657.1L367.2,657.2L368.1,657.5L368.1,658.9L367.7,659.2L360.5,660.2L359.8,659.9L359.5,659.5L360.3,658.5L359.9,658L360.3,657.2L361.2,656.7ZM358.7,658.9L358.1,659.6L357.6,660.8L357.2,661.2L356.3,661.4L355.7,660.2L354.8,660.2L355.3,659.2L355.7,658.8L356.3,658.8L356.6,659.2L356.8,659.3L358.2,657.5L358.5,657.5L358.7,657.5L358.9,657.8ZM354.7,658.3L353.2,658.6L352.2,660L351.5,659.9L351,660.6L350.9,660.8L351,661.1L350.9,661.3L350.6,661.6L349.9,661.2L349.3,661.7L349,661.8L348.1,661.2L347.3,661.2L347,661.1L348.1,660.1L349.5,659.2L349.7,658.8L349.2,658.7L348.9,658.6L348.8,658.3L349.7,658.2L350.3,658.2L350.8,658.5L351.1,658.5L353.1,657.3L353.9,657.6L354.4,657.9ZM348,659.2L347.7,659.7L344.7,659.6L344.8,659L345.7,658.3L345.9,658L346.9,657.8L348.2,658.2ZM305.2,663.5L304.7,663.6L304.3,663.5L304.5,662.5L304.2,661.8L304.7,661.2L304.8,660.3L305,660L305.2,660.3L305.4,660.5L305.6,660.6L306.1,660.6L306.2,661L306.2,661.4L306,661.8L305.4,662.3L304.9,662.7ZM300.8,657.9L300.3,657.9L300.3,657.4L300.4,657L300.9,656.8L301.1,656.8L301.4,657.2L301.5,657.4L301.2,657.7ZM262.3,663.8L262,664.2L261.1,663.5L260.9,663.2L261.6,662.8L261.8,662.7L262.4,663.2ZM259.7,643.7L258.9,643.9L258,643.5L258,642.9L258.2,642.4L259.5,642.2L260.2,642.2L260.9,642.5L261.4,642.9L261.6,643.3L260.3,643.3ZM230.2,630.7L230,631.1L228.9,631.1L228.7,630.6L229.4,629.8L229.9,629.7L230.3,630ZM288.1,520.9L286,521.5L284.7,520.2L285.2,519.3L285.1,518.7L285.7,518.6L286.3,518.7L287.6,519.5L288,520.5ZM285.1,529.6L285,529.9L284,529L283.7,528.4L283.9,527.9L284.9,527.8L285.3,528.1ZM271.4,604.5L271,606.4L270.3,605.4L271.1,604.1L271.4,603.8ZM270.1,609L267.7,611.1L267.3,610.6L267.5,608.5L266.9,607.2L266.9,606.2L267.4,604.5L268,603.1L269.3,602.3L269.7,602.2L269.6,603.8L269.9,604.4L269.9,604.9L269.8,605.3L270.1,607.4L270.2,607.9L269.9,608.5ZM188.4,584L187.1,584.5L186.7,583.4L187.5,583.1L188.4,583.4ZM196.8,579.1L194.6,580.3L194,580.2L193.6,579.8L193.9,577.6L194.2,577L195.7,576.9L196.6,577.2L197.1,577.6L197.3,578.3L197.2,578.7ZM187.6,533.7L187.1,534.3L186.5,533.9L187.4,532.8L187.6,532.7ZM181.3,525L179.8,525.4L178.9,524.8L179.8,524.1L180.2,524.1L180.4,523.9L180.5,523.6L178.8,523.2L178.3,522.8L177.8,521.7L177.8,521.1L180,519.3L180.5,519.1L180.6,519.8L182.1,521.7L182.2,522.9L182.2,523.4ZM158.7,530.9L158.7,531.7L157.9,531.2L157.8,530.4L158,530.1L158.6,530.3ZM152.9,534.2L152.4,534.2L152.3,533.9L152.3,533.3L152.2,532.9L152.1,532.5L152.1,532L152.6,532.3L152.9,532.5L153.3,532.7L153.6,532.8L153.7,532.9L153.4,533.7ZM107.8,542.9L108.5,543.8L108.6,544.4L108.2,545.1L108,546.1L106.7,546.9L105.6,546.8L105.2,546.5L104.5,544.9L104.6,543.6L105,543L106,543.1L107.1,542.4ZM115.8,555L115.3,555.4L114.7,554.8L114.2,554.1L114,553.3L113.7,552L113.6,551L114,550.5L114.2,550.5L115.1,551.1L115.7,552L116,552.3L116.1,553.2L115.9,554.2ZM116.6,549.8L116.6,551.2L115.8,550.8L115.2,550.3L114.2,549.9L112.9,549.7L112,549.4L111.3,548.7L111.3,548.4L111.4,548.1L111.6,548L116.3,549.2ZM122.5,557.7L122.3,558.1L121.9,557.8L119.7,557.3L119,557.3L117.1,556.8L116.6,556.5L116.2,556.1L116.3,555.5L116.6,555.1L116.7,553.9L117.2,553.5L118.1,554.3L119.2,555L119.8,555.4L121.6,556.1L122.2,556.5ZM124.1,556.3L123.7,556.7L123.2,556.6L122.6,556.2L121.8,555.5L121,554.9L119.8,554.5L119.2,554.5L118.9,554.3L119.2,553.1L119.9,553.1L122.2,554.1L123,554.7ZM125.4,560L124.1,560.1L123.8,559.9L123.9,558.9L124.3,558.2L124.8,558.3L125.5,559.2ZM126.9,554.4L127,555L126.2,554.8L125.7,554.1L126.2,553.6L126.4,553.4L126.7,554.1ZM127.2,558.6L127,558.8L126,557.4L126.3,556.6L126.5,556.3L127,556.8L127.4,557.4L127.8,558ZM131.4,557.1L131.5,557.4L130.5,556.8L130.4,556.3L130.6,556.1L131.2,556.6ZM133.6,552.9L134.3,553.4L134.9,553.1L134.8,553.5L134.7,553.9L134,555L132.9,554.8L132.6,554.4L132.6,554.1L132.7,553.9L132.8,553.4L133.3,553.4ZM139.8,552.5L139.9,553.3L140.5,553.7L140.7,554.4L140.6,555.3L140,556.5L139.7,556.8L138.9,556.5L138.7,556.2L138.6,555.9L138.7,555.6L138.1,555.4L138.5,555L138.2,554.3L136.6,554.7L136.1,554.7L136,554L136.1,553.8L137.4,552.9L138.1,552.7L138.9,552.9ZM136,556.7L135.3,557.1L134.4,556.1L134.4,555.8L134.5,555.6L134.7,555.5L135.2,556.1L135.8,556.2ZM141,565.4L141.1,565.6L140.6,565.3L140.2,565.1L140,565L138.9,563.4L139.4,563.5L140.6,564.9ZM142,568L142.3,568.1L142.7,567.6L143.4,568.4L143.9,568.8L144.5,569.2L143.9,569.2L143.6,569.5L143.5,569.6L141.1,568.3L139.6,568.7L138.6,568.4L138.3,568.1L138.8,567.4L139.4,565.8L140.4,566.2L140.6,566.7L140.6,566.9L141.2,567.2ZM138.6,569.7L139.6,570.8L139.9,571.2L139.4,571.8L139,572.6L138.7,572.8L137.9,572.5L137.4,573.3L137,572L136.2,571.2L136.7,570.3L136.9,570.2L137.1,570.3L137.4,570.5ZM130.4,569.9L129,570.3L127.3,570L127.5,569.3L128.3,568.5L129,568.6L130.2,569.1L130.7,569.5ZM180.1,599.3L179.9,600.5L179.6,601L178.7,601.5L178.4,601.9L177.5,601.8L177.4,601.2L177.1,600.8L176.2,600.3L176,600.4L175.8,601.2L174,601.7L173.5,601.7L173.7,600.7L173.3,600L173.2,599.1L173.2,598.7L172.9,598.5L173.4,597.8L173.3,597.1L173.8,596.4L174.1,594.5L176,594.1L176.4,594.5L178.6,594.9L180.2,596L181,597.5ZM171.9,598.3L171.5,598.5L171.2,598.3L171.1,597.9L171.3,597.6L171.9,597.5L172.2,597.6ZM165.4,599.4L165.2,599.6L164.6,599.5L164.2,599.2L163.9,598.9L163.8,598.6L164.4,598.2L165.7,598.6ZM147.2,640L146.6,640.2L146,640L145.8,639.7L146.6,638.9L147,638.7L147.3,638.7L147.5,639.1ZM60.9,549.7L63.3,552.9L64.3,553.3L65.6,554.7L65.9,555.2L65.6,556.2L65.3,559L64.7,559.7L63.2,559.4L63.1,558.9L62.2,556.7L60.7,555.6L60,555.5L59.6,554.3L58.8,552.8L56.4,550.2L58.3,550.2L59.2,549.6L59.4,549L59.5,548.9ZM115.2,627L114.3,627L112.6,625.7L112.3,625.2L112.8,624.8L113.3,624.9L115.2,625.7L115.6,626.2ZM93.6,601.4L94,603L92.7,601.9L92.8,601.1L92.6,600.6L91.8,600L91.2,599.2L90.9,597.4L91.1,597L91.6,597L93.9,599.4L94.1,599.8L94,600.7L93.7,600.9ZM91.2,596.5L90.4,597.4L89,597.4L88.8,596.8L88.8,595.5L88.5,595L88.5,594.9L88.8,594.1L89,593.9L91.1,595.8ZM87.1,592.1L87.2,592.3L85.4,591.4L84.5,591.1L83.8,590L84,589.5L84,588.8L84.1,588.5L84.7,588.4L85.4,588.9L85.9,590.2L86.8,591.4ZM79.6,585.8L78.6,585.8L76.4,584.5L75.8,583.9L75.7,583.1L73.6,580L73.4,579.3L74.2,576.8L76.3,576.2L77,576.6L77.3,577.8L78.5,579.8L78.9,580.9L79.2,581.4L79.3,581.8L79.2,582L80.1,583.4L80.7,584.1L80.8,585.3ZM71.8,571.9L71.1,572.4L70.1,571.9L70.4,571.2L70.6,570.2L71.2,569.4L71.4,568.5L70.2,566L70.8,565.9L71.3,566.2L72,567.9L72.7,568.9L72.4,570.2ZM59.3,543L59.2,543.2L58,542L56.8,541.4L57.3,541.2L58.4,541.4L58.8,541.6L59.2,542.1ZM49.6,539.8L48.9,539.9L48.2,539.7L47.7,539L44.7,537.2L43.8,537.1L43.1,536.7L42.3,536.5L41.5,535.3L41.3,534.6L41.9,534.3L42.3,533.6L43.3,533.9L44.4,535.1L45.6,535.5L45.9,535.8L46.4,536.4L49.1,538.1L49.4,538.6L49.6,539.2ZM37.4,501.3L37.1,501.6L36.5,501.5L35.8,500.5L36,500.3L36.5,500.4L37.3,500.6L37.4,501ZM215.5,539.2L215.1,539.3L214.6,538.9L214.5,535.5L214.8,535.2L215.1,535.3L215.3,535.9L215.3,537.4L215.3,538.7ZM279.4,486.2L278.7,486.8L278.5,486L278.5,485.1L279.4,484.3L280.7,484.1L280.9,484.8L280.7,485.6L280.5,486ZM600,17.9L599.1,18.9L598.7,19.7L597.4,21.4L595.4,22.9L595.1,25.7L593.8,24.5L593.6,23.4L594,22.5L596.3,20.5L597.2,19.4L597.5,18.5L598.4,17.5L598.8,16.7L599.3,16.3L600,15.1L600,17.9ZM358.8,284.9L358.2,286.8L357.6,287.1L357.1,287L356.5,285.9L356.9,285.5L357.5,285.7L357.9,285.6L358.9,284L359.2,284.3ZM354.3,287.8L353.6,287.9L352.8,287.7L352,287.7L352,287.3L352.8,287L352.8,286.4L353,286.1L354.9,286.8L354.8,287.2ZM371.6,282.1L370.7,282.4L369.7,282.3L369.8,280.5L370.2,280.8L370.4,281.4L371.1,281.7ZM402.9,258.6L401.8,259.1L401.4,259.8L400.4,260.1L399.5,261L398.5,261.2L398.5,262L398.9,262.6L398.3,262.7L397.7,263.5L397.6,264.1L397.9,264.6L397.8,264.8L397,265.5L396.1,265.5L396.1,264.7L396.2,264.2L397,262.9L397,261.3L397.7,261.1L398,260.9L399.2,259.8L399.4,259.3L398.8,258.8L398.8,258.3L399,258.1L399.9,258.2L400.3,258.7L400.5,258.7L401.1,258.4L401.3,257.9L402.4,256.8L402.9,255.7L403.7,256.6L403.5,257.7ZM411.1,245.2L410.6,245.5L410,245.1L409.8,243.7L410.1,243L410.6,242.9L411,244.1L411.3,244.6ZM416.1,239.1L415.2,240.1L414.2,239.2L412.9,238.6L413.5,238.4L413.9,238.2L413.9,237.8L414.7,237.2L416.3,236.7L416.8,236.7L417.3,236.3L417.5,235.9L417.8,235.7L418.8,235.2L419.1,235.8L419,236.3L418.3,236.5L417.5,237.2L416.8,238L416.2,238.3L416,238.5ZM414.7,240.4L414.8,240.7L413.7,240.5L413.3,239.3L414,239.5L414.2,239.9ZM429.1,212.9L427.9,213.2L427.2,212.9L426.5,211.3L427.7,210.3L429.4,211.3L429.7,211.6ZM432.9,211.2L431.9,211.4L431.9,210.6L432.7,208.9L432.7,207.7L433.5,206.1L433.8,205.8L434,205.6L434.3,206.1L434,208L433.3,209.5ZM407.4,180.1L407.8,180.4L408.5,180.2L409,180.2L409.3,180.4L409.8,181.3L409.9,181.8L409.1,181.9L408.8,182L408.3,182.7L407.7,182.4L407.3,182.1L407.2,181.7ZM423.1,187.4L422.3,187.8L422.1,187.4L421.8,187.2L422.4,186.6L422.4,186.3L422,185.8L422.5,184.2L422.3,183.5L424.1,183.3L424.4,183.9L424.5,185.9ZM426.5,184.8L425.5,184.9L425.1,184.7L424.9,184.3L426.3,183.5L427.3,183.6L426.9,184.4ZM459.7,134L459.2,134.5L458.2,134.3L457.7,133.6L457.9,132.7L458.9,132.1L459.8,133.4ZM514.9,111.4L513.9,111.5L513.6,111.3L514.3,111L514.3,110.4L514.7,109.4L514.7,109.1L513.9,109L513.9,107.8L514.5,106.7L516.3,104.8L516.7,104.5L516.8,105.3L516.3,107.2L516.1,107.9L517.5,108L516.6,110.3ZM527.6,49.7L527.3,49.7L527.1,49.6L526.8,48.5L527,47.9L527.7,47.5L528.4,47.4L527.9,49.4ZM545.1,0L544.8,0.7L544.6,0L545.1,0ZM547.7,3L547,3.1L546.1,2.5L545.9,1.7L546.6,1L547.3,1.3L547.9,2.1L548.1,2.5ZM531.6,176.5L531.4,176.6L530.9,176.2L530.8,175.8L530.9,175.6L531.2,175.5L531.9,176ZM527.3,154.1L527.2,154.8L526.6,154.6L526.3,154.2L526.3,153.4L527,153.4ZM477,160L475.8,161.2L474.8,161.1L474.3,160.6L474.1,159.9L475.1,158.9L475.9,157.5L476.7,156.9L477.3,156.6L477.8,156.6L476.7,158.5ZM412,179.3L411.7,179.5L411.3,178.3L411.1,177.9L411.5,177.6L412.3,175.5L412.5,176.3L412.8,177.2L413.1,177.3L412.8,177.9L412.3,178.2ZM416.6,174.3L415.8,174.9L415.2,174.9L415.7,174.1L415.8,173.8L416.3,172.8L417.1,172.5L417.5,172.4L416.8,173.4ZM420,167.3L419.2,167.8L418.6,167.4L418.9,166.2L419.1,165.8L419.7,166.2ZM414.2,162.2L413.5,162.8L413.2,162L413.5,159.6L414.9,160.1L414.9,160.8ZM415.4,159.1L415.2,159.8L414.4,159.3L414.1,158.9L414.8,156.9L414.7,156.1L414.7,155.7L416.1,154.7L416.4,154.8L416.5,155.2L416.3,155.6L416.4,156.6L415.3,158.3ZM450.9,162.3L450.5,162.9L449.6,162.7L450,162.3L450.3,161.7L450.5,161.6L450.7,162.2ZM447.4,164.6L447.9,165.1L449.2,164.9L449.4,165L449,165.5L448.5,165.9L447.4,165.6L446.8,165.6L446.7,164.9L446.8,164.6ZM293.4,284.8L293.9,285.6L293.7,286.1L292.2,285.9L292.1,285.4L292.7,285.5ZM290.9,285.1L290.5,285.9L289.9,285.8L289.9,285.2L289.7,285.1L289.9,284.6L290.1,284.5L290.8,284.9ZM408.3,153.1L407.2,154L405.8,152.9L405.5,152.2L406.5,151.3L407.4,150.3L408,150.2ZM400.7,153L400.6,154.4L399.8,154.4L399.4,153.6L398.9,154L398.6,154L398.2,152.9L398.1,152.1L399.1,151.5L399.6,151.9L400.4,152.1ZM397.8,155.6L397.7,156L397.1,155.4L397.7,154.7ZM381.4,174.2L380.9,174.5L380.5,174.4L380.3,174.2L379.8,173.5L379.6,173.1L380,172.3L381.5,171.1L385.5,169.9L386.2,169.9L387.8,170.4L388.1,171.3L387.9,172.1L387.5,172.7L385.7,173.6L384.3,174.1ZM380.4,158.9L379.7,159.1L379.3,158.7L379,158.5L379.1,157.9L380.3,156.7L380.5,156.3L381.6,156.6L382,157.2L381.5,158.2ZM383.6,112.6L383.5,114.5L382.9,114.4L382.5,114.2L382.3,113.9L381.9,112.1L382.3,111.4L383.3,112ZM331.8,197L330.9,197.4L328,196.3L326,195L324.7,193.6L324.6,192.9L326,193L327.4,193.6L327.7,194.4L328.3,194.7L328.6,195.1L331.2,196.2L331.6,196.6ZM336.6,216.8L336.5,217L335.1,216.3L333.6,216.2L333.1,215.5L333,214.5L334.6,214.5L336.5,215.4L336.9,215.9ZM335.3,220.4L335.2,220.7L334.3,219.8L333.8,219.7L334,219.2L334.7,219.1L335.2,220.2ZM337.8,217.7L337.7,218.3L337.4,218.2L337,217.2L337.3,216.9L337.8,217ZM309.1,273.4L308.3,273.9L307.8,273.7L307.8,272.9L308.1,272.2L307.7,271.7L308,271.1L308.7,270.9L308.9,271.3L309.2,271.5L309.3,271.7L309.3,272.1L309,272.7L309.3,273.1ZM204.3,326.2L204.7,326.6L205.8,326.3L206,326.8L206,327.1L205.6,327.7L204.7,327.2L203.8,327.3L203.1,327.3L202.9,327L203.5,326.4ZM173.4,324.7L171.8,326.2L171.2,326.2L171.7,324.5L172,324.1L172.9,324.7ZM172.4,328.2L171.8,328.5L171.1,328.4L172,327.8L172.4,327.1L172.8,326.9L172.8,327.5ZM167,330.3L166.6,330.3L165.7,329.4L166.1,328.9L167.2,329.2L167.4,329.5L167.4,329.7L167.1,330.1ZM165.2,329.5L165,329.7L164.5,329.1L164.1,328.9L164.4,328.1L165,329ZM162.4,469.2L162.1,469.2L161.8,469L162.9,468.2L162.8,468.7L162.8,469ZM134,449.9L134.2,450.5L134.2,451.8L133.7,453.1L133.9,453.6L133.5,454L132.8,451.6L131.8,450.6L131.6,450.1L132.2,450.2L133.2,449.5L133.6,449.5ZM122.7,439.8L122.5,439.9L122.3,439.9L122.1,439.8L122.2,439.1L122.3,438.7L122.6,438.6ZM117.8,435.4L117.6,436.5L117,436.1L117.2,435.5L117.4,435.2ZM115.8,431.8L115.9,432.1L115.3,431.9L115.1,432L114.4,431.9L114.1,430.3L114.2,430L114.6,430.1L115.3,430.9L115.6,431.4ZM133,551.2L131.3,551.9L129.4,551.3L130,550.2L131.3,549.9L132.3,550.3L132.9,550.5L133.3,550.8ZM135.8,535.7L135.2,535.8L135,535.7L134.8,535.2L135.2,534.3L135.4,534.1L135.8,535.2ZM92.1,507.1L91.8,507.4L91,507.2L91.2,505.4L91.6,505.2L92.3,505.5L92.6,505.8ZM87.2,494L88,495.2L87.6,495.8L87.4,495.9L86.9,495.7L86.5,496.2L86,496.3L85.6,495.5L85.1,495.1L85,494.5L85.7,494.5L86.1,494.6L86.9,494.3ZM85.1,493.4L84.9,493.5L84.5,492.5L85,491.2L85.6,492.8ZM89.7,457.8L89.6,457.9L89.2,457.6L88.8,457.2L88.7,456.7L89.4,456.7L89.7,457.2ZM89.7,459L89.7,459.6L89.5,460.4L88.5,460.9L88.1,460.2L88.2,459.3L88.4,459.1L89.4,459.1ZM73.2,477.6L73.1,477.8L72.6,475.6L73.4,476.2ZM71.2,477.9L71.1,478.8L70.6,478.7L70.2,479.3L70,479.3L69.6,477.7L70,475.3L70.2,475L70.6,475.6L71.5,475.9L71.1,477.2ZM70.1,465L69.4,465.2L69.5,464.5L69.7,464.1L70,464L70.1,464.7ZM21,489.9L20.3,490.9L19,488L18.4,487.9L18.4,486.5L18.7,486L20.2,485.4L20.6,485.7L21.4,488.3ZM19.2,484.1L18.2,485.1L17.7,484.5L17.9,484L18.4,483.8L18.8,483.5ZM12.7,474L13,474.5L12.4,474.4L11.8,473.8L12,473.2L12.2,472.9ZM16,478.2L15.2,478.2L14.9,477.7L14.6,477.2L14.8,476.8L15.3,476.6L15.9,477.4L16.1,478ZM17.1,476.2L16.6,476.6L16.4,476.6L16.4,476.3L16.3,476L16.2,475.6L16.2,474.9L16.6,474.3L17,474.4L16.8,475ZM8.8,464.1L8.2,464.1L8,463.7L7.9,463.3L8.2,463L8.4,462.9L8.7,462.9L9,463.6ZM5.6,448.1L5.2,448.5L4.1,448.2L4.2,447L3.9,445.8L4.1,445.4L5,444.5L5.7,444.2L6.2,445.3L6.4,446.4ZM7.7,438.7L7.2,438.9L6.6,438.7L7,438.2L7.1,437.3L7.6,437.8L7.6,438.4ZM11.3,431.3L11.8,432.8L10.9,432.2L10.6,431.7L11,431.3ZM8,421.9L7.6,422.6L7.6,421L7.7,420.8L7.9,420.8L8.1,420.9ZM8,437L7.8,437.2L7.4,436.9L6.4,434.9L6.2,433.6L5.9,433.1L6.3,432.5L6.8,432.3L7,431.5L7.1,430.4L7.5,429.5L7.7,429.3L8.5,429.3L8.8,429.1L8.6,428.3L8.2,427.9L8,427.6L8,425.5L8.1,424.7L8.4,424.1L8.2,422.8L8.4,422.4L9,421.7L9.2,420.3L9,419.9L9.6,417.7L9.5,416.2L10.3,414.8L11.4,414.1L11.8,414.1L11.8,415.3L12,415.7L11.3,416.5L11.9,417.4L11.8,417.8L11.6,418.6L11.2,419.3L10.6,419.6L10.1,420.6L9.8,421L10.7,422L11,425.6L10.4,426.5L9.6,426.7L9.8,429.1L9.6,429.6L8.9,430.8L8.7,431.3L8.3,431.8L8.5,432.4L8.8,432.6L8.8,433.1L8.5,434.4L8.5,435.8ZM72.7,443.5L72.4,443.5L72.2,443.4L72,443.3L72.5,442.1ZM69,443.6L69.9,445.5L69.8,445.8L69.7,446L69.4,445.9L69.1,444.9L68.4,444.2L67.6,444.3L68.2,443.4L68.5,443.3ZM68.7,455.1L68.2,455.7L68,455.7L68.2,454.6L69.1,453.8L69.9,453.7L69.8,454.3L69.2,454.9ZM69.1,437.6L69.1,437.9L69,437.9L68.7,437.7L68.9,436.6L69.3,435.7L69.8,434.4L70,434.2L70.1,434.9L69.8,436.3L69.6,437.1ZM72.4,432.8L71.9,432.8L71.7,431L71.8,430.7L72.5,431.6L73.4,432.2L73.1,432.5ZM67.5,435.2L67.6,435.8L66.9,435.1L66.8,433.3L67.3,434.5L67.6,434.7ZM72.8,434.6L72.5,436.9L71.8,436.6L71.5,436.6L71.1,435.3L71.1,434.9L70.8,434.1L72.5,433.9ZM68.2,430L68,430L67.9,430L67.5,429.8L67.1,429.1L67.3,428.5L67.4,428.4L67.8,428.4L68,428.5L68.1,428.7L68,429.2L68,429.5ZM67.4,427.3L67.3,427.7L66.7,428.5L66.1,428L66,427.8L66.6,427.2L67.2,427.3L67.3,427.2ZM71.2,424.9L71.5,425.2L71.9,425.2L71.8,426.3L70.9,427.7L70.4,427.9L70.2,427.9L70.4,425.9L70,424.7L70.1,424L71.1,424.3ZM70.2,419.2L70.1,421.1L69.5,420.2L69.4,419.1L69.5,418.2L69.6,418L69.6,418.2L70,418.6ZM61.9,383L61.5,383.1L60.9,382.4L60.8,380.5L61.3,380.1L61.6,380L62,380.3L62.1,380.5L62.2,380.9L62.1,381.3ZM78.6,481.4L78.9,482.8L78.5,482.5L78.2,481.9L78.2,481L78.3,480.9ZM31.2,388L30.9,388.3L30.5,388.1L30.4,387.9L31.4,386.6L31.5,387.1ZM27.5,386.5L26.8,387.6L26.5,385.9L27.7,385L28.3,384.1L28.9,383.5L29.1,384.2L28.5,385.7ZM18.8,354.6L18.6,354.7L17.4,353.7L16.5,352.5L18,352.2L19.4,352.5L19.4,353.2L19.1,354.3ZM16.6,340.4L16.8,342L16,341.4L15.8,340.6L15.7,339.7ZM11.2,340L11.4,341.2L10.8,340.7L10.1,339.1L10.2,338.1L10.6,338.6ZM19,344.4L20.3,345.3L20.8,345.3L21.6,345.9L21.6,346.1L21.5,346.6L21.1,347L20.2,347.4L19.5,347.1L19.2,346L18.5,345.5L18.2,345.1L18.8,344.5ZM359.1,447.5L358.8,447.6L359.3,446.4L359.7,446.5L359.8,446.6L359.8,447.2ZM369.8,454.5L369.9,455.1L368.5,453.6L368.1,452.6L368.6,452.6L369.3,453ZM343.7,483.5L343.9,483.7L343.8,484L342.7,484.5L342.3,484.5L342.2,483.6L342.5,483.2L343,483.6L343.5,483.2ZM375.4,488.5L375.2,489.1L374.5,487.6L374.3,487.2L374.6,486L375.4,486.6ZM377.5,458.9L377.3,459.2L376.9,458.6L377.2,457.3L377.4,457.1L377.7,457.9ZM362.3,437.5L360.9,437.5L360.3,437L359.6,435.5L360.4,435.2L361.3,435.2L361.9,435.8L362.5,436.8ZM365.1,436.3L364.9,436.9L364.5,436.7L364.3,436.4L363.8,435.6L363.7,434.9L364.3,435.3L364.7,435.9ZM475.8,637.7L475.5,637.7L475.5,637.2L475.8,636.7L476.1,636.4L476.5,636.4ZM474.2,641.2L474,641.4L473.7,641L473.7,640.8L474.1,640.1L474.4,639.8L474.9,639.8L474.7,640.3ZM399.9,598.7L399.3,599.6L398.3,599.5L398.2,599.4L399.3,598.8ZM395.6,602.9L395.9,603.4L394.8,603L394.3,602.6L394.8,602.3L395.1,602.2ZM356.1,632.5L356,633L355.6,632.4L355.3,632.1L355.3,631.5L355.8,631.7ZM351.4,624.7L351.4,625.8L350.9,625.7L350.6,625.3L350.5,625L350.5,624.7L350.7,624.4ZM319.7,645.3L318.6,645.4L318.3,645.3L318.1,644.2L319.4,644.7L319.8,644.7ZM344.2,661.3L343.9,662L343.2,661.8L343.4,661.1L343.7,660.8L344.6,660.2L345.5,660.1L346,660.3L346.1,660.5L344.8,660.8ZM284,659.3L283.7,659.3L283.2,659.1L283.4,658.7L283.1,657.9L283.2,657.2L283.9,656.9L285.2,656.9L285.2,657.3ZM419.1,194.9L418.7,195.1L419,194.1L419.9,193.2L419.9,193.8ZM382.4,130L382.3,130.9L381.5,130.3L381.3,128.3L382.1,128.9ZM365.6,87L365,87.5L365,86.7L365.5,86.1L365.9,86ZM325,240.6L324.1,240.9L323.7,240.9L323.7,240L324.5,239.2L324.8,239.4L325,239.9ZM239.5,305.7L239.6,306.2L238.7,305.4L238.5,305.3L238.1,305L237.8,304.5L238.5,304.5L239.1,305.1ZM231,320.1L230.8,320.3L230.5,319.9L230.4,319.3L230.1,319L230.7,318.5L230.9,318.1L231.5,318.1L231.8,318.3L231.3,318.8L231.1,319ZM229.4,319.6L228.3,319.9L228.1,319.8L228.5,319.2L229.4,318.8ZM244.4,312.8L243.1,312.8L242.8,312.7L242.7,312.4L243.1,312L244.9,311.3L244.5,312ZM168.5,449.8L167.6,450.5L167.5,450L168.3,449.6L168.6,449.3L168.8,449.3ZM125.8,446.2L125.3,446.6L124.7,445.7L124.7,445.5ZM379.7,154L379.5,154.4L379.1,154.3L378.6,153.3L378.4,152.6L377.9,152.2L378.7,151.6L379.7,152.7ZM557.7,259L557.5,259L556.7,257.7L556.9,257.7L557.3,257.9L557.8,258.6ZM432.4,116.2L431.9,116.7L431.3,116.2L431.2,115.8L431.5,115.4L432.3,115.2L432.6,115.5ZM598.7,28.8L598.9,28.9L599.1,28.9L599.3,28.9L599.3,29L599.4,29.3L599.3,29.3L599,29.4L598.8,29.4L598.7,29.2L598.7,29L598.5,28.9L598.5,28.8ZM435.3,532.4L435,532.4L434.9,532.4L434.9,532.2L435,532.1L435.3,532L435.4,532L435.4,532.2ZM363.8,109.2L363.9,109.3L363.9,109.6L363.8,109.7L363.5,109.9L363.3,110.1L362.9,110L362.5,109.7L362.6,109.2L362.9,109.3L363.5,109.1Z"/></defs></svg>
+
+<div class="stage">
+  <aside class="guide" id="guide"></aside>
+  <main class="phone" id="phone" aria-label="ALT app prototype"></main>
+</div>
+
+<script>
+/* =========================================================================
+   ALT prototype — all data below is example data for demo purposes.
+   ========================================================================= */
+const TODAY = '2026-10-07';
+
+/* ---------- trail grading ---------- */
+const TERRAIN = {
+  paved:{label:'Paved paths & boardwalk', pts:0},
+  dirt:{label:'Dirt trail', pts:.25},
+  roots:{label:'Roots & steep steps', pts:.5},
+  rock:{label:'Rock, ladders & ropes', pts:1},
+  scree:{label:'Scree & loose volcanic gravel', pts:2},
+};
+const GRADES = {
+  1:{name:'Trail Walk', desc:'Under 4 hours, marked paths. Anyone with basic fitness.', eg:'Bukit Timah, MacRitchie'},
+  2:{name:'Day Hike', desc:'Steady climbing for most of a day. Some rough ground.', eg:'Gunung Datuk, Mount Batur'},
+  3:{name:'Strenuous', desc:'Long day with 1,000 m+ of climbing, ropes or scrambles.', eg:'Gunung Ledang'},
+  4:{name:'High Mountain', desc:'Overnight, above 3,000 m. Altitude protocol applies.', eg:'Kinabalu, Fuji'},
+  5:{name:'Expedition', desc:'Multi-day, remote, big altitude and loose terrain.', eg:'Rinjani'},
+};
+const GRADE_CUTS = [2, 3.5, 5.5, 10]; // score below cut[i] => grade i+1
+function gradeParts(t){
+  const gain = t.gain/500, dist = t.dist/10;
+  const alt = t.max >= 3500 ? 1.5 : t.max >= 2500 ? 1 : 0;
+  const ter = TERRAIN[t.terrain].pts;
+  const score = gain + dist + alt + ter;
+  let g = 5; for (let i=0;i<GRADE_CUTS.length;i++){ if (score < GRADE_CUTS[i]) { g = i+1; break; } }
+  return {pGain:gain, pDist:dist, pAlt:alt, pTer:ter, score, grade:g};
+}
+
+const TRAILS = [
+  {id:'bt', name:'Bukit Timah Summit Loop', short:'Bukit Timah', region:'Singapore', country:'SG', lat:1.354, lon:103.776, dist:4.5, gain:160, max:163, start:40, terrain:'roots', shape:'loop', time:'2–3 h',
+   expect:['Steep concrete road then rooty side trails','Humid all year; bring 1 L of water','Good first test of your uphill pace']},
+  {id:'mac', name:'MacRitchie TreeTop Loop', short:'MacRitchie', region:'Singapore', country:'SG', lat:1.344, lon:103.82, dist:11, gain:120, max:90, start:30, terrain:'dirt', shape:'loop', time:'3–4 h',
+   expect:['Long, mostly flat dirt trail','TreeTop Walk suspension bridge (closed Mondays)','Long-tailed macaques: keep food in your bag']},
+  {id:'sr', name:'Southern Ridges & Mount Faber', short:'Southern Ridges', region:'Singapore', country:'SG', lat:1.272, lon:103.818, dist:10, gain:200, max:106, start:10, terrain:'paved', shape:'loop', time:'3 h',
+   expect:['Boardwalks and bridges, including Henderson Waves','Lots of stairs on the Mount Faber end','Easy to bail out at several MRT stations']},
+  {id:'datuk', name:'Gunung Datuk', short:'Datuk', region:'Negeri Sembilan, Malaysia', country:'MY', lat:2.545, lon:102.17, dist:5, gain:600, max:884, start:290, terrain:'rock', shape:'up', time:'4–5 h',
+   expect:['Short but steep forest climb','Steel ladders to a rocky summit','Popular first trip outside Singapore']},
+  {id:'ledang', name:'Gunung Ledang (Asahan)', short:'Ledang', region:'Johor–Melaka, Malaysia', country:'MY', lat:2.373, lon:102.607, dist:11, gain:1100, max:1276, start:180, terrain:'rock', shape:'up', time:'8–10 h',
+   expect:['Over 1,000 m of climbing in one day','Rope sections and slippery rock after rain','Start before 7 am to be down by dark']},
+  {id:'batur', name:'Mount Batur Sunrise', short:'Batur', region:'Bali, Indonesia', country:'ID', lat:-8.242, lon:115.375, dist:7, gain:700, max:1717, start:1020, terrain:'rock', shape:'up', time:'5–6 h',
+   expect:['Starts around 3:30 am with headtorches','Loose volcanic gravel near the crater rim','Cold at the top before sunrise']},
+  {id:'kina', name:'Mount Kinabalu (Ranau Trail)', short:'Kinabalu', region:'Sabah, Malaysia', country:'MY', lat:6.075, lon:116.558, dist:17.4, gain:2250, max:4095, start:1866, terrain:'rock', shape:'up', peak:.45, time:'2 days',
+   expect:['Night at Laban Rata (3,272 m) before a 2 am summit push','Altitude sickness is the main risk; ascend slowly','Permits and a licensed mountain guide are required']},
+  {id:'fuji', name:'Mount Fuji (Yoshida Trail)', short:'Fuji', region:'Yamanashi, Japan', country:'JP', lat:35.361, lon:138.728, dist:14, gain:1450, max:3776, start:2305, terrain:'scree', shape:'up', time:'1–2 days',
+   expect:['Open July to early September only','Volcanic scree on the descent is hard on knees','Huts at the 7th and 8th stations must be booked']},
+  {id:'rinjani', name:'Mount Rinjani (Sembalun)', short:'Rinjani', region:'Lombok, Indonesia', country:'ID', lat:-8.411, lon:116.457, dist:40, gain:3200, max:3726, start:1150, terrain:'scree', shape:'up', peak:.35, time:'3–4 days',
+   expect:['Three nights camping, including at the crater lake','Summit ridge is two steps up, one step slide back','Remote-area protocol: leader carries sat messenger']},
+];
+TRAILS.forEach(t => Object.assign(t, gradeParts(t)));
+const TR = Object.fromEntries(TRAILS.map(t => [t.id, t]));
+
+/* ---------- sessions ---------- */
+const TYPES = {
+  stair:{label:'Stair conditioning', short:'Stairs', cat:'physical', what:'Continuous climbs at a steady "can still talk" pace, walking down between climbs. 45 min.'},
+  hike:{label:'Practice hike', short:'Practice hike', cat:'physical', what:'A local trail at trip pace, with packs on.'},
+  strength:{label:'Strength: legs & core', short:'Strength', cat:'physical', what:'Bodyweight circuits for quads, glutes, calves and core.'},
+  packing:{label:'Bag prep & packing workshop', short:'Packing', cat:'skills', what:'Pack a day bag and an overnight bag, then weigh them.'},
+  gear:{label:'Gear shopping session', short:'Gear shopping', cat:'skills', what:'Walk the outdoor shops with a leader. Shoes, socks and rain shells first.'},
+  nav:{label:'Navigation & trail safety', short:'Navigation', cat:'skills', what:'Offline maps, reading contours, and what to do if the group splits.'},
+  survival:{label:'Survival skills basics', short:'Survival', cat:'skills', what:'Shelter, water, warmth and signalling for help.'},
+  briefing:{label:'Trip briefing', short:'Briefing', cat:'skills', what:'Route, weather, kit list and what to expect. Compulsory for the trip.'},
+  camp:{label:'Camp night in Singapore', short:'Camp night', cat:'skills', what:'One night under canvas to test your sleep system.'},
+};
+const SESSIONS = [
+  // past (for attendance history)
+  {id:'p1', type:'stair', date:'2026-09-03', time:'7:30 pm', place:'Fort Canning Park steps', leader:'sarah'},
+  {id:'p2', type:'hike', date:'2026-09-05', time:'7:00 am', place:'Bukit Timah Nature Reserve', leader:'daniel', trail:'bt'},
+  {id:'p3', type:'stair', date:'2026-09-10', time:'7:30 pm', place:'Fort Canning Park steps', leader:'sarah'},
+  {id:'p4', type:'packing', date:'2026-09-12', time:'2:00 pm', place:'Tanjong Pagar CC, Room 2', leader:'daniel'},
+  {id:'p5', type:'stair', date:'2026-09-17', time:'7:30 pm', place:'Fort Canning Park steps', leader:'sarah'},
+  {id:'p6', type:'hike', date:'2026-09-19', time:'7:00 am', place:'MacRitchie Reservoir', leader:'daniel', trail:'mac'},
+  {id:'p7', type:'stair', date:'2026-09-24', time:'7:30 pm', place:'Fort Canning Park steps', leader:'sarah'},
+  {id:'p8', type:'nav', date:'2026-09-26', time:'10:00 am', place:'Kent Ridge Park', leader:'sarah'},
+  {id:'p9', type:'stair', date:'2026-10-01', time:'7:30 pm', place:'Fort Canning Park steps', leader:'daniel'},
+  {id:'p10', type:'strength', date:'2026-10-03', time:'8:00 am', place:'Somerset Skate Park lawn', leader:'daniel'},
+  // upcoming
+  {id:'f1', type:'stair', date:'2026-10-08', time:'7:30 pm', place:'Fort Canning Park steps', leader:'sarah', cap:20, going:11},
+  {id:'f2', type:'hike', date:'2026-10-10', time:'7:00 am', place:'Bukit Timah Nature Reserve', leader:'daniel', cap:16, going:9, trail:'bt'},
+  {id:'f3', type:'strength', date:'2026-10-13', time:'7:30 pm', place:'Somerset Skate Park lawn', leader:'daniel', cap:20, going:6},
+  {id:'f4', type:'stair', date:'2026-10-15', time:'7:30 pm', place:'Fort Canning Park steps', leader:'sarah', cap:20, going:8},
+  {id:'f5', type:'packing', date:'2026-10-17', time:'2:00 pm', place:'Tanjong Pagar CC, Room 2', leader:'daniel', cap:14, going:5},
+  {id:'f6', type:'nav', date:'2026-10-20', time:'7:30 pm', place:'Kent Ridge Park', leader:'sarah', cap:16, going:4},
+  {id:'f7', type:'stair', date:'2026-10-22', time:'7:30 pm', place:'Fort Canning Park steps', leader:'daniel', cap:20, going:3},
+  {id:'f8', type:'hike', date:'2026-10-24', time:'7:00 am', place:'MacRitchie Reservoir', leader:'sarah', cap:16, going:7, trail:'mac'},
+  {id:'f9', type:'briefing', date:'2026-10-28', time:'8:00 pm', place:'Online (video call)', leader:'daniel', cap:40, going:9, trip:'datuk', title:'Trip briefing: Gunung Datuk'},
+  {id:'f10', type:'gear', date:'2026-10-31', time:'2:00 pm', place:'Funan mall, level 3', leader:'sarah', cap:10, going:6},
+  {id:'f11', type:'stair', date:'2026-11-05', time:'7:30 pm', place:'Fort Canning Park steps', leader:'sarah', cap:20, going:2},
+  {id:'f12', type:'camp', date:'2026-11-07', time:'4:00 pm', place:'Pulau Ubin, Jelutong campsite', leader:'daniel', cap:12, going:8},
+  {id:'f13', type:'briefing', date:'2026-11-10', time:'8:00 pm', place:'Online (video call)', leader:'sarah', cap:40, going:6, trip:'ledang', title:'Trip briefing: Gunung Ledang'},
+  {id:'f14', type:'survival', date:'2026-11-12', time:'7:30 pm', place:'Tanjong Pagar CC, Room 2', leader:'sarah', cap:16, going:5},
+];
+const SE = Object.fromEntries(SESSIONS.map(s => [s.id, s]));
+
+/* ---------- trips ---------- */
+const TRIPS = [
+  {id:'datuk', trail:'datuk', title:'Gunung Datuk Day Trip', dates:'Sat 14 Nov 2026', end:'2026-11-14', cap:14, others:5,
+   prep:{stair:1}, briefing:'f9', leaders:['daniel'], need:['firstaid'], participants:['aisyah','hannah','marcus']},
+  {id:'ledang', trail:'ledang', title:'Gunung Ledang Weekend', dates:'Sat 5 – Sun 6 Dec 2026', end:'2026-12-06', cap:12, others:2,
+   prep:{stair:2, hike:1, packing:1}, briefing:'f13', leaders:['sarah','daniel'], need:['firstaid'], participants:['jun','aisyah','ravi','hannah','marcus']},
+  {id:'kina', trail:'kina', title:'Mount Kinabalu Summit', dates:'Fri 19 – Sun 21 Mar 2027', end:'2027-03-21', cap:10, others:3,
+   prep:{stair:4, hike:2, strength:1, nav:1}, briefing:null, briefingNote:'Feb 2027, date to be confirmed', leaders:['sarah'], need:['firstaid','altitude'], participants:['jun','marcus']},
+];
+const CERT_KIND = {firstaid:'First aid', altitude:'Altitude protocol', leader:'Trip leading'};
+
+/* ---------- members ---------- */
+const J = (id, trail, date, diff, fun, note, source, status, evidence) => ({id, trail, date, diff, fun, note, source, status, evidence});
+const SEED_MEMBERS = {
+  mei:{id:'mei', name:'Mei Ling Tan', first:'Mei', initials:'ML', role:'member', tagline:'Beginner · joined Aug 2026', joined:'Aug 2026', friends:4, certs:[],
+    attended:['p2','p7'], rsvps:['f1'], journal:[
+      J('j1','bt','2026-09-05',2,4,'First ALT practice hike. The last stretch of steps to the summit was harder than I expected.','alt','verified'),
+      J('j2','mac','2026-08-16',2,3,'Did the full loop with my sister. Long but flat, and the monkeys near the TreeTop Walk were bold.','self','verified','GPS track'),
+    ]},
+  jun:{id:'jun', name:'Jun Wei Lim', first:'Jun', initials:'JW', role:'member', tagline:'Experienced · joined 2024', joined:'Mar 2024', friends:23, certs:[],
+    attended:['p1','p5','p6','p9'], rsvps:['f4'], journal:[
+      J('j3','kina','2024-11-02',4,5,'Altitude hit me at Laban Rata, but the summit at sunrise was worth every step.','self','verified','Park summit certificate'),
+      J('j4','datuk','2025-03-15',2,4,'The ladders near the top are the fun part. Done by lunch.','alt','verified'),
+      J('j5','batur','2025-06-21',3,5,'3:30 am start for sunrise. Loose gravel near the rim.','self','verified','Summit photo'),
+      J('j6','ledang','2025-09-13',4,4,'Rope sections after the waterfall were slippery. Long day.','alt','verified'),
+      J('j7','fuji','2026-08-08',4,4,'Overnight at the 8th station. The descent scree destroyed my knees.','self','verified','GPS track'),
+    ]},
+  sarah:{id:'sarah', name:'Sarah Tan', first:'Sarah', initials:'ST', role:'leader', tagline:'Trip leader · joined 2023', joined:'Jan 2023', friends:61,
+    certs:[{name:'Wilderness First Aid', kind:'firstaid', until:'2027-08-31'},{name:'ALT Trip Leader · Level 2', kind:'leader', until:'2027-12-31'},{name:'Altitude awareness', kind:'altitude', until:'2026-11-30'}],
+    attended:['p1','p3','p5','p7','p8','p10'], rsvps:[], journal:[
+      J('j8','bt','2023-02-04',1,3,'Lost count of how many times.','alt','verified'),
+      J('j9','sr','2023-03-11',1,4,'Henderson Waves at golden hour.','alt','verified'),
+      J('j10','datuk','2023-06-17',2,4,'Led my first ALT group here.','alt','verified'),
+      J('j11','ledang','2024-01-20',4,4,'Rain all afternoon. Ropes essential.','alt','verified'),
+      J('j12','batur','2024-05-12',2,5,'Cloud inversion at sunrise.','alt','verified'),
+      J('j13','kina','2024-11-02',4,5,'Group of 8, everyone summited.','alt','verified'),
+      J('j14','fuji','2023-08-19',4,4,'Crowded, but the hut food was great.','self','verified','GPS track'),
+      J('j15','rinjani','2025-08-09',5,5,'Hardest thing I have done. Crater lake camp was unreal.','self','verified','GPS track'),
+    ]},
+  daniel:{id:'daniel', name:'Daniel Ong', first:'Daniel', initials:'DO', role:'leader', joined:'Jun 2023', friends:40,
+    certs:[{name:'Standard First Aid + CPR', kind:'firstaid', until:'2027-01-31'},{name:'ALT Trip Leader · Level 1', kind:'leader', until:'2027-06-30'}],
+    attended:['p2','p4','p6','p9','p10'], rsvps:[], journal:[
+      J('j16','bt','2023-06-03',1,3,'','alt','verified'), J('j17','datuk','2023-06-17',2,4,'','alt','verified'),
+      J('j18','ledang','2024-01-20',3,4,'','alt','verified'), J('j19','batur','2024-05-12',2,5,'','alt','verified'), J('j20','kina','2024-11-02',4,5,'','alt','verified')]},
+  aisyah:{id:'aisyah', name:'Aisyah Rahman', first:'Aisyah', initials:'AR', role:'member', joined:'Jul 2026', friends:9, certs:[],
+    attended:['p1','p3','p4','p6'], rsvps:[], journal:[J('j21','bt','2026-07-11',2,4,'','alt','verified'), J('j22','sr','2026-08-02',1,5,'','self','verified','GPS track')]},
+  ravi:{id:'ravi', name:'Ravi Kumar', first:'Ravi', initials:'RK', role:'member', joined:'Sep 2026', friends:3, certs:[],
+    attended:['p3'], rsvps:[], journal:[
+      J('j23','ledang','2026-07-11',4,4,'Climbed with colleagues from the Asahan side before joining ALT.','self','pending','GPS track'),
+      J('j24','bt','2026-08-22',1,3,'','self','verified','GPS track')]},
+  hannah:{id:'hannah', name:'Hannah Goh', first:'Hannah', initials:'HG', role:'member', joined:'Sep 2026', friends:2, certs:[],
+    attended:[], rsvps:[], journal:[J('j25','mac','2026-09-13',2,3,'','self','verified','GPS track')]},
+  marcus:{id:'marcus', name:'Marcus Koh', first:'Marcus', initials:'MK', role:'member', joined:'Feb 2025', friends:17, certs:[],
+    attended:['p10'], rsvps:[], journal:[J('j26','kina','2025-04-05',4,5,'','self','verified','Park summit certificate'), J('j27','datuk','2025-02-08',2,3,'','alt','verified')]},
+};
+const PERSONAS = [
+  {id:'mei', blurb:'Beginner'}, {id:'jun', blurb:'Experienced'}, {id:'sarah', blurb:'Trip leader'},
+];
+
+/* ---------- state ---------- */
+let DB, S;
+function reset(){
+  DB = {members:structuredClone(SEED_MEMBERS), trips:structuredClone(TRIPS), overrides:{}, seq:100};
+  S = {persona:'mei', tab:'home', stack:[], notes:true, mapMode:'mine', mapSel:null, trainFilter:'all', gradeFilter:0, form:null, toast:null};
+}
+reset();
+const me = () => DB.members[S.persona];
+const M = id => DB.members[id];
+const trip = id => DB.trips.find(t => t.id === id);
+
+/* ---------- helpers ---------- */
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const d = iso => new Date(iso + 'T00:00:00');
+const fmt = (iso, o) => d(iso).toLocaleDateString('en-GB', o || {weekday:'short', day:'numeric', month:'short'});
+const fmtLong = iso => fmt(iso, {day:'numeric', month:'short', year:'numeric'});
+const n0 = x => Math.round(x).toLocaleString('en-GB');
+const isFuture = s => s.date >= TODAY;
+const sessTitle = s => s.title || TYPES[s.type].label;
+const gradeBadge = (g, lg) => `<span class="grade g${g}${lg ? ' lg' : ''}" title="Grade ${g}: ${GRADES[g].name}">G${g}</span>`;
+const note = html => S.notes ? `<aside class="note"><b>How it works</b>${html}</aside>` : '';
+
+function counts(m){
+  const c = {};
+  m.attended.forEach(id => { const t = SE[id].type; c[t] = (c[t] || 0) + 1; });
+  return c;
+}
+function verified(m){ return m.journal.filter(j => j.status === 'verified'); }
+function bestClimb(m){
+  return verified(m).reduce((b, j) => (!b || TR[j.trail].grade > TR[b.trail].grade) ? j : b, null);
+}
+function readiness(m, t){
+  const c = counts(m), g = TR[t.trail].grade;
+  const prep = Object.entries(t.prep).map(([type, need]) => ({type, need, have:Math.min(c[type] || 0, need)}));
+  const prepDone = prep.every(p => p.have >= p.need);
+  const best = bestClimb(m);
+  const expDone = !!best && TR[best.trail].grade >= g;
+  const pendingExp = m.journal.find(j => j.status === 'pending' && TR[j.trail].grade >= g);
+  const briefDone = !!t.briefing && m.attended.includes(t.briefing);
+  const override = DB.overrides[t.id + ':' + m.id];
+  let status = (prepDone || expDone) ? (briefDone ? 'ready' : 'ontrack') : 'notyet';
+  if (status === 'notyet' && override) status = 'override';
+  const prepHave = prep.reduce((a, p) => a + p.have, 0), prepNeed = prep.reduce((a, p) => a + p.need, 0);
+  return {status, prep, prepDone, expDone, best, pendingExp, briefDone, override, prepHave, prepNeed, grade:g};
+}
+const STATUS = {
+  ready:'Ready', ontrack:'On track', notyet:'Not ready yet', override:'Approved by leader',
+};
+function statusPill(r){ return `<span class="pill ${r.status}">${STATUS[r.status]}</span>`; }
+function statusWhy(r, t){
+  if (r.status === 'ready') return r.expDone && !r.prepDone ? 'Proven experience + briefing done' : 'Prep and briefing done';
+  if (r.status === 'ontrack') return (r.expDone && !r.prepDone ? 'Proven experience' : 'Prep complete') + ' · briefing left';
+  if (r.status === 'override') return 'Leader decided they can go';
+  return `Prep ${r.prepHave}/${r.prepNeed}` + (r.pendingExp ? ' · climb awaiting check' : '');
+}
+function leaderCheck(t){
+  return t.need.map(kind => {
+    const holders = t.leaders.map(M).flatMap(l => l.certs.filter(c => c.kind === kind).map(c => ({l, c})));
+    const ok = holders.find(h => h.c.until >= t.end);
+    return {kind, ok:!!ok, holders};
+  });
+}
+function stats(m){
+  const v = verified(m);
+  const regions = new Set(v.map(j => TR[j.trail].country));
+  return {
+    summits:v.length,
+    km:v.reduce((a, j) => a + TR[j.trail].dist, 0),
+    gain:v.reduce((a, j) => a + TR[j.trail].gain, 0),
+    sessions:m.attended.length,
+    friends:m.friends,
+    countries:regions.size,
+  };
+}
+
+/* ---------- elevation profiles ---------- */
+function hash(s){ let h = 7; for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) % 9973; return h; }
+function profile(t){
+  const n = 90, seed = hash(t.id), pts = [], P = t.peak || .5;
+  for (let i = 0; i < n; i++){
+    const x = i / (n - 1);
+    let f;
+    if (t.shape === 'loop'){
+      f = Math.pow(Math.sin(Math.PI * x), .8) * (.72 + .28 * Math.sin(x * 11 + seed));
+    } else {
+      const u = x <= P ? x / P : (1 - x) / (1 - P);
+      f = Math.pow(Math.sin(u * Math.PI / 2), 1.25);
+    }
+    f += .045 * (Math.sin(x * 29 + seed) + .6 * Math.sin(x * 71 + seed * 2)) * Math.sin(Math.PI * Math.min(1, f + .05));
+    f = Math.max(0, Math.min(1, f));
+    pts.push({d:x * t.dist, a:t.start + (t.max - t.start) * f});
+  }
+  // pin the true summit
+  let mi = 0; pts.forEach((p, i) => { if (p.a > pts[mi].a) mi = i; }); pts[mi].a = t.max;
+  return pts;
+}
+const PROF = Object.fromEntries(TRAILS.map(t => [t.id, profile(t)]));
+
+function silhouette(t, w, h, opts = {}){
+  const pts = PROF[t.id], lo = Math.min(...pts.map(p => p.a)), hi = t.max;
+  const top = opts.top ?? .18, base = opts.base ?? 1;
+  const xy = pts.map(p => [p.d / t.dist * w, h * base - (p.a - lo) / (hi - lo || 1) * h * (base - top)]);
+  const line = xy.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('');
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" class="g${t.grade}" style="color:var(--gc)" aria-hidden="true">
+    <path d="${line}L${w} ${h}L0 ${h}Z" fill="currentColor" opacity="${opts.op ?? .28}"/>
+    <path d="${line}" fill="none" stroke="currentColor" stroke-width="${opts.sw ?? 2}" vector-effect="non-scaling-stroke"/></svg>`;
+}
+
+function niceStep(range, maxTicks, steps){ return steps.find(s => range / s <= maxTicks) || steps[steps.length - 1]; }
+function elevationChart(t){
+  const pts = PROF[t.id], W = 360, H = 170, L = 44, R = 12, T = 22, B = 26;
+  const amin = Math.min(...pts.map(p => p.a)), amax = t.max;
+  const as = niceStep(amax - amin, 4, [25, 50, 100, 200, 250, 500, 1000]);
+  const y0 = Math.floor(amin / as) * as, y1 = Math.ceil(amax / as) * as;
+  const xs = niceStep(t.dist, 6, [1, 2, 5, 10, 20]);
+  const X = v => L + v / t.dist * (W - L - R), Y = v => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
+  let g = '';
+  for (let v = y0; v <= y1 + .1; v += as) g += `<line class="gl" x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}"/><text class="ax" x="${L - 6}" y="${Y(v) + 3}" text-anchor="end">${n0(v)}</text>`;
+  for (let v = 0; v <= t.dist + .01; v += xs) g += `<text class="ax" x="${X(v)}" y="${H - 8}" text-anchor="middle">${v}</text>`;
+  const line = pts.map((p, i) => (i ? 'L' : 'M') + X(p.d).toFixed(1) + ' ' + Y(p.a).toFixed(1)).join('');
+  const top = pts.find(p => p.a === t.max);
+  const tx = X(top.d), anchor = tx > W - 70 ? 'end' : tx < L + 50 ? 'start' : 'middle';
+  return `<svg class="chart g${t.grade}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Elevation profile of ${esc(t.name)}: ${n0(t.start)} m to ${n0(t.max)} m over ${t.dist} km">
+    ${g}
+    <path d="${line}L${X(t.dist)} ${Y(y0)}L${X(0)} ${Y(y0)}Z" fill="var(--gc)" opacity=".18"/>
+    <path d="${line}" fill="none" stroke="var(--gc)" stroke-width="2.2" stroke-linejoin="round"/>
+    <circle cx="${tx}" cy="${Y(t.max)}" r="4.5" fill="var(--gc)" stroke="var(--surface)" stroke-width="2"/>
+    <text class="ax" x="${tx}" y="${Y(t.max) - 9}" text-anchor="${anchor}" style="fill:var(--ink);font-weight:700">${n0(t.max)} m</text>
+  </svg><div class="row muted" style="font-size:11.5px;justify-content:space-between"><span>Elevation (m)</span><span>Distance (km)</span></div>`;
+}
+
+/* ---------- map ---------- */
+const PROJ = {s:636.6197723675812, tx:-1022.2222222222217, ty:566.0150699031594};
+const proj = (lon, lat) => [PROJ.tx + PROJ.s * lon * Math.PI / 180, PROJ.ty - PROJ.s * Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360))];
+function places(entries){
+  // group entries by trail, then cluster trails that sit on top of each other (e.g. all of Singapore)
+  const byTrail = {};
+  entries.forEach(e => (byTrail[e.trail] = byTrail[e.trail] || []).push(e));
+  const clusters = [];
+  Object.keys(byTrail).forEach(id => {
+    const t = TR[id], [x, y] = proj(t.lon, t.lat);
+    let c = clusters.find(c => Math.hypot(c.x - x, c.y - y) < 28);
+    if (!c){ c = {key:id, x, y, trails:[], entries:[]}; clusters.push(c); }
+    c.trails.push(id); c.entries.push(...byTrail[id]);
+  });
+  clusters.forEach(c => { c.grade = Math.max(...c.trails.map(id => TR[id].grade)); 
+    const names = {SG:'Singapore', MY:'Malaysia', ID:'Indonesia', JP:'Japan'};
+    const cs = [...new Set(c.trails.map(id => TR[id].country))];
+    c.name = c.trails.length === 1 ? TR[c.trails[0]].short : cs.map(k => names[k]).join(' & ');
+  });
+  return clusters;
+}
+function graticule(){
+  let p = '';
+  for (let lon = 100; lon <= 140; lon += 10){ const [x1, y1] = proj(lon, -12), [, y2] = proj(lon, 43); p += `M${x1.toFixed(1)} ${y1.toFixed(1)}V${y2.toFixed(1)}`; }
+  for (let lat = -10; lat <= 40; lat += 10){ const [x1, y] = proj(90, lat), [x2] = proj(147, lat); p += `M${x1.toFixed(1)} ${y.toFixed(1)}H${x2.toFixed(1)}`; }
+  return `<path class="grat" d="${p}"/>`;
+}
+function mapSvg(clusters, community){
+  const pins = clusters.slice().sort((a, b) => b.y - a.y).map(c => {
+    const n = community ? new Set(c.entries.map(e => e.who)).size : c.entries.length;
+    const r = community ? 9 + Math.sqrt(n) * 4 : 12;
+    const sel = S.mapSel === c.key;
+    return `<g class="pin g${c.grade}${sel ? ' sel' : ''}" data-a="mapsel" data-id="${c.key}" role="button" tabindex="0" aria-label="${esc(c.name)}: ${n}">
+      <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${r}" fill="var(--gc)"/>
+      <text x="${c.x.toFixed(1)}" y="${(c.y + 4).toFixed(1)}" text-anchor="middle">${n}</text></g>`;
+  }).join('');
+  const lbl = (txt, lon, lat) => { const [x, y] = proj(lon, lat); return `<text class="lbl" x="${x.toFixed(0)}" y="${y.toFixed(0)}" text-anchor="middle">${txt}</text>`; };
+  return `<svg class="map" viewBox="0 110 600 594" role="img" aria-label="Map of climbs">
+    ${graticule()}<use href="#land"/>
+    ${lbl('SOUTH CHINA SEA', 113, 12)}${lbl('JAPAN', 135.5, 38.5)}${lbl('BORNEO', 113.8, .8)}${lbl('SUMATRA', 101.8, -1.6)}${lbl('PHILIPPINES', 122.4, 15.5)}
+    ${pins}</svg>`;
+}
+
+/* ---------- icons ---------- */
+const I = {
+  home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
+  train:'<path d="M4 20h4v-4h4v-4h4V8h4"/>',
+  trips:'<path d="M3 20l6-11 4 6 3-4 5 9z"/><path d="M14 6l2-2 2 2"/>',
+  trails:'<path d="M4 18c3 0 3-4 6-4s3 4 6 4 3-6 6-6"/><path d="M4 9c3 0 3-4 6-4s3 4 6 4"/>',
+  map:'<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>',
+  back:'<path d="M15 5l-7 7 7 7"/>',
+  flag:'<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>',
+  stairs:'<path d="M4 20h4v-4h4v-4h4V8h4"/>',
+  peak:'<path d="M3 20l6-11 4 6 3-4 5 9z"/>',
+  people:'<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M15 15c3 0 6 1.5 6 4"/>',
+  ladder:'<path d="M7 3v18M17 3v18M7 7h10M7 12h10M7 17h10"/>',
+  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+  star:'<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6-5.3-3-5.3 3 1.2-6L3.4 9.3l6-.7z"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+};
+const icon = (k, extra = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${I[k]}</svg>`;
+
+/* =========================================================================
+   Screens
+   ========================================================================= */
+function sessionCard(s, opts = {}){
+  const m = me(), T = TYPES[s.type];
+  const going = m.rsvps.includes(s.id), done = m.attended.includes(s.id);
+  const toward = DB.trips.filter(t => t.prep[s.type] || t.briefing === s.id).map(t => {
+    const mine = t.participants.includes(m.id);
+    return `<span class="${mine ? 'mine' : ''}">${t.briefing === s.id ? 'Required for' : 'Counts toward'} ${TR[t.trail].short}</span>`;
+  }).join('');
+  let act = '';
+  if (!isFuture(s)) act = done ? `<span class="done">✓ Attended</span>` : '';
+  else if (done) act = `<span class="done">✓ Checked in</span>`;
+  else if (going) act = `<button class="btn sm ghost" data-a="rsvp" data-id="${s.id}">Going ✓</button><button class="btn sm blaze" data-a="checkin" data-id="${s.id}">Check in (demo)</button>`;
+  else act = `<button class="btn sm" data-a="rsvp" data-id="${s.id}">RSVP</button>`;
+  const spots = s.cap ? `<span class="meta num">${s.going + (going || done ? 1 : 0)}/${s.cap} going</span>` : '';
+  return `<article class="card sess">
+    <div class="date"><span>${fmt(s.date, {weekday:'short'})}</span><b>${d(s.date).getDate()}</b><span>${fmt(s.date, {month:'short'})}</span></div>
+    <div style="min-width:0">
+      <span class="tag ${T.cat}">${T.short}</span>
+      <h3>${esc(sessTitle(s))}</h3>
+      <div class="meta">${s.time} · ${esc(s.place)} · led by ${M(s.leader).first}</div>
+      ${opts.desc ? `<div class="meta" style="margin-top:4px">${T.what}</div>` : ''}
+      ${toward ? `<div class="counts">${toward}</div>` : ''}
+      ${act || spots ? `<div class="actions">${act}${spots}</div>` : ''}
+    </div></article>`;
+}
+
+function tripCard(t){
+  const m = me(), tr = TR[t.trail];
+  const leading = t.leaders.includes(m.id);
+  const joined = t.participants.includes(m.id);
+  let right;
+  if (leading){
+    const rs = t.participants.map(id => readiness(M(id), t));
+    const not = rs.filter(r => r.status === 'notyet').length;
+    right = `<span class="pill override">You're leading</span>${not ? `<span class="pill notyet">${not} not ready</span>` : ''}`;
+  } else {
+    const r = readiness(m, t);
+    right = `${statusPill(r)}${joined ? '<span class="pill verified">Joined</span>' : ''}`;
+  }
+  return `<button class="card tap tripcard" data-a="push" data-v="trip" data-id="${t.id}">
+    <div class="art">${silhouette(tr, 400, 70, {top:.1})}</div>
+    <div class="body">
+      <div class="row">${gradeBadge(tr.grade)}<h3 class="grow">${esc(t.title)}</h3></div>
+      <div class="meta">${t.dates} · <span class="num">${t.participants.length + t.others}/${t.cap}</span> spots taken</div>
+      <div class="row" style="flex-wrap:wrap;gap:6px">${right}</div>
+    </div></button>`;
+}
+
+function screenHome(){
+  const m = me(), st = stats(m), best = bestClimb(m);
+  const isLeader = m.role === 'leader';
+  const upcoming = SESSIONS.filter(isFuture).slice(0, 3);
+  const myTrips = DB.trips.filter(t => t.participants.includes(m.id) || t.leaders.includes(m.id));
+  const other = DB.trips.filter(t => !myTrips.includes(t));
+  let attention = '';
+  if (isLeader){
+    const pend = Object.values(DB.members).flatMap(x => x.journal.filter(j => j.status === 'pending').map(j => ({x, j})));
+    const certWarn = m.certs.filter(c => DB.trips.some(t => t.leaders.includes(m.id) && t.need.includes(c.kind) && c.until < t.end));
+    const items = [];
+    pend.forEach(({x, j}) => {
+      const tr = TR[j.trail];
+      items.push(`<div class="card stack">
+        <div class="row"><span class="av">${x.initials}</span><div class="grow"><b>${esc(x.name)}</b> logged ${esc(tr.short)} ${gradeBadge(tr.grade)}<div class="meta">Climbed ${fmtLong(j.date)} · on their own · evidence: ${esc(j.evidence || 'none')}</div></div></div>
+        ${j.note ? `<div class="meta">“${esc(j.note)}”</div>` : ''}
+        <div class="actions" style="margin-top:0"><button class="btn sm" data-a="verify" data-id="${j.id}" data-m="${x.id}">Verify climb</button><button class="btn sm soft" data-a="reject" data-id="${j.id}" data-m="${x.id}">Ask for more proof</button></div>
+      </div>`);
+    });
+    certWarn.forEach(c => {
+      const t = DB.trips.find(t => t.leaders.includes(m.id) && t.need.includes(c.kind) && c.until < t.end);
+      items.push(`<div class="alert warn"><span>⚠</span><div><b>${esc(c.name)}</b> expires ${fmtLong(c.until)}, before ${esc(t.title)} (${t.dates}). <button class="link" data-a="push" data-v="me">Renew</button></div></div>`);
+    });
+    DB.trips.filter(t => t.leaders.includes(m.id)).forEach(t => {
+      const not = t.participants.filter(id => readiness(M(id), t).status === 'notyet');
+      if (not.length) items.push(`<button class="card tap row" data-a="push" data-v="trip" data-id="${t.id}"><span class="pill notyet">${not.length} not ready</span><span class="grow">${esc(t.title)}: ${not.map(id => M(id).first).join(', ')}</span><span class="muted">›</span></button>`);
+    });
+    attention = `<section class="sec"><div class="sec-h"><h2>Needs your attention</h2><span class="meta num">${items.length}</span></div>
+      ${note('Climbs that members log on their own count towards trip readiness only after a leader checks the evidence. Climbs done on ALT trips are verified automatically.')}
+      ${items.join('') || '<div class="card muted">All clear.</div>'}</section>`;
+  }
+  return `<div class="pad">
+    <section class="hero topo">
+      <div class="eyebrow">${isLeader ? 'Trip leader' : 'Member'} · since ${m.joined}</div>
+      <h2>Hi ${m.first}</h2>
+      <div class="sub">${best ? `Highest verified climb: <b>${esc(TR[best.trail].short)}</b> ${gradeBadge(TR[best.trail].grade)} ${GRADES[TR[best.trail].grade].name}` : 'No verified climbs yet'}</div>
+      <div class="stats">
+        <div class="stat"><b>${st.summits}</b><span>summits</span></div>
+        <div class="stat"><b>${n0(st.gain)}</b><span>m climbed</span></div>
+        <div class="stat"><b>${st.sessions}</b><span>sessions</span></div>
+      </div>
+    </section>
+    ${attention}
+    <section class="sec"><div class="sec-h"><h2>${isLeader ? 'Trips you lead' : 'Your trips'}</h2><button class="link" data-a="tab" data-id="trips">All trips</button></div>
+      ${myTrips.length ? myTrips.map(tripCard).join('') : `<div class="card muted">You haven't joined a trip yet. Here's what's coming up:</div>${other.slice(0, 2).map(tripCard).join('')}`}
+    </section>
+    <section class="sec"><div class="sec-h"><h2>Coming up</h2><button class="link" data-a="tab" data-id="train">Full calendar</button></div>
+      ${upcoming.map(s => sessionCard(s)).join('')}
+    </section>
+    ${ladderCard(m, true)}
+  </div>`;
+}
+
+function screenTrain(){
+  const m = me(), f = S.trainFilter;
+  const list = SESSIONS.filter(isFuture).filter(s => f === 'all' || TYPES[s.type].cat === f);
+  const weekKey = iso => { const x = d(iso); const day = (x.getDay() + 6) % 7; x.setDate(x.getDate() - day); return x.toISOString().slice(0, 10); };
+  const thisWeek = weekKey(TODAY);
+  const groups = {};
+  list.forEach(s => (groups[weekKey(s.date)] = groups[weekKey(s.date)] || []).push(s));
+  const label = k => {
+    const diff = Math.round((d(k) - d(thisWeek)) / 864e5 / 7);
+    return diff === 0 ? 'This week' : diff === 1 ? 'Next week' : 'Week of ' + fmt(k, {day:'numeric', month:'short'});
+  };
+  const past = m.attended.map(id => SE[id]).sort((a, b) => b.date.localeCompare(a.date));
+  const c = counts(m);
+  return `<div class="pad">
+    ${note('Sessions run every week, so you pick the week that suits you. Each session counts towards the prep for any trip that needs it. At the session, the leader scans your QR code to check you in. In this demo, tap <b>Check in (demo)</b> to fake that.')}
+    <div class="chips" role="group" aria-label="Filter sessions">
+      ${[['all','All'],['physical','Physical training'],['skills','Skills & social']].map(([k, l]) => `<button class="chip" aria-pressed="${f === k}" data-a="trainfilter" data-id="${k}">${l}</button>`).join('')}
+    </div>
+    ${Object.keys(groups).map(k => `<section class="sec"><div class="week">${label(k)}</div>${groups[k].map(s => sessionCard(s, {desc:true})).join('')}</section>`).join('')}
+    <section class="sec"><details class="card"><summary class="row" style="cursor:pointer"><b class="grow">Your session history</b><span class="meta num">${past.length} attended</span></summary>
+      <div class="counts" style="margin:10px 0">${Object.entries(c).map(([t, n]) => `<span>${TYPES[t].short} × ${n}</span>`).join('') || '<span>None yet</span>'}</div>
+      <div class="stack">${past.map(s => `<div class="row meta"><span class="num" style="width:62px">${fmt(s.date, {day:'numeric', month:'short'})}</span><span class="grow">${esc(sessTitle(s))}</span></div>`).join('')}</div>
+    </details></section>
+  </div>`;
+}
+
+function screenTrips(){
+  return `<div class="pad">
+    ${note('Every trip has a grade. To join, you either complete the prep sessions for that trip or show a verified climb at the same grade or harder. Everyone attends the trip briefing. The pill on each trip shows where <b>' + me().first + '</b> stands right now.')}
+    ${DB.trips.map(tripCard).join('')}
+  </div>`;
+}
+
+function screenTrip(id){
+  const t = trip(id), tr = TR[t.trail], m = me();
+  const leading = t.leaders.includes(m.id), joined = t.participants.includes(m.id);
+  const lc = leaderCheck(t);
+  const leaders = t.leaders.map(M).map(l => `<div class="leader"><span class="av">${l.initials}</span><div class="grow" style="min-width:0"><b>${esc(l.name)}</b>
+     <div class="certs">${l.certs.map(c => `<span class="cert${c.until < t.end && t.need.includes(c.kind) ? ' warn' : ''}">${esc(c.name)} · to ${fmt(c.until, {month:'short', year:'numeric'})}</span>`).join('')}</div></div></div>`).join('');
+  const lcHtml = lc.map(x => x.ok
+    ? `<div class="alert ok">✓ <span>${CERT_KIND[x.kind]}: covered through the trip</span></div>`
+    : `<div class="alert warn">⚠ <span><b>${CERT_KIND[x.kind]}:</b> no leader is certified through ${fmtLong(t.end)}.${x.holders.length ? ' ' + x.holders.map(h => `${h.l.first}'s expires ${fmtLong(h.c.until)}.`).join(' ') : ''}</span></div>`).join('');
+
+  let body;
+  if (leading){
+    const rows = t.participants.map(pid => {
+      const p = M(pid), r = readiness(p, t);
+      const act = r.status === 'notyet' ? `<button class="btn sm soft" data-a="override" data-id="${t.id}" data-m="${pid}">Approve anyway</button>`
+        : r.status === 'override' ? `<button class="btn sm soft" data-a="unoverride" data-id="${t.id}" data-m="${pid}">Undo</button>` : '';
+      return `<div class="r"><span class="av">${p.initials}</span><div class="grow" style="min-width:0"><b>${esc(p.name)}</b><div class="why">${statusWhy(r, t)}</div></div><div class="stack" style="align-items:flex-end;gap:4px">${statusPill(r)}${act}</div></div>`;
+    }).join('');
+    body = `<section class="sec"><div class="sec-h"><h2>Participant readiness</h2><span class="meta num">${t.participants.length} named · +${t.others} more</span></div>
+      ${note('Leaders see everyone\'s readiness in one place. If someone hasn\'t done the prep but you know they can handle it, use <b>Approve anyway</b>. The app records that the leader made the call.')}
+      <div class="card roster">${rows}</div></section>`;
+  } else {
+    const r = readiness(m, t);
+    const prepRows = r.prep.map(p => `<div class="check"><span class="tick${p.have >= p.need ? ' on' : ''}">${p.have >= p.need ? '✓' : ''}</span><div class="grow">${TYPES[p.type].label}<span class="dots">${Array.from({length:p.need}, (_, i) => `<i class="${i < p.have ? 'on' : ''}"></i>`).join('')}</span><div class="meta num">${p.have} of ${p.need}</div></div></div>`).join('');
+    const best = r.best ? `${esc(TR[r.best.trail].short)} (G${TR[r.best.trail].grade})` : 'none yet';
+    const brief = t.briefing ? SE[t.briefing] : null;
+    const headline = {
+      ready:`You're ready for this trip.`,
+      ontrack:`You've met the requirements. Attend the briefing before departure.`,
+      notyet:`You're not ready for this trip yet. Complete one of the two paths below.`,
+      override:`A trip leader has approved you for this trip.`,
+    }[r.status];
+    const canJoin = r.status !== 'notyet';
+    body = `<section class="sec"><div class="sec-h"><h2>Are you ready?</h2>${statusPill(r)}</div>
+      <div>${headline}</div>
+      ${note('This is the readiness check. Beginners get in by doing the prep sessions (path A). People who have already climbed something this hard skip the prep (path B). Logged climbs only count once verified.')}
+      <div class="path${r.prepDone ? ' met' : ''}"><h4><span>Path A · Prep sessions</span><span class="num">${r.prepHave}/${r.prepNeed}</span></h4>${prepRows}</div>
+      <div class="or">OR</div>
+      <div class="path${r.expDone ? ' met' : ''}"><h4><span>Path B · Proven experience</span><span>${r.expDone ? '✓' : ''}</span></h4>
+        <div class="meta">A verified climb at <b>Grade ${r.grade}</b> or harder. Your best: <b>${best}</b>.</div>
+        ${r.pendingExp ? `<div class="alert warn" style="margin-top:8px">⏳ <span>${esc(TR[r.pendingExp.trail].short)} is waiting for a leader to verify it.</span></div>` : ''}
+      </div>
+      <div class="path${r.briefDone ? ' met' : ''}"><h4><span>Everyone · Trip briefing</span><span>${r.briefDone ? '✓' : ''}</span></h4>
+        <div class="meta">${brief ? `${fmt(brief.date)} · ${brief.time} · ${esc(brief.place)}` : esc(t.briefingNote)}</div>
+      </div>
+      <div class="row" style="gap:8px">
+        ${joined ? `<button class="btn wide ghost" data-a="leave" data-id="${t.id}">You're on this trip · Leave</button>`
+          : `<button class="btn wide${canJoin ? ' blaze' : ''}" data-a="join" data-id="${t.id}" ${canJoin ? '' : 'disabled'}>${canJoin ? 'Join this trip' : 'Complete a path to join'}</button>`}
+      </div>
+      ${!r.prepDone && !r.expDone ? `<button class="btn soft wide" data-a="tab" data-id="train">Find prep sessions</button>` : ''}
+    </section>`;
+  }
+  return `<div>
+    <div class="banner topo">${silhouette(tr, 430, 150, {top:.45, op:.22})}
+      <div class="over"><div class="row">${gradeBadge(tr.grade, true)}<span class="eyebrow">${GRADES[tr.grade].name} · ${esc(tr.region)}</span></div><h2>${esc(t.title)}</h2><div class="meta">${t.dates}</div></div>
+    </div>
+    <div class="pad">
+      <div class="facts">
+        <div><b>${tr.dist} km</b><span>distance</span></div><div><b>${n0(tr.gain)} m</b><span>climb</span></div>
+        <div><b>${n0(tr.max)} m</b><span>summit</span></div><div><b class="num">${t.participants.length + t.others}/${t.cap}</b><span>spots</span></div>
+      </div>
+      <button class="link" style="align-self:flex-start" data-a="push" data-v="trail" data-id="${tr.id}">Trail details, elevation &amp; grade breakdown ›</button>
+      ${body}
+      <section class="sec"><h2>Leaders</h2>${leaders}${lcHtml}
+        ${note('Every trip lists the certifications its leaders must hold, such as first aid, plus altitude for Grade 4 and above. The app warns when a certification runs out before the trip.')}
+      </section>
+    </div></div>`;
+}
+
+function screenTrails(){
+  const f = S.gradeFilter;
+  const list = TRAILS.filter(t => !f || t.grade === f).sort((a, b) => a.score - b.score);
+  return `<div class="pad">
+    <section class="card stack topo">
+      <div class="eyebrow">The ALT grade scale</div>
+      <div class="scale">${[1,2,3,4,5].map(g => `<div class="s">${gradeBadge(g)}<div><b>${GRADES[g].name}</b> <span class="muted">· ${GRADES[g].desc}</span></div></div>`).join('')}</div>
+    </section>
+    ${note('Each trail gets a score from four things: total climb, distance, maximum altitude and terrain. The score sets the grade. The formula is a first draft for you and Eddy to adjust. Open any trail to see how its score adds up.')}
+    <div class="chips" role="group" aria-label="Filter by grade">
+      <button class="chip" aria-pressed="${!f}" data-a="gradefilter" data-id="0">All</button>
+      ${[1,2,3,4,5].map(g => `<button class="chip" aria-pressed="${f === g}" data-a="gradefilter" data-id="${g}">G${g}</button>`).join('')}
+    </div>
+    <div class="stack">${list.map(t => `<button class="card tap trailrow" data-a="push" data-v="trail" data-id="${t.id}">
+      <div class="mini">${silhouette(t, 72, 40, {top:.12, sw:1.5})}</div>
+      <div style="min-width:0"><h3>${esc(t.name)}</h3><div class="meta">${esc(t.region)}</div><div class="meta num">${t.dist} km · ${n0(t.gain)} m ↑ · ${n0(t.max)} m</div></div>
+      ${gradeBadge(t.grade)}</button>`).join('') || '<div class="card muted">No trails at this grade yet.</div>'}</div>
+  </div>`;
+}
+
+function screenTrail(id){
+  const t = TR[id];
+  const all = Object.values(DB.members).flatMap(m => verified(m).filter(j => j.trail === id).map(j => ({...j, who:m.id})));
+  const avg = k => all.length ? (all.reduce((a, j) => a + j[k], 0) / all.length).toFixed(1) : '–';
+  const f = [
+    ['Total climb', `${n0(t.gain)} m`],
+    ['Distance', `${t.dist} km`],
+    ['Max altitude', `${n0(t.max)} m`],
+    ['Terrain', TERRAIN[t.terrain].label],
+  ];
+  const parts = [t.pGain, t.pDist, t.pAlt, t.pTer];
+  const maxPart = 8;
+  const trips = DB.trips.filter(x => x.trail === id);
+  return `<div>
+    <div class="banner topo">${silhouette(t, 430, 150, {top:.45, op:.22})}
+      <div class="over"><div class="row">${gradeBadge(t.grade, true)}<span class="eyebrow">${GRADES[t.grade].name}</span></div><h2>${esc(t.name)}</h2><div class="meta">${esc(t.region)} · ${t.time}</div></div>
+    </div>
+    <div class="pad">
+      <div class="facts">
+        <div><b>${t.dist} km</b><span>distance</span></div><div><b>${n0(t.gain)} m</b><span>total climb</span></div>
+        <div><b>${n0(t.max)} m</b><span>summit</span></div><div><b>${n0(t.start)} m</b><span>trailhead</span></div>
+      </div>
+      <section class="sec"><h2>Elevation profile</h2><div class="card">${elevationChart(t)}</div></section>
+      <section class="sec"><h2>Why it's Grade ${t.grade}</h2>
+        <div class="card">
+          ${f.map((x, i) => `<div class="factor"><div style="min-width:0">${x[0]} <span class="muted">· ${esc(x[1])}</span></div><div class="bar blaze"><i style="width:${Math.min(100, parts[i] / maxPart * 100)}%"></i></div><b>+${parts[i].toFixed(1)}</b></div>`).join('')}
+          <div class="factor" style="border-top:1px solid var(--line);margin-top:4px;padding-top:9px"><b style="text-align:left;font-family:var(--f-body)">Score</b><span></span><b>${t.score.toFixed(1)}</b></div>
+          <div class="scorebar" aria-label="Score scale">${[1,2,3,4,5].map(g => `<div class="g${g}${g === t.grade ? ' cur' : ''}">G${g}</div>`).join('')}</div>
+          <div class="row meta num" style="justify-content:space-between;font-size:10.5px;margin-top:3px"><span>0</span><span>2</span><span>3.5</span><span>5.5</span><span>10</span><span>15+</span></div>
+        </div>
+        ${note('Points: +1 per 500 m of climbing, +1 per 10 km, +1 above 2,500 m or +1.5 above 3,500 m, and 0 to 2 for terrain. Below 2 is G1, below 3.5 is G2, below 5.5 is G3, below 10 is G4, and 10 or more is G5.')}
+      </section>
+      <section class="sec"><h2>What to expect</h2><ul class="plain">${t.expect.map(x => `<li>${esc(x)}</li>`).join('')}</ul></section>
+      <section class="sec"><h2>From the community</h2>
+        <div class="stats"><div class="stat"><b>${all.length}</b><span>climbs logged</span></div><div class="stat"><b>${avg('diff')}</b><span>avg difficulty /5</span></div><div class="stat"><b>${avg('fun')}</b><span>avg fun /5</span></div></div>
+      </section>
+      ${trips.length ? `<section class="sec"><h2>Upcoming ALT trips</h2>${trips.map(tripCard).join('')}</section>` : ''}
+    </div></div>`;
+}
+
+function entryCard(j, who){
+  const t = TR[j.trail];
+  return `<article class="card entry">
+    <div class="photo topo">${silhouette(t, 400, 84, {top:.2, op:.35})}${gradeBadge(t.grade)}<span class="pill ${j.status}">${j.status === 'verified' ? 'Verified' : 'Awaiting check'}</span></div>
+    <div class="body">
+      <div class="row"><h3 class="grow">${esc(t.short)}</h3><span class="meta">${fmt(j.date, {month:'short', year:'numeric'})}</span></div>
+      ${who ? `<div class="meta">${esc(who.name)}</div>` : ''}
+      <div class="rate"><span>Difficulty <b>${j.diff}/5</b></span><span>Fun <b>${j.fun}/5</b></span><span>${j.source === 'alt' ? 'ALT trip' : 'On my own' + (j.evidence ? ' · ' + esc(j.evidence) : '')}</span></div>
+      ${j.note ? `<p>${esc(j.note)}</p>` : ''}
+    </div></article>`;
+}
+
+function screenMap(){
+  const m = me(), community = S.mapMode === 'community';
+  const entries = community
+    ? Object.values(DB.members).flatMap(x => verified(x).map(j => ({...j, who:x.id})))
+    : m.journal.map(j => ({...j, who:m.id}));
+  const cl = places(entries);
+  const sel = cl.find(c => c.key === S.mapSel);
+  let below;
+  if (sel){
+    if (community){
+      below = `<section class="sec"><div class="sec-h"><h2>${esc(sel.name)}</h2><button class="link" data-a="mapsel" data-id="">Clear</button></div>
+        ${sel.trails.map(id => { const t = TR[id], es = sel.entries.filter(e => e.trail === id), people = [...new Set(es.map(e => e.who))];
+          const fun = (es.reduce((a, e) => a + e.fun, 0) / es.length).toFixed(1);
+          return `<button class="card tap trailrow" data-a="push" data-v="trail" data-id="${id}"><div class="mini">${silhouette(t, 72, 40, {top:.12, sw:1.5})}</div>
+            <div style="min-width:0"><h3>${esc(t.name)}</h3><div class="meta">${people.length} member${people.length > 1 ? 's' : ''} · avg fun ${fun}/5</div><div class="meta">${people.map(p => M(p).first).join(', ')}</div></div>${gradeBadge(t.grade)}</button>`; }).join('')}
+      </section>`;
+    } else {
+      below = `<section class="sec"><div class="sec-h"><h2>${esc(sel.name)}</h2><button class="link" data-a="mapsel" data-id="">Clear</button></div>${sel.entries.map(j => entryCard(j)).join('')}</section>`;
+    }
+  } else if (community){
+    const mine = new Set(verified(m).map(j => j.trail));
+    const ideas = cl.flatMap(c => c.trails).filter(id => !mine.has(id)).map(id => ({t:TR[id], n:new Set(entries.filter(e => e.trail === id).map(e => e.who)).size}))
+      .sort((a, b) => a.t.grade - b.t.grade || b.n - a.n);
+    below = `<section class="sec"><h2>Where to next for ${m.first}</h2>
+      ${note('The community map collects every verified climb by every member. It shows where the club has been and gives people ideas for their next climb. Suggestions are trails you haven\'t done, easiest first.')}
+      ${ideas.slice(0, 4).map(({t, n}) => `<button class="card tap trailrow" data-a="push" data-v="trail" data-id="${t.id}"><div class="mini">${silhouette(t, 72, 40, {top:.12, sw:1.5})}</div>
+        <div style="min-width:0"><h3>${esc(t.name)}</h3><div class="meta">${n} member${n > 1 ? 's have' : ' has'} climbed this</div></div>${gradeBadge(t.grade)}</button>`).join('') || '<div class="card muted">You\'ve climbed everything the club has. Impressive.</div>'}
+    </section>`;
+  } else {
+    const list = m.journal.slice().sort((a, b) => b.date.localeCompare(a.date));
+    below = `<section class="sec"><div class="sec-h"><h2>Journal</h2><span class="meta num">${list.length} entries</span></div>
+      ${note('Every climb a member logs puts a pin on their map. Climbs on ALT trips are verified automatically. Climbs done on their own wait for a leader to check the evidence. Verified climbs count as proof of experience in the trip readiness check.')}
+      ${list.map(j => entryCard(j)).join('') || '<div class="card muted">No climbs logged yet. Tap “Log a climb” to add your first.</div>'}</section>`;
+  }
+  return `<div class="pad">
+    <div class="seg" role="group" aria-label="Map view">
+      <button aria-pressed="${!community}" data-a="mapmode" data-id="mine">My map</button>
+      <button aria-pressed="${community}" data-a="mapmode" data-id="community">Community</button>
+    </div>
+    <div class="mapwrap">${mapSvg(cl, community)}</div>
+    <div class="legend">${[1,2,3,4,5].map(g => `<span class="g${g}"><i></i>G${g}</span>`).join('')}<span>· ${community ? 'number = members who climbed it' : 'number = climbs'} · tap a pin</span></div>
+    ${community ? '' : `<button class="btn wide blaze" data-a="push" data-v="log">${icon('plus', 'width="18" height="18"')} Log a climb</button>`}
+    ${below}
+  </div>`;
+}
+
+function screenLog(){
+  const f = S.form || (S.form = {trail:'datuk', date:'2026-09-27', diff:3, fun:4, note:'', source:'self', evidence:true});
+  const pick = (k) => [1,2,3,4,5].map(v => `<button type="button" aria-pressed="${f[k] === v}" data-a="formpick" data-k="${k}" data-id="${v}">${v}</button>`).join('');
+  return `<form class="pad" id="logform">
+    ${note('Example: as Mei, log Gunung Datuk (Grade 2) as climbed on your own with a GPS track. The climb waits for a leader to check it. Switch to Sarah to verify it, then switch back to Mei. The Datuk trip now counts this climb as proven experience.')}
+    <div class="field"><label for="f-trail">Mountain or trail</label>
+      <select id="f-trail" name="trail">${TRAILS.slice().sort((a, b) => a.grade - b.grade).map(t => `<option value="${t.id}" ${f.trail === t.id ? 'selected' : ''}>${esc(t.name)} · G${t.grade}</option>`).join('')}</select></div>
+    <div class="field"><label for="f-date">Date climbed</label><input id="f-date" name="date" type="date" value="${f.date}" max="${TODAY}"></div>
+    <div class="field"><span class="lab">How hard was it for you?</span><div class="pick">${pick('diff')}</div></div>
+    <div class="field"><span class="lab">How fun was it?</span><div class="pick">${pick('fun')}</div></div>
+    <div class="field"><label for="f-note">Journal entry</label><textarea id="f-note" name="note" placeholder="What was it like? Anything others should know?">${esc(f.note)}</textarea></div>
+    <div class="field"><span class="lab">Photos</span><div class="card muted" style="font-size:13px;border-style:dashed">Photo upload comes in the next build. Entries use the trail's elevation outline for now.</div></div>
+    <label class="cb"><input type="checkbox" id="f-ev" name="evidence" ${f.evidence ? 'checked' : ''}><span>I can share a GPS track or summit photo<br><span class="meta">Needed for a leader to verify climbs done outside ALT</span></span></label>
+    <button class="btn wide blaze" type="submit">Save to my map</button>
+  </form>`;
+}
+
+const BADGES = m => {
+  const st = stats(m), v = verified(m);
+  const maxG = Math.max(0, ...v.map(j => TR[j.trail].grade));
+  const sea = ['datuk','ledang','batur','kina','rinjani'];
+  const seaHave = sea.filter(id => v.some(j => j.trail === id)).length;
+  const stairN = counts(m).stair || 0;
+  return [
+    {k:'peak', name:'First Summit', desc:'Log your first verified climb', have:Math.min(st.summits, 1), need:1, reward:'ALT trail patch'},
+    {k:'stairs', name:'Stair Regular', desc:'Attend 5 stair sessions', have:Math.min(stairN, 5), need:5, reward:'Early RSVP for practice hikes'},
+    {k:'flag', name:'Grade 3 Unlocked', desc:'Verified climb at Grade 3+', have:maxG >= 3 ? 1 : 0, need:1, reward:'Skip prep for G3 trips'},
+    {k:'globe', name:'SEA Summits', desc:'Datuk, Ledang, Batur, Kinabalu, Rinjani', have:seaHave, need:5, reward:'Priority sign-up for overseas trips'},
+    {k:'people', name:'Trail Buddy', desc:'Make 10 friends on ALT', have:Math.min(st.friends, 10), need:10, reward:'Become a buddy for new members'},
+    {k:'star', name:'Committed', desc:'Attend 10 sessions of any kind', have:Math.min(st.sessions, 10), need:10, reward:'Trip leader training invite'},
+  ];
+};
+function ladderCard(m, link){
+  const st = stats(m), EV = 8849, pct = Math.min(100, st.gain / EV * 100);
+  return `<section class="card ladder${link ? ' tap' : ''}" ${link ? 'data-a="push" data-v="me" role="button" tabindex="0"' : ''}>
+    <div class="row"><div class="grow"><div class="eyebrow">Everest Ladder</div><b>${n0(st.gain)} of ${n0(EV)} m</b></div><span class="num muted">${pct.toFixed(0)}%</span></div>
+    <div class="bar"><i style="width:${pct}%"></i></div>
+    <div class="meta">Add up the climbing on your verified summits until it equals Everest. ${link ? '<span class="link">Milestones ›</span>' : ''}</div>
+  </section>`;
+}
+function screenMe(){
+  const m = me(), st = stats(m), b = BADGES(m);
+  return `<div class="pad">
+    <section class="hero topo">
+      <div class="row"><span class="av" style="width:52px;height:52px;font-size:17px">${m.initials}</span><div class="grow"><h2>${esc(m.name)}</h2><div class="sub">${m.role === 'leader' ? 'Trip leader' : 'Member'} since ${m.joined}</div></div></div>
+      <div class="stats">
+        <div class="stat"><b>${st.summits}</b><span>summits</span></div><div class="stat"><b>${n0(st.km)}</b><span>km hiked</span></div><div class="stat"><b>${n0(st.gain)}</b><span>m climbed</span></div>
+        <div class="stat"><b>${st.sessions}</b><span>sessions</span></div><div class="stat"><b>${st.countries}</b><span>countries</span></div><div class="stat"><b>${st.friends}</b><span>friends</span></div>
+      </div>
+    </section>
+    ${ladderCard(m, false)}
+    <section class="sec"><h2>Milestones</h2>
+      ${note('Milestones come from what members already do: climbs, sessions and friends. The rewards cost nothing but are worth having, such as early sign-up, skipping prep and mentor roles.')}
+      <div class="badges">${b.map(x => { const got = x.have >= x.need; return `<div class="badge${got ? ' got' : ''}">
+        <div class="ico">${icon(x.k)}</div><b>${x.name}</b><small>${x.desc}</small>
+        <div class="bar"><i style="width:${x.have / x.need * 100}%"></i></div><small class="num">${x.have}/${x.need}</small>
+        <span class="reward">${got ? 'Unlocked: ' : 'Unlocks: '}${x.reward}</span></div>`; }).join('')}</div>
+    </section>
+    ${m.certs.length ? `<section class="sec"><h2>Certifications</h2>${m.certs.map((c, i) => {
+      const soon = c.until < '2027-03-21';
+      return `<div class="card row"><div class="grow"><b>${esc(c.name)}</b><div class="meta">Valid to ${fmtLong(c.until)}</div></div>${soon ? `<button class="btn sm blaze" data-a="renew" data-id="${i}">Renew (demo)</button>` : '<span class="pill ready">Valid</span>'}</div>`; }).join('')}</section>` : ''}
+    <section class="card soon topo"><div class="eyebrow">Coming in a later build</div><b>Gear marketplace</b><div class="meta">Lend, rent or sell gear to other members, with a photo checklist at handover and return.</div></section>
+  </div>`;
+}
+
+/* =========================================================================
+   Shell
+   ========================================================================= */
+const TABS = [['home','Home','home'],['train','Train','train'],['trips','Trips','trips'],['trails','Trails','trails'],['map','Map','map']];
+const TITLES = {home:'Home', train:'Weekly training', trips:'Trips', trails:'Trail library', map:'Hiking map'};
+
+function renderGuide(){
+  const prev = document.querySelector('#guide details');
+  const wasOpen = prev ? prev.open : false;
+  const tour = [
+    ['mei','trip:ledang','The readiness check','Mei is a beginner. Gunung Ledang is Grade 3, so she is blocked and the app shows what she still needs.'],
+    ['mei','tab:train','Unlock it by training','Check Mei in to the 8 Oct stairs, the 17 Oct packing workshop and the 10 Nov briefing. Then open the Ledang trip again.'],
+    ['jun','trip:ledang','Unlock it by experience','Jun has a verified Kinabalu climb, so he skips the prep sessions.'],
+    ['mei','log','Log a climb','Mei logs Datuk. It goes on her map but waits for a leader to verify it.'],
+    ['sarah','tab:home','Leader view','Sarah verifies climbs, sees who on her trips is not ready, and gets a warning about an expiring certification.'],
+    ['mei','trail:kina','Trail grades','How Kinabalu\'s Grade 4 is worked out, with the elevation profile.'],
+    ['jun','map:community','Community map','Everywhere the club has been, plus ideas for where to go next.'],
+    ['jun','me','Milestones & rewards','Everest Ladder, badges and what each one unlocks.'],
+  ];
+  document.getElementById('guide').innerHTML = `
+    <div class="brand"><b>ALT</b><span>App prototype · example data</span></div>
+    <p class="long">A clickable demo of the first build. Pick who you're viewing as, then follow the tour. Everything resets when you reload.</p>
+    <div class="ctl"><span class="eyebrow">Viewing as</span>
+      <div class="persona-row">${PERSONAS.map(p => { const m = DB.members[p.id]; return `<button class="persona" aria-pressed="${S.persona === p.id}" data-a="persona" data-id="${p.id}"><span class="av">${m.initials}</span><b>${m.first}</b><small>${p.blurb}</small></button>`; }).join('')}</div>
+      <div class="ctl-row"><button class="btn sm soft" data-a="notes">${S.notes ? 'Hide' : 'Show'} explainer notes</button><button class="btn sm soft" data-a="reset">Reset demo</button></div>
+    </div>
+    <details class="short card"${wasOpen ? ' open' : ''}><summary>Demo tour (8 steps) ▾</summary><ol class="tour" style="margin-top:10px">${tour.map(t => `<li><button data-a="tour" data-p="${t[0]}" data-to="${t[1]}"><b>${t[2]}</b><span>${t[3]}</span></button></li>`).join('')}</ol></details>
+    <div class="long ctl"><span class="eyebrow">Demo tour</span><ol class="tour">${tour.map(t => `<li><button data-a="tour" data-p="${t[0]}" data-to="${t[1]}"><b>${t[2]}</b><span>${t[3]}</span></button></li>`).join('')}</ol></div>`;
+}
+
+function render(keepScroll){
+  const top = S.stack[S.stack.length - 1];
+  let title, html;
+  if (top){
+    if (top.v === 'trip'){ title = trip(top.id).title; html = screenTrip(top.id); }
+    else if (top.v === 'trail'){ title = TR[top.id].name; html = screenTrail(top.id); }
+    else if (top.v === 'log'){ title = 'Log a climb'; html = screenLog(); }
+    else if (top.v === 'me'){ title = 'Profile & milestones'; html = screenMe(); }
+  } else {
+    title = TITLES[S.tab];
+    html = {home:screenHome, train:screenTrain, trips:screenTrips, trails:screenTrails, map:screenMap}[S.tab]();
+  }
+  const m = me();
+  const phone = document.getElementById('phone');
+  const scr = phone.querySelector('.screen');
+  const y = keepScroll ? (scr ? scr.scrollTop : 0) : 0, wy = window.scrollY;
+  phone.innerHTML = `
+    <header class="appbar">
+      ${top ? `<button class="iconbtn" data-a="back" aria-label="Back">${icon('back')}</button>` : `<span class="logo">ALT</span>`}
+      <h1>${esc(title)}</h1>
+      <button class="av" data-a="push" data-v="me" aria-label="Profile and milestones" style="border:0">${m.initials}</button>
+    </header>
+    <div class="screen">${html}</div>
+    <nav class="tabs" aria-label="Sections">${TABS.map(([k, l, ic]) => `<button data-a="tab" data-id="${k}" ${!top && S.tab === k ? 'aria-current="page"' : ''}>${icon(ic)}${l}</button>`).join('')}</nav>
+    ${S.toast ? `<div class="toast" role="status">${S.toast}</div>` : ''}`;
+  const ns = phone.querySelector('.screen');
+  ns.scrollTop = y;
+  if (!keepScroll && window.matchMedia('(max-width: 900px)').matches){
+    const g = document.getElementById('guide');
+    if (wy > g.offsetHeight) window.scrollTo(0, g.offsetHeight);
+  }
+  renderGuide();
+}
+
+let toastTimer;
+function toast(msg){ S.toast = msg; clearTimeout(toastTimer); toastTimer = setTimeout(() => { S.toast = null; render(true); }, 3200); }
+
+function go(to){
+  S.stack = [];
+  const [k, v] = to.split(':');
+  if (k === 'tab') S.tab = v;
+  else if (k === 'trip'){ S.tab = 'trips'; S.stack = [{v:'trip', id:v}]; }
+  else if (k === 'trail'){ S.tab = 'trails'; S.stack = [{v:'trail', id:v}]; }
+  else if (k === 'map'){ S.tab = 'map'; S.mapMode = v; S.mapSel = null; }
+  else if (k === 'log'){ S.tab = 'map'; S.mapMode = 'mine'; S.form = null; S.stack = [{v:'log'}]; }
+  else if (k === 'me'){ S.stack = [{v:'me'}]; }
+}
+
+function act(a, ds){
+  const m = me();
+  switch (a){
+    case 'tab': S.tab = ds.id; S.stack = []; S.mapSel = null; break;
+    case 'push': if (ds.v === 'log') S.form = null; S.stack.push({v:ds.v, id:ds.id}); break;
+    case 'back': S.stack.pop(); break;
+    case 'persona': S.persona = ds.id; S.stack = S.stack.filter(x => x.v !== 'log'); S.mapSel = null; toast(`Now viewing as ${me().first}`); break;
+    case 'notes': S.notes = !S.notes; return render(true);
+    case 'reset': reset(); toast('Demo reset to the starting data'); break;
+    case 'tour': S.persona = ds.p; go(ds.to); break;
+    case 'trainfilter': S.trainFilter = ds.id; return render(true);
+    case 'gradefilter': S.gradeFilter = +ds.id; return render(true);
+    case 'mapmode': S.mapMode = ds.id; S.mapSel = null; return render(true);
+    case 'mapsel': S.mapSel = S.mapSel === ds.id ? null : (ds.id || null); return render(true);
+    case 'rsvp': {
+      const i = m.rsvps.indexOf(ds.id);
+      if (i >= 0) m.rsvps.splice(i, 1); else { m.rsvps.push(ds.id); toast(`You're going to ${sessTitle(SE[ds.id])} on ${fmt(SE[ds.id].date)}`); }
+      return render(true);
+    }
+    case 'checkin': {
+      const s = SE[ds.id];
+      m.attended.push(s.id); m.rsvps = m.rsvps.filter(x => x !== s.id);
+      let msg = `Checked in to ${sessTitle(s)}`;
+      if (s.trail){ m.journal.push({id:'j' + (++DB.seq), trail:s.trail, date:s.date, diff:2, fun:4, note:'Logged automatically from an ALT practice hike.', source:'alt', status:'verified'}); msg += `. ${TR[s.trail].short} added to your map`; }
+      const unlocked = DB.trips.filter(t => !t.leaders.includes(m.id) && readiness(m, t).prepDone && (t.prep[s.type]) && (() => { const c = counts(m); c[s.type]--; return !Object.entries(t.prep).every(([k, n]) => (c[k] || 0) >= n); })());
+      if (unlocked.length) msg += `. Prep complete for ${unlocked.map(t => TR[t.trail].short).join(' & ')}!`;
+      toast(msg); return render(true);
+    }
+    case 'join': { const t = trip(ds.id); t.participants.push(m.id); toast(`You've joined ${t.title}`); return render(true); }
+    case 'leave': { const t = trip(ds.id); t.participants = t.participants.filter(x => x !== m.id); toast(`You've left ${t.title}`); return render(true); }
+    case 'verify': case 'reject': {
+      const x = M(ds.m), j = x.journal.find(j => j.id === ds.id);
+      if (a === 'verify'){ j.status = 'verified'; toast(`${TR[j.trail].short} verified for ${x.first}. It now counts as proven experience.`); }
+      else { toast(`Asked ${x.first} for a clearer GPS track or summit photo`); }
+      return render(true);
+    }
+    case 'override': DB.overrides[ds.id + ':' + ds.m] = {by:m.id}; toast(`${M(ds.m).first} approved for this trip. Your name is recorded on the decision.`); return render(true);
+    case 'unoverride': delete DB.overrides[ds.id + ':' + ds.m]; return render(true);
+    case 'renew': m.certs[+ds.id].until = '2028-11-30'; toast('Certification renewed to 30 Nov 2028'); return render(true);
+    case 'formpick': S.form[ds.k] = +ds.id; return render(true);
+  }
+  render(false);
+}
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]');
+  if (!el || el.disabled) return;
+  e.preventDefault();
+  act(el.dataset.a, el.dataset);
+});
+document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-a][role="button"]')){ e.preventDefault(); act(e.target.dataset.a, e.target.dataset); }
+});
+document.addEventListener('input', e => {
+  if (!S.form || !e.target.closest('#logform')) return;
+  const t = e.target;
+  if (t.name === 'trail') S.form.trail = t.value;
+  if (t.name === 'date') S.form.date = t.value;
+  if (t.name === 'note') S.form.note = t.value;
+  if (t.name === 'evidence') S.form.evidence = t.checked;
+});
+document.addEventListener('change', e => { if (e.target.name === 'evidence' && S.form) S.form.evidence = e.target.checked; });
+document.addEventListener('submit', e => {
+  if (e.target.id !== 'logform') return;
+  e.preventDefault();
+  const f = S.form, m = me();
+  m.journal.push({id:'j' + (++DB.seq), trail:f.trail, date:f.date || TODAY, diff:f.diff, fun:f.fun, note:f.note.trim(), source:'self', status:'pending', evidence:f.evidence ? 'GPS track' : null});
+  S.stack = []; S.tab = 'map'; S.mapMode = 'mine'; S.mapSel = null; S.form = null;
+  toast(`${TR[f.trail].short} pinned to your map. A leader will verify it${f.evidence ? '' : ' once you add a GPS track or photo'}.`);
+  render(false);
+});
+
+render(false);
+</script>
