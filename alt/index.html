@@ -214,8 +214,9 @@ p{margin:0}
 .widget .cap{position:absolute;left:12px;top:10px}
 .widget .cap b{font-family:var(--f-display);font-stretch:112%;font-size:15px;color:var(--ink);background:color-mix(in srgb,var(--surface) 82%,transparent);padding:4px 9px;border-radius:8px}
 .widget .open{position:absolute;right:10px;bottom:10px}
-.wpin circle{stroke:var(--pin-ring);stroke-width:2}
-.wpin text{font:700 9px var(--f-body);fill:var(--a-ink);pointer-events:none}
+.wpin path{fill:var(--gc);stroke:#fff;stroke-width:1.5}
+.wpin circle{fill:#fff}
+.wpin text{font:700 8.5px var(--f-mono);fill:#fff;pointer-events:none}
 .mxwrap{position:relative;flex:1;min-height:0;overflow:hidden;background:var(--ocean)}
 .mxwrap.globe{background:radial-gradient(ellipse at 50% 40%,#0f1a28 0%,var(--space) 70%)}
 .mxwrap > svg{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;display:block}
@@ -225,13 +226,12 @@ p{margin:0}
 .mx-grat{fill:none;stroke:rgba(255,255,255,.18);stroke-width:.6}
 .mx-glow{fill:none;stroke:rgba(140,190,255,.35);stroke-width:12;filter:blur(7px)}
 .mx-pins{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-.mpin{position:absolute;transform:translate(-50%,-100%);pointer-events:auto;border:0;padding:0;background:none;display:flex;flex-direction:column;align-items:center}
-.mpin .head{width:38px;height:38px;border-radius:50%;border:3px solid var(--pin-ring);display:grid;place-items:center;font:700 12px var(--f-body);color:var(--a-ink);box-shadow:0 3px 10px rgba(0,0,0,.3);overflow:hidden;background:var(--a1)}
-.mpin .head img{width:100%;height:100%;object-fit:cover}
-.mpin.mine .head{background:var(--gc);color:var(--g-ink);font-family:var(--f-mono)}
-.mpin .tail{width:3px;height:9px;background:var(--pin-ring);margin-top:-1px;border-radius:0 0 2px 2px}
-.mpin .n{position:absolute;top:-4px;right:-8px;background:var(--blaze);color:#fff;font:700 11px/16px var(--f-mono);min-width:20px;height:20px;border-radius:10px;padding:0 4px;border:2px solid var(--pin-ring)}
-.mpin.sel .head{border-color:var(--blaze)}
+.mpin{position:absolute;transform:translate(-50%,-100%);pointer-events:auto;border:0;padding:0 0 4px;background:none;display:grid;place-items:center}
+.mpin .drop{width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--gc);border:2.5px solid #fff;box-shadow:-2px 3px 8px rgba(0,0,0,.35);display:grid;place-items:center}
+.mpin .drop span{transform:rotate(45deg);color:#fff;font:700 11.5px/1 var(--f-mono)}
+.mpin .drop i{width:9px;height:9px;border-radius:50%;background:#fff}
+.mpin::after{content:"";position:absolute;bottom:0;width:12px;height:4px;border-radius:50%;background:rgba(0,0,0,.3);z-index:-1}
+.mpin.sel .drop{width:36px;height:36px;border-color:var(--ink)}
 .glass{background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 2px 10px rgba(0,0,0,.18);border:0;color:var(--ink)}
 .mx-top{position:absolute;top:58px;left:12px;right:12px;display:flex;gap:8px;align-items:center;z-index:5}
 .mx-top .seg{flex:1}
@@ -639,6 +639,7 @@ const PERSONAS = [{id:'mei', blurb:'Beginner'}, {id:'jun', blurb:'Experienced'},
 let DB, S;
 function freshDB(){
   return {members:structuredClone(SEED_MEMBERS), trips:structuredClone(TRIPS), feed:structuredClone(SEED_FEED), overrides:{}, kudos:{},
+    interest:{fuji:['jun','marcus','ravi'], batur:['aisyah','marcus','hannah','ravi','jun'], rinjani:['jun','marcus'], ebc:['jun','sarah','daniel','marcus'], kili:['marcus'], mac:[], sr:[], bt:[]},
     seen:{mei:'2026-10-05T00:00', jun:'2026-10-06T00:00', sarah:'2026-10-06T00:00'}, now:'2026-10-07T18:30', seq:100, sim:0, notes:{}};
 }
 function load(){
@@ -647,6 +648,7 @@ function load(){
 }
 function save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(DB)); } catch (e) {} }
 DB = load();
+if (!DB.interest) DB.interest = freshDB().interest;
 S = {persona:'mei', tab:'home', stack:[], notes:true, calMonth:'2026-10', calDay:TODAY, calFilter:'all', gradeFilter:0, form:null, toast:null, banner:null};
 const me = () => DB.members[S.persona];
 const M = id => DB.members[id];
@@ -718,6 +720,8 @@ function stats(m){
   return {summits:v.length, km:v.reduce((a, j) => a + TR[j.trail].dist, 0), gain:v.reduce((a, j) => a + TR[j.trail].gain, 0),
     sessions:m.attended.length, friends:m.follows.length, countries:new Set(v.map(j => TR[j.trail].country)).size};
 }
+const nextTrip = trailId => DB.trips.filter(t => t.trail === trailId && t.end >= TODAY).sort((a, b) => a.start.localeCompare(b.start))[0];
+const INTEREST_GOAL = 8;
 const myTrips = m => DB.trips.filter(t => t.participants.includes(m.id) || t.leaders.includes(m.id));
 
 /* ---------- elevation profiles ---------- */
@@ -813,7 +817,7 @@ function widgetSvg(){
   if (!WIDGET_CACHE){ const path = d3.geoPath(proj); WIDGET_CACHE = `<path class="wl" d="${path(GEO.land50)}"/><path class="wb" d="${path(GEO.bord50)}"/>`; }
   const pts = mapPins('everyone').map(p => ({p, xy:proj([p.lon, p.lat])})).filter(x => x.xy[0] > -10 && x.xy[0] < W + 10 && x.xy[1] > -10 && x.xy[1] < H + 10);
   const cl = clusterPins(pts.map(x => ({p:x.p, x:x.xy[0], y:x.xy[1]})), 18);
-  const pins = cl.map(c => { const m = c.items[0].m; return `<g class="wpin"><circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="11" style="fill:var(--a${m.hue})"/><text x="${c.x.toFixed(1)}" y="${(c.y + 3).toFixed(1)}" text-anchor="middle">${c.items.length > 1 ? c.items.length : esc(m.initials)}</text></g>`; }).join('');
+  const pins = cl.map(c => { const g = Math.max(...c.items.map(x => x.t.grade)); return `<g class="wpin g${g}" transform="translate(${c.x.toFixed(1)} ${c.y.toFixed(1)})"><path d="M0 0C-3-5-8-8-8-13a8 8 0 1 1 16 0c0 5-5 8-8 13z"/>${c.items.length > 1 ? `<text y="-10" text-anchor="middle">${c.items.length}</text>` : '<circle cy="-13" r="3"/>'}</g>`; }).join('');
   return `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">${WIDGET_CACHE}${pins}</svg>`;
 }
 
@@ -849,20 +853,20 @@ function mountExplore(wrap){
     const cl = clusterPins(pts, 34);
     MV.clusters = cl;
     pinLayer.innerHTML = cl.map((c, i) => {
-      const f = c.items[0], people = [...new Set(c.items.map(x => x.m.id))];
-      const head = who === 'mine' ? `<span class="head g${Math.max(...c.items.map(x => x.t.grade))}">${c.items.length > 1 ? c.items.length : 'G' + f.t.grade}</span>`
-        : `<span class="head" style="background:var(--a${f.m.hue})">${f.m.photo ? `<img src="${f.m.photo}" alt="">` : esc(f.m.initials)}</span>${c.items.length > 1 ? `<span class="n">${c.items.length}</span>` : ''}`;
-      return `<button class="mpin${who === 'mine' ? ' mine' : ''}${MV.sel === i ? ' sel' : ''}" data-pin="${i}" style="left:${c.x.toFixed(1)}px;top:${c.y.toFixed(1)}px" aria-label="${esc(people.map(id => M(id).first).join(', '))}: ${esc([...new Set(c.items.map(x => x.t.short))].join(', '))}">${head}<span class="tail"></span></button>`;
+      const people = [...new Set(c.items.map(x => x.m.id))];
+      const g = Math.max(...c.items.map(x => x.t.grade));
+      return `<button class="mpin g${g}${MV.sel === i ? ' sel' : ''}" data-pin="${i}" style="left:${c.x.toFixed(1)}px;top:${c.y.toFixed(1)}px" aria-label="${esc([...new Set(c.items.map(x => x.t.short))].join(', '))}: ${c.items.length} hike${c.items.length > 1 ? 's' : ''} by ${esc(people.map(id => M(id).first).join(', '))}"><span class="drop">${c.items.length > 1 ? `<span>${c.items.length}</span>` : '<i></i>'}</span></button>`;
     }).join('');
   }
   function showSheet(i){
     const c = MV.clusters[i]; if (!c) return;
+    const ids = [...new Set(c.items.map(x => x.t.id))];
+    if (ids.length === 1){ act('push', {v:'place', id:ids[0]}); return; }
     MV.sel = i; drawPins();
-    const rows = c.items.slice().sort((a, b) => b.j.date.localeCompare(a.j.date)).map(x => `
-      <div class="row">${who === 'mine' ? `<span class="grade g${x.t.grade}">G${x.t.grade}</span>` : av(x.m)}
-        <div class="grow"><b>${who === 'mine' ? esc(x.t.name) : esc(x.m.first) + ' · ' + esc(x.t.short)}</b><div class="meta">${fmtLong(x.j.date)} · ${GRADES[x.t.grade].name}${x.j.status === 'pending' ? ' · awaiting check' : ''}</div></div>
-        <button class="btn sm soft" data-a="push" data-v="trail" data-id="${x.t.id}">Trail</button></div>`).join('');
-    sheet.innerHTML = `<div class="row"><b class="grow" style="font-family:var(--f-display);font-size:17px">${esc([...new Set(c.items.map(x => x.t.region))].join(' · '))}</b><button class="link" data-mx="close">Close</button></div>${rows}`;
+    const rows = ids.map(id => { const t = TR[id], n = c.items.filter(x => x.t.id === id).length, nt = nextTrip(id); return `
+      <button class="row tap" data-a="push" data-v="place" data-id="${id}" style="border:0;background:none;padding:0">${gradeBadge(t.grade)}
+        <span class="grow"><b>${esc(t.name)}</b><div class="meta">${n} hike${n > 1 ? 's' : ''} logged · ${nt ? 'ALT trip ' + fmt(nt.start) : 'No ALT trip yet'}</div></span>${icon('next', 'width="18" height="18"')}</button>`; }).join('');
+    sheet.innerHTML = `<div class="row"><b class="grow" style="font-family:var(--f-display);font-size:17px">${ids.length} places here</b><button class="link" data-mx="close">Close</button></div>${rows}`;
     sheet.hidden = false; hint.hidden = true;
   }
 
@@ -1245,8 +1249,51 @@ function screenTrail(id){
       <section class="sec"><h2>What to expect</h2><ul class="plain">${t.expect.map(x => `<li>${esc(x)}</li>`).join('')}</ul></section>
       <section class="sec"><h2>From the community</h2>
         <div class="stats"><div class="stat"><b>${all.length}</b><span>climbs logged</span></div><div class="stat"><b>${avg('diff')}</b><span>avg difficulty /5</span></div><div class="stat"><b>${avg('fun')}</b><span>avg fun /5</span></div></div>
-        <button class="btn soft" data-a="showonmap" data-id="${t.id}" data-who="everyone">${icon('pin')}Show on map</button></section>
+        <div class="row"><button class="btn soft" data-a="push" data-v="place" data-id="${t.id}">Journals &amp; reviews</button><button class="btn soft" data-a="showonmap" data-id="${t.id}" data-who="everyone">${icon('pin')}Show on map</button></div></section>
       ${trips.length ? `<section class="sec"><h2>Upcoming ALT trips</h2>${trips.map(tripCard).join('')}</section>` : ''}
+    </div></div>`;
+}
+
+/* ---------- a place on the map ---------- */
+function screenPlace(id){
+  const t = TR[id], m = me();
+  const posts = Object.values(DB.members).flatMap(x => x.journal.filter(j => j.trail === id).map(j => ({j, x}))).sort((a, b) => b.j.date.localeCompare(a.j.date));
+  const rated = posts.filter(p => p.j.status === 'verified');
+  const avg = k => rated.length ? (rated.reduce((a, p) => a + p.j[k], 0) / rated.length).toFixed(1) : '–';
+  const trips = DB.trips.filter(x => x.trail === id && x.end >= TODAY);
+  let altBlock;
+  if (trips.length){
+    altBlock = `<section class="sec"><div class="sec-h"><h2>ALT trip</h2><span class="pill verified">ALT runs this hike</span></div>
+      <div class="meta">Next trip: <b>${trips[0].dates}</b>. Open it to check whether you're ready and to sign up.</div>${trips.map(tripCard).join('')}</section>`;
+  } else {
+    const list = DB.interest[id] || (DB.interest[id] = []), mine = list.includes(m.id), n = list.length;
+    altBlock = `<section class="sec"><div class="sec-h"><h2>Interest check</h2><span class="pill override">No ALT trip yet</span></div>
+      <div class="card stack">
+        <div>ALT doesn't run a trip here yet. Tap below if you'd join one. When <b>${INTEREST_GOAL} members</b> are interested, the trip leaders are asked to plan it.</div>
+        <div class="bar blaze"><i style="width:${Math.min(100, n / INTEREST_GOAL * 100)}%"></i></div>
+        <div class="row">${list.slice(0, 6).map(pid => av(M(pid), 'sm')).join('')}<span class="meta grow"><span class="num">${n}/${INTEREST_GOAL}</span> interested${n ? ': ' + esc(list.map(pid => pid === m.id ? 'you' : M(pid).first).join(', ')) : ''}</span></div>
+        <button class="btn wide ${mine ? 'ghost' : 'blaze'}" data-a="interest" data-id="${id}">${mine ? 'You\'re interested ✓ · Undo' : 'I\'m interested'}</button>
+      </div>
+      ${note('Interest checks let members ask for a trip to a place someone in the community has been. Leaders see the count and plan the trips with the most demand.')}</section>`;
+  }
+  return `<div>${photoHero(t, t.name, t.time)}
+    <div class="pad">
+      <div class="facts"><div><b>${t.dist} km</b><span>distance</span></div><div><b>${n0(t.gain)} m</b><span>climb</span></div>
+        <div><b>${n0(t.max)} m</b><span>summit</span></div><div><b>G${t.grade}</b><span>${GRADES[t.grade].name}</span></div></div>
+      <section class="sec"><h2>Ratings from the community</h2>
+        <div class="stats"><div class="stat"><b>${avg('diff')}</b><span>difficulty /5</span></div><div class="stat"><b>${avg('fun')}</b><span>fun /5</span></div><div class="stat"><b>${posts.length}</b><span>hikes logged</span></div></div></section>
+      ${altBlock}
+      <section class="sec"><h2>Trail</h2><div class="card">${elevationChart(t)}</div>
+        <ul class="plain">${t.expect.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+        <button class="link" style="align-self:flex-start" data-a="push" data-v="trail" data-id="${id}">How the grade is worked out ›</button></section>
+      <section class="sec"><div class="sec-h"><h2>Journals &amp; reviews</h2><span class="meta">${posts.length}</span></div>
+        ${posts.map(({j, x}) => `<article class="card stack">
+          <div class="row">${av(x)}<div class="grow"><b>${x.id === m.id ? 'You' : esc(x.name)}</b><div class="meta">${fmtLong(j.date)} · ${j.source === 'alt' ? 'ALT trip' : 'On their own'}</div></div>${j.status === 'pending' ? '<span class="pill pending">Awaiting check</span>' : ''}</div>
+          <div class="rate"><span>Difficulty <b>${j.diff}/5</b></span><span>Fun <b>${j.fun}/5</b></span></div>
+          ${j.note ? `<p style="font-size:14px">${esc(j.note)}</p>` : ''}
+          ${j.photos && j.photos.length ? `<div class="thumbs">${j.photos.map(ph => `<img src="${ph}" alt="">`).join('')}</div>` : ''}
+        </article>`).join('') || '<div class="card muted">No one has logged this hike yet.</div>'}
+        <button class="btn soft" data-a="push" data-v="log" data-trail="${id}">${icon('plus')}Log your own hike here</button></section>
     </div></div>`;
 }
 
@@ -1428,7 +1475,7 @@ function render(keepScroll){
     trip:() => [trip(top.id).title, screenTrip(top.id)], trail:() => [TR[top.id].name, screenTrail(top.id)],
     log:() => ['Add a journey', screenLog()], missions:() => ['Missions & rewards', screenMissions()],
     notifs:() => ['Notifications', screenNotifs()], friends:() => ['Find friends', screenFriends()],
-    attention:() => ['Needs your attention', screenAttention()], editprofile:() => ['Edit profile', screenEditProfile()],
+    attention:() => ['Needs your attention', screenAttention()], place:() => [TR[top.id].name, screenPlace(top.id)], editprofile:() => ['Edit profile', screenEditProfile()],
   };
   if (top) [title, html] = views[top.v]();
   else html = {home:screenHome, cal:screenCalendar, trails:screenTrails, profile:screenProfile}[S.tab]();
@@ -1497,7 +1544,7 @@ function act(a, ds){
     case 'tab': S.tab = ds.id; S.stack = []; break;
     case 'push':
       if (ds.v === 'notifs'){ openNotifs(); break; }
-      if (ds.v === 'log') S.form = null;
+      if (ds.v === 'log') S.form = ds.trail ? {trail:ds.trail, date:TODAY, diff:3, fun:4, note:'', evidence:true, photos:[]} : null;
       S.stack.push({v:ds.v, id:ds.id}); break;
     case 'back': S.stack.pop(); break;
     case 'explore': MV.sel = null; MV.who = 'everyone'; S.stack.push({v:'explore'}); break;
@@ -1550,6 +1597,12 @@ function act(a, ds){
     case 'override': DB.overrides[ds.id + ':' + ds.m] = {by:m.id}; toast(`${M(ds.m).first} approved for this trip. Your name is recorded on the decision.`); return render(true);
     case 'unoverride': delete DB.overrides[ds.id + ':' + ds.m]; return render(true);
     case 'renew': m.certs[+ds.id].until = '2028-11-30'; toast('Certification renewed to 30 Nov 2028'); return render(true);
+    case 'interest': {
+      const list = DB.interest[ds.id] || (DB.interest[ds.id] = []), i = list.indexOf(m.id);
+      if (i >= 0) list.splice(i, 1);
+      else { list.push(m.id); toast(list.length >= INTEREST_GOAL ? `That's ${INTEREST_GOAL} interested. The trip leaders have been asked to plan a ${TR[ds.id].short} trip.` : `Noted. ${INTEREST_GOAL - list.length} more needed before the leaders are asked to plan a trip.`); }
+      return render(true);
+    }
     case 'formpick': S.form[ds.k] = +ds.id; return render(true);
     case 'claim': { const x = MISSIONS(m).find(x => x.id === ds.id); if (x && x.have >= x.need && !m.claimed.includes(x.id)){ m.claimed.push(x.id); m.credits += x.reward; toast(`+${x.reward} credits for “${x.title}”`); } return render(true); }
     case 'redeem': { const r = REWARDS.find(r => r.id === ds.id); if (r && m.credits >= r.cost && !m.redeemed.includes(r.id)){ m.credits -= r.cost; m.redeemed.push(r.id); toast(`Redeemed ${r.name}. A leader will hand it over at your next session.`); } return render(true); }
