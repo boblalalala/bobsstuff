@@ -4,7 +4,7 @@ Clickable front-end prototype of the ALT hiking club app. It runs from one file 
 
 Tabs:
 - **Home**: a social feed in the style of Strava. It shows hikes, trip sign-ups and session RSVPs from people you follow, with kudos, plus "Find friends", a "Next up" card and a map widget. The bell shows notifications. Leaders also get a "Needs your attention" card.
-- **Explore map** (opened from the home widget): switch between a globe and a flat map, both of which pan and zoom. You can show everyone's recent hikes or only your own. Tap a pin to see who hiked there.
+- **Explore map** (opened from the home widget): switch between a globe and a flat map, both of which pan and zoom. Tabs show your friends' hikes, the ALT community's hikes, or only your own. Singapore practice hikes are left off. Tap a pin for a preview, then open the place page for journals, ratings and the next ALT trip or an interest check.
 - **Trips**: a month calendar of trips and weekly training and skills sessions. You can filter it, RSVP to sessions, and check in (simulated).
 - **Log (+)**: add a journey with photos. It goes into your journal, onto your map and into your friends' feeds.
 - **Trails**: the ALT grade scale (G1–G5), elevation profiles and a breakdown of how each grade is scored.

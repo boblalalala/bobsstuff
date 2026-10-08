@@ -242,6 +242,7 @@ p{margin:0}
 .glass{background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 2px 10px rgba(0,0,0,.18);border:0;color:var(--ink)}
 .mx-top{position:absolute;top:58px;left:12px;right:12px;display:flex;gap:8px;align-items:center;z-index:5}
 .mx-top .seg{flex:1}
+.mx-top .seg button{padding:7px 6px;font-size:12.5px;white-space:nowrap}
 .mx-side{position:absolute;right:12px;top:112px;display:flex;flex-direction:column;gap:8px;z-index:5}
 .mx-side .iconbtn{width:42px;height:42px;font:700 20px var(--f-mono)}
 .mx-layer{position:absolute;left:12px;top:112px;z-index:5;padding:3px;border-radius:12px;display:flex}
@@ -804,12 +805,15 @@ const icon = (k, extra = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="cu
    ========================================================================= */
 const GEO = JSON.parse(document.getElementById('geo').textContent);
 const hasD3 = () => typeof d3 !== 'undefined';
-const MV = {who:'everyone', layer:'globe', rot:[-108, -6], gk:1.4, flatT:null, focus:null, sel:null};
+const MV = {who:'friends', layer:'globe', rot:[-108, -6], gk:1.4, flatT:null, focus:null, sel:null};
+// Singapore practice hikes are left off the map; it shows trips and hikes further afield
+const onMap = t => t.country !== 'SG';
+const WHO_LABEL = {friends:'your friends\'', community:'the ALT community\'s', mine:'your'};
 function mapPins(who){
-  const list = who === 'mine'
-    ? me().journal.map(j => ({j, m:me()}))
-    : Object.values(DB.members).flatMap(x => verified(x).filter(j => j.date >= '2025-10-01').map(j => ({j, m:x})));
-  return list.map(({j, m}) => ({j, m, t:TR[j.trail], lon:TR[j.trail].lon, lat:TR[j.trail].lat}));
+  const m = me();
+  const list = who === 'mine' ? m.journal.map(j => ({j, m}))
+    : Object.values(DB.members).filter(x => who === 'community' || m.follows.includes(x.id)).flatMap(x => verified(x).map(j => ({j, m:x})));
+  return list.filter(({j}) => onMap(TR[j.trail])).map(({j, m}) => ({j, m, t:TR[j.trail], lon:TR[j.trail].lon, lat:TR[j.trail].lat}));
 }
 function clusterPins(pts, r){
   const out = [];
@@ -822,7 +826,7 @@ function widgetSvg(){
   const W = 360, H = 200;
   const proj = d3.geoMercator().center([109, 3]).scale(780).translate([W / 2, H / 2 + 6]);
   if (!WIDGET_CACHE){ const path = d3.geoPath(proj); WIDGET_CACHE = `<path class="wl" d="${path(GEO.land50)}"/><path class="wb" d="${path(GEO.bord50)}"/>`; }
-  const pts = mapPins('everyone').map(p => ({p, xy:proj([p.lon, p.lat])})).filter(x => x.xy[0] > -10 && x.xy[0] < W + 10 && x.xy[1] > -10 && x.xy[1] < H + 10);
+  const pts = mapPins('friends').map(p => ({p, xy:proj([p.lon, p.lat])})).filter(x => x.xy[0] > -10 && x.xy[0] < W + 10 && x.xy[1] > -10 && x.xy[1] < H + 10);
   const cl = clusterPins(pts.map(x => ({p:x.p, x:x.xy[0], y:x.xy[1]})), 18);
   const pins = cl.map(c => { const g = Math.max(...c.items.map(x => x.t.grade)); return `<g class="wpin g${g}" transform="translate(${c.x.toFixed(1)} ${c.y.toFixed(1)})"><path d="M0 0C-3-5-8-8-8-13a8 8 0 1 1 16 0c0 5-5 8-8 13z"/>${c.items.length > 1 ? `<text y="-10" text-anchor="middle">${c.items.length}</text>` : '<circle cy="-13" r="3"/>'}</g>`; }).join('');
   return `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">${WIDGET_CACHE}${pins}</svg>`;
@@ -833,12 +837,13 @@ function mountExplore(wrap){
   wrap.className = 'mxwrap ' + MV.layer;
   const W = wrap.clientWidth || 393, H = wrap.clientHeight || 700;
   const who = MV.who, layer = MV.layer;
-  wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${layer === 'globe' ? 'Globe' : 'Map'} of ${who === 'mine' ? 'your' : 'everyone\'s'} hikes"></svg>
+  wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${layer === 'globe' ? 'Globe' : 'Map'} of ${WHO_LABEL[who]} hikes"></svg>
     <div class="mx-pins"></div>
     <div class="mx-top">
       <button class="iconbtn glass" data-a="back" aria-label="Back">${icon('back')}</button>
       <div class="seg glass" role="group" aria-label="Whose hikes">
-        <button aria-pressed="${who === 'everyone'}" data-mx="who" data-v="everyone">Everyone</button>
+        <button aria-pressed="${who === 'friends'}" data-mx="who" data-v="friends">Friends</button>
+        <button aria-pressed="${who === 'community'}" data-mx="who" data-v="community">ALT community</button>
         <button aria-pressed="${who === 'mine'}" data-mx="who" data-v="mine">My hikes</button>
       </div>
     </div>
@@ -846,7 +851,7 @@ function mountExplore(wrap){
       <button aria-pressed="${layer === 'globe'}" data-mx="layer" data-v="globe">${icon('globe')}Globe</button><button aria-pressed="${layer === 'flat'}" data-mx="layer" data-v="flat">${icon('flat')}Flat</button>
     </div>
     <div class="mx-side"><button class="iconbtn glass" data-mx="zin" aria-label="Zoom in">+</button><button class="iconbtn glass" data-mx="zout" aria-label="Zoom out">−</button><button class="iconbtn glass" data-mx="home" aria-label="Back to Southeast Asia">${icon('locate')}</button></div>
-    <div class="mx-hint"><span class="glass">${layer === 'globe' ? 'Drag to spin · pinch or scroll to zoom' : 'Drag to move · pinch or scroll to zoom'}</span></div>
+    <div class="mx-hint"><span class="glass">${!mapPins(who).length ? (who === 'mine' ? 'None of your hikes are on the map yet. Log one with the + button.' : 'No hikes to show yet. Follow more members to see where they\'ve been.') : layer === 'globe' ? 'Drag to spin · pinch or scroll to zoom' : 'Drag to move · pinch or scroll to zoom'}</span></div>
     <div class="mx-sheet glass" hidden></div>`;
   if (!hasD3()){ wrap.insertAdjacentHTML('beforeend', `<div class="nomap">The map library didn't load. Check your connection and reload.</div>`); return; }
   const svg = d3.select(wrap).select('svg');
@@ -1042,7 +1047,7 @@ function postCard(e){
         <div class="pstats"><div><span>Distance</span><b>${t.dist} km</b></div><div><span>Elev gain</span><b>${n0(t.gain)} m</b></div><div><span>Time</span><b>${esc(j.dur || t.dur)}</b></div></div>
         ${j.note ? `<p>${esc(j.note)}</p>` : ''}</div>
       <div class="media topo">${media}${gradeBadge(t.grade)}</div>
-      <div class="foot" style="padding-top:10px">${kudos}<button class="btn sm soft" data-a="showonmap" data-id="${t.id}" data-who="everyone">${icon('pin')}Map</button>${j.status === 'pending' ? '<span class="pill pending">Awaiting leader check</span>' : ''}</div>
+      <div class="foot" style="padding-top:10px">${kudos}${onMap(t) ? `<button class="btn sm soft" data-a="showonmap" data-id="${t.id}" data-who="community">${icon('pin')}Map</button>` : ''}${j.status === 'pending' ? '<span class="pill pending">Awaiting leader check</span>' : ''}</div>
     </article>`;
   }
   if (e.kind === 'trip'){
@@ -1074,7 +1079,7 @@ function postCard(e){
 function notifItems(m){
   const evs = DB.feed.filter(e => e.who !== m.id && m.follows.includes(e.who) && e.kind !== 'checkin');
   const verb = e => e.kind === 'climb' ? `completed ${TR[entryById(e.entry)?.j.trail || 'bt'].name}` : e.kind === 'trip' ? `signed up for ${trip(e.trip).title}` : e.kind === 'session' ? `is going to ${sessTitle(SE[e.session])} on ${fmt(SE[e.session].date)}` : 'joined ALT';
-  const link = e => e.kind === 'trip' ? `data-a="push" data-v="trip" data-id="${e.trip}"` : e.kind === 'session' ? `data-a="calgo" data-id="${SE[e.session].date}"` : e.kind === 'climb' ? `data-a="showonmap" data-id="${entryById(e.entry)?.j.trail}" data-who="everyone"` : `data-a="push" data-v="friends"`;
+  const link = e => e.kind === 'trip' ? `data-a="push" data-v="trip" data-id="${e.trip}"` : e.kind === 'session' ? `data-a="calgo" data-id="${SE[e.session].date}"` : e.kind === 'climb' ? (onMap(TR[entryById(e.entry)?.j.trail || 'bt']) ? `data-a="showonmap" data-id="${entryById(e.entry)?.j.trail}" data-who="community"` : `data-a="tab" data-id="home"`) : `data-a="push" data-v="friends"`;
   return [...evs.map(e => ({at:e.at, who:M(e.who), text:`<b>${esc(M(e.who).first)}</b> ${esc(verb(e))}`, link:link(e)})),
           ...(DB.notes[m.id] || []).map(n => ({at:n.at, who:null, text:n.text, link:''}))].sort((a, b) => b.at.localeCompare(a.at));
 }
@@ -1110,10 +1115,10 @@ function screenHome(){
     <section class="sec">
       <button class="widget" data-a="explore" aria-label="Open the explore map">
         ${widgetSvg()}
-        <span class="cap"><b>Where everyone's hiking</b></span>
+        <span class="cap"><b>Where your friends have hiked</b></span>
         <span class="btn sm glass open">${icon('expand')}Explore</span>
       </button>
-      ${note('The map shows where members hiked recently. Tap it to open the full map: spin a globe or switch to a flat map, zoom anywhere, and switch between everyone\'s hikes and your own.')}
+      ${note('The map shows where your friends have hiked. Tap it to open the full map: spin a globe or switch to a flat map, zoom anywhere, and switch between Friends, the ALT community and your own hikes. Singapore practice hikes aren\'t shown.')}
     </section>
     ${sugg.length ? `<section class="sec"><div class="sec-h"><h2>Find friends</h2><button class="link" data-a="push" data-v="friends">See all</button></div>
       <div class="strip">${sugg.map(x => `<div class="person">${av(x)}<b>${esc(x.first)}</b><small>${x.role === 'leader' ? 'Trip leader' : x.joined.includes('2026') ? 'New this year' : stats(x).summits + ' summits'}</small><button class="btn sm" data-a="follow" data-id="${x.id}">Follow</button></div>`).join('')}</div></section>` : ''}
@@ -1272,7 +1277,7 @@ function screenTrail(id){
       <section class="sec"><h2>What to expect</h2><ul class="plain">${t.expect.map(x => `<li>${esc(x)}</li>`).join('')}</ul></section>
       <section class="sec"><h2>From the community</h2>
         <div class="stats"><div class="stat"><b>${all.length}</b><span>climbs logged</span></div><div class="stat"><b>${avg('diff')}</b><span>avg difficulty /5</span></div><div class="stat"><b>${avg('fun')}</b><span>avg fun /5</span></div></div>
-        <div class="row"><button class="btn soft" data-a="push" data-v="place" data-id="${t.id}">Journals &amp; reviews</button><button class="btn soft" data-a="showonmap" data-id="${t.id}" data-who="everyone">${icon('pin')}Show on map</button></div></section>
+        <div class="row"><button class="btn soft" data-a="push" data-v="place" data-id="${t.id}">Journals &amp; reviews</button>${onMap(t) ? `<button class="btn soft" data-a="showonmap" data-id="${t.id}" data-who="community">${icon('pin')}Show on map</button>` : ''}</div></section>
       ${trips.length ? `<section class="sec"><h2>Upcoming ALT trips</h2>${trips.map(tripCard).join('')}</section>` : ''}
     </div></div>`;
 }
@@ -1384,7 +1389,7 @@ function entryCard(j){
       <div class="rate"><span>Difficulty <b>${j.diff}/5</b></span><span>Fun <b>${j.fun}/5</b></span><span>${j.source === 'alt' ? 'ALT trip' : 'On my own' + (j.evidence ? ' · ' + esc(j.evidence) : '')}</span></div>
       ${j.note ? `<p style="font-size:14px">${esc(j.note)}</p>` : ''}
       ${ph > 1 ? `<div class="thumbs">${j.photos.slice(1).map(p => `<img src="${p}" alt="">`).join('')}</div>` : ''}
-      <div class="row"><button class="btn sm soft" data-a="showonmap" data-id="${t.id}" data-who="mine">${icon('pin')}Show on map</button>
+      <div class="row">${onMap(t) ? `<button class="btn sm soft" data-a="showonmap" data-id="${t.id}" data-who="mine">${icon('pin')}Show on map</button>` : ''}
         <label class="btn sm soft" for="jp-${j.id}">${icon('camera')}Add photos</label><input type="file" accept="image/*" multiple id="jp-${j.id}" class="visually-hidden" data-jphotos="${j.id}"></div>
     </div></article>`;
 }
@@ -1457,7 +1462,7 @@ function renderGuide(){
   const tour = [
     ['mei','tab:home','The social home','Friends\' hikes, sign-ups and check-ins in one feed. Give kudos, follow people, or join a friend\'s trip.'],
     ['mei','notifs','Notifications','See when friends sign up or finish a hike. Press "Simulate a friend\'s activity" to get a live one.'],
-    ['mei','explore','Explore the map','Spin the globe or switch to the flat map, zoom in, and switch between everyone\'s hikes and your own.'],
+    ['mei','explore','Explore the map','Spin the globe or switch to the flat map, zoom in, and switch between friends, the ALT community and your own hikes.'],
     ['mei','tab:cal','Trips & training calendar','Every trip and weekly session by month. Tap a day to RSVP.'],
     ['mei','trip:ledang','The readiness check','Mei can\'t join Gunung Ledang (G3) until she does the prep or proves experience.'],
     ['jun','tab:profile','Profile & journal','Photo, credits, bio, dream mountain, upcoming plans, and a journal linked to the map.'],
@@ -1531,7 +1536,7 @@ function go(to){
   const [k, v] = to.split(':');
   if (k === 'tab') S.tab = v;
   else if (k === 'trip'){ S.tab = 'cal'; S.stack = [{v:'trip', id:v}]; }
-  else if (k === 'explore'){ S.tab = 'home'; Object.assign(MV, {who:'everyone', layer:'globe', gk:1.4, rot:[-108, -6], sel:null}); S.stack = [{v:'explore'}]; }
+  else if (k === 'explore'){ S.tab = 'home'; Object.assign(MV, {who:'friends', layer:'globe', gk:1.4, rot:[-108, -6], sel:null}); S.stack = [{v:'explore'}]; }
   else if (k === 'notifs'){ S.tab = 'home'; openNotifs(); }
   else { S.tab = k === 'attention' ? 'home' : 'profile'; S.stack = [{v:k}]; }
 }
@@ -1570,8 +1575,8 @@ function act(a, ds){
       if (ds.v === 'log') S.form = ds.trail ? {trail:ds.trail, date:TODAY, diff:3, fun:4, note:'', evidence:true, photos:[]} : null;
       S.stack.push({v:ds.v, id:ds.id}); break;
     case 'back': S.stack.pop(); break;
-    case 'explore': MV.sel = null; MV.selPlace = null; MV.who = 'everyone'; S.stack.push({v:'explore'}); break;
-    case 'showonmap': { const t = TR[ds.id]; Object.assign(MV, {who:ds.who || 'everyone', layer:'flat', focus:[t.lon, t.lat], sel:null, selPlace:t.id}); S.stack.push({v:'explore'}); break; }
+    case 'explore': MV.sel = null; MV.selPlace = null; MV.who = 'friends'; S.stack.push({v:'explore'}); break;
+    case 'showonmap': { const t = TR[ds.id]; Object.assign(MV, {who:ds.who || 'community', layer:'flat', focus:[t.lon, t.lat], sel:null, selPlace:t.id}); S.stack.push({v:'explore'}); break; }
     case 'persona': S.persona = ds.id; S.stack = []; toast(`Now viewing as ${me().first}`); break;
     case 'notes': S.notes = !S.notes; return render(true);
     case 'reset': DB = freshDB(); S.stack = []; S.tab = 'home'; S.persona = 'mei'; toast('Demo reset to the starting data'); break;
