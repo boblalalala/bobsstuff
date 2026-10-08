@@ -232,6 +232,13 @@ p{margin:0}
 .mpin .drop i{width:9px;height:9px;border-radius:50%;background:#fff}
 .mpin::after{content:"";position:absolute;bottom:0;width:12px;height:4px;border-radius:50%;background:rgba(0,0,0,.3);z-index:-1}
 .mpin.sel .drop{width:36px;height:36px;border-color:var(--ink)}
+.callout{position:absolute;width:236px;transform:translate(-50%,calc(-100% - 52px));pointer-events:auto;border-radius:18px;padding:10px;display:grid;grid-template-columns:58px minmax(0,1fr);gap:10px;align-items:center;text-align:left;z-index:3;animation:pop .2s ease}
+.callout.below{transform:translate(-50%,14px)}
+.callout .thumb{width:58px;height:58px;border-radius:12px;overflow:hidden;position:relative;background:var(--surface-2)}
+.callout .thumb svg{position:absolute;inset:0;width:100%;height:100%}
+.callout b{font-size:14px;line-height:1.2;display:block}
+.callout .meta{font-size:12px;line-height:1.35}
+.callout .go{grid-column:1/-1;width:100%}
 .glass{background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 2px 10px rgba(0,0,0,.18);border:0;color:var(--ink)}
 .mx-top{position:absolute;top:58px;left:12px;right:12px;display:flex;gap:8px;align-items:center;z-index:5}
 .mx-top .seg{flex:1}
@@ -852,16 +859,31 @@ function mountExplore(wrap){
     pins.forEach(p => { const xy = project(p); if (xy && xy[0] > -40 && xy[0] < W + 40 && xy[1] > -40 && xy[1] < H + 40) pts.push({p, x:xy[0], y:xy[1]}); });
     const cl = clusterPins(pts, 34);
     MV.clusters = cl;
-    pinLayer.innerHTML = cl.map((c, i) => {
+    const sc = MV.selPlace ? cl.find(c => c.items.length && new Set(c.items.map(x => x.t.id)).size === 1 && c.items[0].t.id === MV.selPlace) : null;
+    pinLayer.innerHTML = (sc ? callout(sc) : '') + cl.map((c, i) => {
       const people = [...new Set(c.items.map(x => x.m.id))];
       const g = Math.max(...c.items.map(x => x.t.grade));
       return `<button class="mpin g${g}${MV.sel === i ? ' sel' : ''}" data-pin="${i}" style="left:${c.x.toFixed(1)}px;top:${c.y.toFixed(1)}px" aria-label="${esc([...new Set(c.items.map(x => x.t.short))].join(', '))}: ${c.items.length} hike${c.items.length > 1 ? 's' : ''} by ${esc(people.map(id => M(id).first).join(', '))}"><span class="drop">${c.items.length > 1 ? `<span>${c.items.length}</span>` : '<i></i>'}</span></button>`;
     }).join('');
   }
+  // first tap on a pin shows a small popup; tapping the same pin again (or the popup) opens the place page
+  function callout(c){
+    const t = c.items[0].t, posts = c.items, nt = nextTrip(t.id), int = (DB.interest[t.id] || []).length;
+    const fun = (posts.reduce((a, x) => a + x.j.fun, 0) / posts.length).toFixed(1);
+    const x = Math.max(124, Math.min(W - 124, c.x)), below = c.y < 320;
+    return `<div class="callout glass${below ? ' below' : ''}" style="left:${x.toFixed(1)}px;top:${c.y.toFixed(1)}px" role="dialog" aria-label="${esc(t.name)}">
+      <span class="thumb">${photoImg(t) || silhouette(t, 58, 58, {top:.2, op:.35})}</span>
+      <span><b>${esc(t.name)}</b><span class="meta">${gradeBadge(t.grade)} ${GRADES[t.grade].name}<br>${posts.length} hike${posts.length > 1 ? 's' : ''} · fun ${fun}/5<br>${nt ? 'Next ALT trip: ' + fmt(nt.start) : `Interest check: ${int}/${INTEREST_GOAL}`}</span></span>
+      <button class="btn sm go" data-a="push" data-v="place" data-id="${t.id}">View place</button></div>`;
+  }
   function showSheet(i){
     const c = MV.clusters[i]; if (!c) return;
     const ids = [...new Set(c.items.map(x => x.t.id))];
-    if (ids.length === 1){ act('push', {v:'place', id:ids[0]}); return; }
+    if (ids.length === 1){
+      if (MV.selPlace === ids[0]){ act('push', {v:'place', id:ids[0]}); return; }
+      MV.selPlace = ids[0]; MV.sel = null; sheet.hidden = true; hint.hidden = true; drawPins(); return;
+    }
+    MV.selPlace = null;
     MV.sel = i; drawPins();
     const rows = ids.map(id => { const t = TR[id], n = c.items.filter(x => x.t.id === id).length, nt = nextTrip(id); return `
       <button class="row tap" data-a="push" data-v="place" data-id="${id}" style="border:0;background:none;padding:0">${gradeBadge(t.grade)}
@@ -929,6 +951,7 @@ function mountExplore(wrap){
     goHome = () => { MV.rot = [-108, -6]; svg.call(zoom.transform, d3.zoomIdentity.scale(1.4)); };
   }
 
+  svg.on('click.callout', () => { if (MV.selPlace){ MV.selPlace = null; hint.hidden = false; drawPins(); } });
   wrap.onclick = e => {
     const pin = e.target.closest('[data-pin]');
     if (pin){ e.stopPropagation(); showSheet(+pin.dataset.pin); return; }
@@ -1547,8 +1570,8 @@ function act(a, ds){
       if (ds.v === 'log') S.form = ds.trail ? {trail:ds.trail, date:TODAY, diff:3, fun:4, note:'', evidence:true, photos:[]} : null;
       S.stack.push({v:ds.v, id:ds.id}); break;
     case 'back': S.stack.pop(); break;
-    case 'explore': MV.sel = null; MV.who = 'everyone'; S.stack.push({v:'explore'}); break;
-    case 'showonmap': { const t = TR[ds.id]; Object.assign(MV, {who:ds.who || 'everyone', layer:'flat', focus:[t.lon, t.lat], sel:null}); S.stack.push({v:'explore'}); break; }
+    case 'explore': MV.sel = null; MV.selPlace = null; MV.who = 'everyone'; S.stack.push({v:'explore'}); break;
+    case 'showonmap': { const t = TR[ds.id]; Object.assign(MV, {who:ds.who || 'everyone', layer:'flat', focus:[t.lon, t.lat], sel:null, selPlace:t.id}); S.stack.push({v:'explore'}); break; }
     case 'persona': S.persona = ds.id; S.stack = []; toast(`Now viewing as ${me().first}`); break;
     case 'notes': S.notes = !S.notes; return render(true);
     case 'reset': DB = freshDB(); S.stack = []; S.tab = 'home'; S.persona = 'mei'; toast('Demo reset to the starting data'); break;
