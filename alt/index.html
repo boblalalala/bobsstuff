@@ -862,7 +862,6 @@ function stats(m){
     sessions:m.attended.length, friends:m.follows.length, countries:new Set(v.map(j => TR[j.trail].country)).size};
 }
 const nextTrip = trailId => DB.trips.filter(t => t.trail === trailId && t.end >= TODAY).sort((a, b) => a.start.localeCompare(b.start))[0];
-const INTEREST_GOAL = 8;
 const myTrips = m => DB.trips.filter(t => t.participants.includes(m.id) || t.leaders.includes(m.id));
 
 /* ---------- elevation profiles ---------- */
@@ -1011,7 +1010,7 @@ function mountExplore(wrap){
     const x = Math.max(124, Math.min(W - 124, c.x)), below = c.y < 320;
     return `<div class="callout glass${below ? ' below' : ''}" style="left:${x.toFixed(1)}px;top:${c.y.toFixed(1)}px" role="dialog" aria-label="${esc(t.name)}">
       <span class="thumb">${photoImg(t) || silhouette(t, 58, 58, {top:.2, op:.35})}</span>
-      <span><b>${esc(t.name)}</b><span class="meta">${gradeBadge(t.grade)} ${GRADES[t.grade].name}<br>${posts.length} hike${posts.length > 1 ? 's' : ''} · fun ${fun}/5<br>${nt ? 'Next ALT trip: ' + fmt(nt.start) : `Interest check: ${int}/${INTEREST_GOAL}`}</span></span>
+      <span><b>${esc(t.name)}</b><span class="meta">${gradeBadge(t.grade)} ${GRADES[t.grade].name}<br>${posts.length} hike${posts.length > 1 ? 's' : ''} · fun ${fun}/5<br>${nt ? 'Next ALT trip: ' + fmt(nt.start) : `Interest check: ${int} interested`}</span></span>
       <button class="btn sm go" data-a="push" data-v="place" data-id="${t.id}">View place</button></div>`;
   }
   function showSheet(i){
@@ -1396,7 +1395,7 @@ function dcardSess(s, hint){
 }
 function dcardPlace(t){
   const n = (DB.interest[t.id] || []).length;
-  return `<article class="dcard"><button class="dopen" data-a="push" data-v="place" data-id="${t.id}"><span class="dart">${photoImg(t) || silhouette(t, 158, 78, {top:.12})}${gradeBadge(t.grade)}</span><b>${esc(t.short)}</b><span class="meta">No ALT trip yet</span></button><div class="dfoot"><span class="pill override">${n}/${INTEREST_GOAL} interested</span></div></article>`;
+  return `<article class="dcard"><button class="dopen" data-a="push" data-v="place" data-id="${t.id}"><span class="dart">${photoImg(t) || silhouette(t, 158, 78, {top:.12})}${gradeBadge(t.grade)}</span><b>${esc(t.short)}</b><span class="meta">No ALT trip yet</span></button><div class="dfoot"><span class="pill override">${n} interested</span></div></article>`;
 }
 function srow(s){
   const going = me().rsvps.includes(s.id), T = TYPES[s.type];
@@ -1688,12 +1687,11 @@ function screenPlace(id){
     const list = DB.interest[id] || (DB.interest[id] = []), mine = list.includes(m.id), n = list.length;
     altBlock = `<section class="sec"><div class="sec-h"><h2>Interest check</h2><span class="pill override">No ALT trip yet</span></div>
       <div class="card stack">
-        <div>ALT doesn't run a trip here yet. Tap below if you'd join one. When <b>${INTEREST_GOAL} members</b> are interested, the trip leaders are asked to plan it.</div>
-        <div class="bar blaze"><i style="width:${Math.min(100, n / INTEREST_GOAL * 100)}%"></i></div>
-        <div class="row">${list.slice(0, 6).map(pid => av(M(pid), 'sm')).join('')}<span class="meta grow"><span class="num">${n}/${INTEREST_GOAL}</span> interested${n ? ': ' + esc(list.map(pid => pid === m.id ? 'you' : M(pid).first).join(', ')) : ''}</span></div>
+        <div>ALT doesn't run a trip here yet. Tap below if you'd join one. This only counts interest. It isn't a promise to plan a trip.</div>
+        <div class="row">${list.slice(0, 6).map(pid => av(M(pid), 'sm')).join('')}<span class="meta grow"><span class="num">${n}</span> interested${n ? ': ' + esc(list.map(pid => pid === m.id ? 'you' : M(pid).first).join(', ')) : ''}</span></div>
         <button class="btn wide ${mine ? 'ghost' : 'blaze'}" data-a="interest" data-id="${id}">${mine ? 'You\'re interested ✓ · Undo' : 'I\'m interested'}</button>
       </div>
-      ${note('Interest checks let members ask for a trip to a place someone in the community has been. Leaders see the count and plan the trips with the most demand.')}</section>`;
+      ${note('Interest checks let members ask for a trip to a place someone in the community has been. Leaders see the count and decide which trips to plan.')}</section>`;
   }
   return `<div>${photoHero(t, t.name, t.time)}
     <div class="pad">
@@ -2301,7 +2299,7 @@ function act(a, ds){
     case 'interest': {
       const list = DB.interest[ds.id] || (DB.interest[ds.id] = []), i = list.indexOf(m.id);
       if (i >= 0) list.splice(i, 1);
-      else { list.push(m.id); toast(list.length >= INTEREST_GOAL ? `That's ${INTEREST_GOAL} interested. The trip leaders have been asked to plan a ${TR[ds.id].short} trip.` : `Noted. ${INTEREST_GOAL - list.length} more needed before the leaders are asked to plan a trip.`); }
+      else { list.push(m.id); toast(`Noted. ${list.length} interested in a ${TR[ds.id].short} trip so far.`); }
       return render(true);
     }
     case 'formpick': S.form[ds.k] = +ds.id; return render(true);
