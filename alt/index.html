@@ -1785,7 +1785,7 @@ function gearToolbar(extra){
     <div class="chips" role="group" aria-label="Category">${cats.map(c => `<button class="chip" aria-pressed="${S.gearCat === c}" data-a="gcat" data-id="${c}">${c}</button>`).join('')}</div>${extra || ''}`;
 }
 function gearBrowse(){
-  return `${gearToolbar(`<div class="chips" role="group" aria-label="Type">${[['all','All'],['free','Free to borrow'],['rent','Rent']].map(([k, l]) => `<button class="chip" aria-pressed="${S.gearMode === k}" data-a="gmode" data-id="${k}">${l}</button>`).join('')}</div>`)}
+  return `${gearToolbar(`<div class="chips" role="group" aria-label="Type">${[['all','All'],['rent','Rent']].map(([k, l]) => `<button class="chip" aria-pressed="${S.gearMode === k}" data-a="gmode" data-id="${k}">${l}</button>`).join('')}</div>`)}
     <button class="btn blaze wide" data-a="listadd" data-id="">${icon('plus')}List my gear to lend or rent</button>
     ${note('Members lend gear for free or rent it for a small daily price. Each item shows the community\'s reviews of that product, so you can try something before you buy it. Tap an item to send a request.')}
     <div class="stack" id="g-results">${gearResults()}</div>`;
