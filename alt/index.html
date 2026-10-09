@@ -150,7 +150,8 @@ p{margin:0}
 .tag.skills{background:var(--surface-2);color:var(--g2)}
 .tag.trip{background:var(--forest);color:var(--forest-ink)}
 .note{background:var(--note-bg);border:1px dashed var(--note-line);color:var(--note-ink);border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.45}
-.note b{display:block;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;margin-bottom:2px}
+.note b{font-weight:700}
+.note .nl{display:block;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;margin-bottom:2px}
 .bar{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden}
 .bar i{display:block;height:100%;background:var(--forest);border-radius:inherit}
 .bar.blaze i{background:var(--blaze)}
@@ -405,6 +406,54 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;f
 .notif.unread{background:color-mix(in srgb,var(--blaze) 8%,transparent)}
 .notif .dot{width:8px;height:8px;border-radius:50%;background:var(--blaze);margin-top:14px;flex:none}
 
+/* ---------- Trips tab ---------- */
+.shelf2{display:flex;gap:10px;overflow-x:auto;margin-inline:-16px;padding-inline:16px;padding-bottom:4px;scroll-snap-type:x proximity;scrollbar-width:none}
+.shelf2 > .card{flex:none;width:100%}
+.dcard{flex:none;width:158px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);display:flex;flex-direction:column;overflow:hidden;scroll-snap-align:start}
+.dopen{border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column;gap:3px;flex:1;color:var(--ink)}
+.dopen b{font-size:14px;line-height:1.2;padding-inline:10px}
+.dopen .meta{padding-inline:10px;font-size:12px}
+.dopen .hint{color:var(--forest);font-weight:600}
+.dart{position:relative;display:block;height:78px;background:var(--surface-2);margin-bottom:6px;overflow:hidden}
+.dart svg{position:absolute;inset:0;width:100%;height:100%}
+.dart.topo{display:grid;place-items:center;background-color:var(--surface-2)}
+.dart.topo svg{position:static;width:34px;height:34px}
+.dart.physical{color:var(--blaze)}
+.dart.skills{color:var(--g2)}
+.dart .grade{position:absolute;left:8px;top:8px}
+.dfoot{padding:8px 10px 10px;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.srow{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px}
+.srow .date{padding:5px 0}
+.sopen{border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0;color:var(--ink)}
+.sopen b{font-size:14.5px;line-height:1.2}
+.tiles3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.btile{border:1px solid var(--line);border-radius:14px;padding:12px 10px;background:var(--surface);display:flex;flex-direction:column;gap:4px;text-align:left;color:var(--ink);min-width:0}
+.btile:hover{border-color:var(--forest)}
+.btile .ico2{width:34px;height:34px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center;color:var(--forest)}
+.btile .ico2 svg{width:19px;height:19px}
+.btile b{font-size:14px}
+.btile .meta{font-size:12px;line-height:1.3}
+.chips.wrap{flex-wrap:wrap;overflow:visible}
+.fgroup{display:flex;flex-direction:column;gap:6px}
+.fgroup .lab{font-size:13px;font-weight:700}
+.wkbar{display:flex;align-items:center;gap:8px}
+.wkstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:8px 6px}
+.wd{border:0;background:none;border-radius:12px;padding:6px 0;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);font:600 11px var(--f-body)}
+.wd b{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:700 15px var(--f-mono);color:var(--ink)}
+.wd.today b{box-shadow:inset 0 0 0 2px var(--blaze)}
+.wd.on{background:var(--surface-2)}
+.wd.on b{background:var(--ink);color:var(--bg);box-shadow:none}
+.tl2{position:relative;display:flex;flex-direction:column;gap:10px;padding-left:28px}
+.tl2::before{content:"";position:absolute;left:9px;top:16px;bottom:16px;border-left:2px dashed var(--line)}
+.step{position:relative;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.step::before{content:"";position:absolute;left:-28px;top:14px;width:16px;height:16px;border-radius:50%;border:2px solid var(--line);background:var(--surface)}
+.step.done{background:var(--surface-2)}
+.step.done::before{background:var(--ok);border-color:var(--ok)}
+.step.goal::before{background:var(--blaze);border-color:var(--blaze)}
+.sh2{display:flex;gap:10px;align-items:center}
+.alts{display:flex;flex-direction:column;gap:6px;border-top:1px dashed var(--line);padding-top:8px}
+.altrow{display:flex;align-items:center;gap:8px;font-size:13px}
+
 /* ---------- small screens ---------- */
 @media (max-width: 900px){
   .stage{grid-template-columns:minmax(0,1fr);gap:12px;padding-inline:0;padding-block:0}
@@ -657,7 +706,7 @@ function load(){
 function save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(DB)); } catch (e) {} }
 DB = load();
 if (!DB.interest) DB.interest = freshDB().interest;
-S = {persona:'mei', tab:'home', stack:[], notes:true, calMonth:'2026-10', calDay:TODAY, calFilter:'all', gradeFilter:0, form:null, toast:null, banner:null};
+S = {persona:'mei', tab:'home', stack:[], notes:true, calMonth:'2026-10', calDay:TODAY, calFilter:'all', calMode:'week', tripsView:'discover', planTrip:null, tripTab:'overview', altsOpen:{}, browse:newBrowse(), gradeFilter:0, form:null, toast:null, banner:null};
 const me = () => DB.members[S.persona];
 const M = id => DB.members[id];
 const trip = id => DB.trips.find(t => t.id === id);
@@ -678,7 +727,7 @@ const n0 = x => Math.round(x).toLocaleString('en-GB');
 const isFuture = s => s.date >= TODAY;
 const sessTitle = s => s.title || TYPES[s.type].label;
 const gradeBadge = (g, lg) => `<span class="grade g${g}${lg ? ' lg' : ''}" title="Grade ${g}: ${GRADES[g].name}">G${g}</span>`;
-const note = html => S.notes ? `<aside class="note"><b>How it works</b>${html}</aside>` : '';
+const note = html => S.notes ? `<aside class="note"><b class="nl">How it works</b>${html}</aside>` : '';
 function ago(at){
   const mins = Math.round((new Date(DB.now) - new Date(at)) / 60000);
   if (mins < 1) return 'Just now';
@@ -983,7 +1032,7 @@ function sessionCard(s, opts = {}){
     const mine = t.participants.includes(m.id);
     return `<span class="${mine ? 'mine' : ''}">${t.briefing === s.id ? 'Required for' : 'Counts toward'} ${TR[t.trail].short}</span>`;
   }).join('');
-  const friends = [...new Set(DB.feed.filter(e => e.kind === 'session' && e.session === s.id && e.who !== m.id && m.follows.includes(e.who)).map(e => M(e.who).first))];
+  const friends = friendsGoing(s).map(f => f.first);
   let act = '';
   if (!isFuture(s)) act = done ? `<span class="done">✓ Attended</span>` : '';
   else if (done) act = `<span class="done">✓ Checked in</span>`;
@@ -1143,15 +1192,27 @@ function screenFriends(){
 }
 
 /* ---------- calendar ---------- */
+/* ---------- Trips tab helpers ---------- */
+function newBrowse(o){ return Object.assign({kind:'all', q:'', sort:'soonest', grade:0, when:'any', where:'any', status:'any', friends:false, beginner:false, open:false}, o || {}); }
+const friendsGoing = s => { const m = me(); return [...new Set([
+  ...DB.feed.filter(e => e.kind === 'session' && e.session === s.id && e.who !== m.id && m.follows.includes(e.who)).map(e => e.who),
+  ...m.follows.filter(id => M(id).rsvps.includes(s.id))])].map(M); };
+const friendsOnTrip = t => t.participants.filter(id => id !== me().id && me().follows.includes(id)).map(M);
+const spotsLeftTrip = t => t.cap - t.participants.length - t.others;
+const spotsLeftSess = s => s.cap ? s.cap - s.going - (me().rsvps.includes(s.id) ? 1 : 0) : 99;
+const isBeginnerSess = s => s.type !== 'camp';
+const catOf = s => TYPES[s.type].cat === 'physical' ? 'training' : 'skills';
+const weekStartOf = iso => addDays(iso, -((d(iso).getDay() + 6) % 7));
+const SESS_ICON = {stair:'stairs', hike:'peak', strength:'star', packing:'flag', gear:'pin', nav:'locate', survival:'flag', briefing:'cal', camp:'home'};
 function dayEvents(iso, m){
   const f = S.calFilter;
-  const trips = DB.trips.filter(t => iso >= t.start && iso <= t.end).filter(t => f === 'all' || f === 'trips' || (f === 'mine' && (t.participants.includes(m.id) || t.leaders.includes(m.id))));
-  const sess = SESSIONS.filter(s => s.date === iso).filter(s => f === 'all' || (f === 'physical' && TYPES[s.type].cat === 'physical') || (f === 'skills' && TYPES[s.type].cat === 'skills') || (f === 'mine' && (m.rsvps.includes(s.id) || m.attended.includes(s.id))));
-  return {trips, sess};
+  const tripOk = t => f === 'all' || f === 'trips' || (f === 'mine' && (t.participants.includes(m.id) || t.leaders.includes(m.id))) || (f === 'friends' && friendsOnTrip(t).length > 0) || (f === 'beginner' && TR[t.trail].grade <= 2);
+  const sessOk = s => f === 'all' || (f === 'physical' && TYPES[s.type].cat === 'physical') || (f === 'skills' && TYPES[s.type].cat === 'skills') || (f === 'mine' && (m.rsvps.includes(s.id) || m.attended.includes(s.id))) || (f === 'friends' && friendsGoing(s).length > 0) || (f === 'beginner' && isBeginnerSess(s));
+  return {trips:DB.trips.filter(t => iso >= t.start && iso <= t.end).filter(tripOk), sess:SESSIONS.filter(s => s.date === iso).filter(sessOk)};
 }
 const MONTHS = ['2026-10','2026-11','2026-12','2027-01','2027-02','2027-03'];
-function screenCalendar(){
-  const m = me(), mon = S.calMonth, first = d(mon + '-01');
+function monthView(m){
+  const mon = S.calMonth, first = d(mon + '-01');
   const startIso = addDays(mon + '-01', -((first.getDay() + 6) % 7));
   const cells = [];
   for (let i = 0; i < 42; i++){
@@ -1170,21 +1231,210 @@ function screenCalendar(){
     agenda = `<div class="card muted">Nothing on this day.${nx ? ` <button class="link" data-a="calgo" data-id="${nx}" data-keep="1">Next: ${fmt(nx)}</button>` : ''}</div>`;
   }
   const mi = MONTHS.indexOf(mon);
-  return `<div class="pad">
-    <div class="chips" role="group" aria-label="Filter calendar">
-      ${[['all','All'],['trips','Trips'],['physical','Training'],['skills','Skills'],['mine','My plans']].map(([k, l]) => `<button class="chip" aria-pressed="${S.calFilter === k}" data-a="calfilter" data-id="${k}">${l}</button>`).join('')}
-    </div>
-    <section class="card cal">
+  return `<section class="card cal">
       <div class="cal-h"><button class="iconbtn" data-a="calmonth" data-id="${MONTHS[mi - 1] || ''}" ${mi <= 0 ? 'disabled style="opacity:.3"' : ''} aria-label="Previous month">${icon('back')}</button>
         <h2>${first.toLocaleDateString('en-GB', {month:'long', year:'numeric'})}</h2>
         <button class="iconbtn" data-a="calmonth" data-id="${MONTHS[mi + 1] || ''}" ${mi >= MONTHS.length - 1 ? 'disabled style="opacity:.3"' : ''} aria-label="Next month">${icon('next')}</button></div>
       <div class="cal-grid">${['MON','TUE','WED','THU','FRI','SAT','SUN'].map(x => `<span class="dow">${x}</span>`).join('')}${cells.join('')}</div>
     </section>
     <div class="legend"><span><i style="background:var(--forest)"></i>Trip</span><span><i style="background:var(--blaze)"></i>Training</span><span><i style="background:var(--g2)"></i>Skills &amp; social</span><span><i style="box-shadow:inset 0 0 0 2px var(--forest)"></i>You're going</span></div>
-    <section class="sec"><h2 style="font-size:17px">${fmt(S.calDay, {weekday:'long', day:'numeric', month:'long'})}</h2>${agenda}</section>
-    ${note('Every trip and weekly session sits on one calendar. Tap a day to see what\'s on and RSVP. Prep sessions count towards any trip that needs them, so people pick the weeks that suit them.')}
-    <section class="sec"><h2 style="font-size:17px">Upcoming trips</h2>${DB.trips.map(tripCard).join('')}</section>
+    <section class="sec"><h2 style="font-size:17px">${fmt(S.calDay, {weekday:'long', day:'numeric', month:'long'})}</h2>${agenda}</section>`;
+}
+
+/* ---------- Trips tab ---------- */
+function screenTrips(){
+  const v = S.tripsView;
+  const seg = `<div class="seg" role="group" aria-label="Trips views">${[['discover','Discover'],['calendar','Calendar'],['plan','My plan']].map(([k, l]) => `<button aria-pressed="${v === k}" data-a="tripsview" data-id="${k}">${l}</button>`).join('')}</div>`;
+  return `<div class="pad">${seg}${v === 'calendar' ? calendarBody() : v === 'plan' ? planBody() : discoverBody()}</div>`;
+}
+
+/* Discover: shelves that mix trips, training and skills */
+function dcardTrip(t, pill){
+  const tr = TR[t.trail];
+  return `<article class="dcard"><button class="dopen" data-a="push" data-v="trip" data-id="${t.id}"><span class="dart">${photoImg(tr) || silhouette(tr, 158, 78, {top:.12})}${gradeBadge(tr.grade)}</span><b>${esc(t.title)}</b><span class="meta">${fmt(t.start)}${t.end !== t.start ? ' – ' + fmt(t.end) : ''}</span></button><div class="dfoot">${pill}</div></article>`;
+}
+function dcardSess(s, hint){
+  const T = TYPES[s.type], going = me().rsvps.includes(s.id);
+  return `<article class="dcard"><button class="dopen" data-a="calgo" data-id="${s.date}"><span class="dart topo ${T.cat}">${icon(SESS_ICON[s.type])}</span><b>${esc(sessTitle(s))}</b><span class="meta">${fmt(s.date)} · ${s.time}</span>${hint ? `<span class="meta hint">Counts toward ${esc(hint)}</span>` : ''}</button>
+    <div class="dfoot"><span class="tag ${T.cat}">${T.short}</span><button class="btn sm ${going ? 'ghost' : ''}" data-a="rsvp" data-id="${s.id}">${going ? 'Going ✓' : 'RSVP'}</button></div></article>`;
+}
+function dcardPlace(t){
+  const n = (DB.interest[t.id] || []).length;
+  return `<article class="dcard"><button class="dopen" data-a="push" data-v="place" data-id="${t.id}"><span class="dart">${photoImg(t) || silhouette(t, 158, 78, {top:.12})}${gradeBadge(t.grade)}</span><b>${esc(t.short)}</b><span class="meta">No ALT trip yet</span></button><div class="dfoot"><span class="pill override">${n}/${INTEREST_GOAL} interested</span></div></article>`;
+}
+function srow(s){
+  const going = me().rsvps.includes(s.id), T = TYPES[s.type];
+  return `<article class="card srow"><div class="date"><span>${fmt(s.date, {weekday:'short'})}</span><b>${d(s.date).getDate()}</b></div>
+    <button class="sopen" data-a="calgo" data-id="${s.date}"><b>${esc(sessTitle(s))}</b><span class="meta">${s.time} · ${esc(s.place)}</span><span class="tag ${T.cat}" style="align-self:flex-start">${T.short}</span></button>
+    <button class="btn sm ${going ? 'ghost' : ''}" data-a="rsvp" data-id="${s.id}">${going ? 'Going ✓' : 'RSVP'}</button></article>`;
+}
+function discoverBody(){
+  const m = me();
+  const all = DB.trips.filter(t => t.end >= TODAY && !t.leaders.includes(m.id)).map(t => ({t, r:readiness(m, t)}));
+  const open = all.filter(x => !x.t.participants.includes(m.id));
+  const readyTrips = open.filter(x => x.r.status !== 'notyet').sort((a, b) => a.t.start.localeCompare(b.t.start));
+  const lockedTrips = open.filter(x => x.r.status === 'notyet').sort((a, b) => (a.r.prepNeed - a.r.prepHave) - (b.r.prepNeed - b.r.prepHave));
+  const needType = {}, needBrief = {};
+  all.forEach(({t, r}) => {
+    if (!r.expDone && !r.prepDone) r.prep.forEach(p => { if (p.have < p.need && !needType[p.type]) needType[p.type] = TR[t.trail].short; });
+    if (t.briefing && !r.briefDone && (t.participants.includes(m.id) || r.status === 'ontrack' || r.status === 'ready') && !needBrief[t.briefing]) needBrief[t.briefing] = TR[t.trail].short;
+  });
+  const hintOf = s => needType[s.type] || needBrief[s.id] || '';
+  const soon = SESSIONS.filter(s => isFuture(s) && s.date <= addDays(TODAY, 20) && !m.rsvps.includes(s.id) && !m.attended.includes(s.id))
+    .map(s => ({s, rank:hintOf(s) ? 0 : 1})).sort((a, b) => a.rank - b.rank || a.s.date.localeCompare(b.s.date)).slice(0, 4).map(x => x.s);
+  const places = TRAILS.filter(t => onMap(t) && !DB.trips.some(x => x.trail === t.id) && Object.values(DB.members).some(x => verified(x).some(j => j.trail === t.id)))
+    .sort((a, b) => (DB.interest[b.id] || []).length - (DB.interest[a.id] || []).length || a.grade - b.grade).slice(0, 3);
+  const readyCards = [...readyTrips.map(x => dcardTrip(x.t, statusPill(x.r))), ...soon.map(s => dcardSess(s, hintOf(s)))];
+  const levelCards = [...lockedTrips.map(({t, r}) => { const n = r.prepNeed - r.prepHave; return dcardTrip(t, `<span class="pill pending">${r.pendingExp ? 'Climb awaiting check' : n + ' step' + (n > 1 ? 's' : '') + ' to unlock'}</span>`); }), ...places.map(dcardPlace)];
+  const week = SESSIONS.filter(isFuture).slice(0, 3);
+  const fr = [...DB.trips.filter(t => t.end >= TODAY && !t.participants.includes(m.id) && !t.leaders.includes(m.id) && friendsOnTrip(t).length).map(t => ({date:t.start, a:`data-a="push" data-v="trip" data-id="${t.id}"`, who:friendsOnTrip(t), what:t.title, when:fmt(t.start)})),
+    ...SESSIONS.filter(s => isFuture(s) && !m.rsvps.includes(s.id) && friendsGoing(s).length).map(s => ({date:s.date, a:`data-a="calgo" data-id="${s.date}"`, who:friendsGoing(s), what:sessTitle(s), when:`${fmt(s.date)} · ${s.time}`}))]
+    .sort((a, b) => a.date.localeCompare(b.date)).slice(0, 3);
+  const cnt30 = k => allItems().filter(i => i.kind === k && i.date <= addDays(TODAY, 30)).length;
+  const tile = (kind, label, ic, line) => `<button class="btile" data-a="browse" data-kind="${kind}"><span class="ico2">${icon(ic)}</span><b>${label}</b><span class="meta">${line}</span></button>`;
+  return `${note('The rows mix trips, training and skills. <b>Ready for you</b> only shows what you can do now, using the readiness check. <b>Level up</b> shows what is missing for harder trips, plus places the community has hiked that ALT does not run yet.')}
+    <section class="sec"><div class="sec-h"><h2>Ready for you</h2><button class="link" data-a="browse" data-status="ready">See all</button></div>
+      <div class="shelf2">${readyCards.join('') || '<div class="card muted">Nothing is open to you right now. Check Level up for what to work towards.</div>'}</div></section>
+    <section class="sec"><div class="sec-h"><h2>Level up</h2><button class="link" data-a="browse" data-kind="trips" data-status="locked">See all</button></div>
+      <div class="shelf2">${levelCards.join('') || '<div class="card muted">You are ready for every trip on the list.</div>'}</div></section>
+    <section class="sec"><div class="sec-h"><h2>This week</h2><button class="link" data-a="tripsview" data-id="calendar">Calendar</button></div>${week.map(srow).join('')}</section>
+    ${fr.length ? `<section class="sec"><h2>Friends are going</h2>${fr.map(x => `<button class="card tap row" ${x.a}><span class="row" style="gap:0">${x.who.slice(0, 3).map((f, i) => `<span style="margin-left:${i ? -8 : 0}px">${av(f, 'sm')}</span>`).join('')}</span><span class="grow"><b>${esc(x.who.map(f => f.first).join(', '))}</b> ${x.who.length > 1 ? 'are' : 'is'} going to ${esc(x.what)}<div class="meta">${x.when}</div></span>${icon('next', 'width="18" height="18"')}</button>`).join('')}</section>` : ''}
+    <section class="sec"><h2>Browse all</h2><div class="tiles3">
+      ${tile('trips', 'Trips', 'peak', DB.trips.filter(t => t.end >= TODAY).length + ' upcoming')}${tile('training', 'Training', 'stairs', cnt30('training') + ' in 30 days')}${tile('skills', 'Skills', 'flag', cnt30('skills') + ' in 30 days')}</div></section>`;
+}
+
+/* Browse: the full list behind every "See all", with search, sort and filters */
+function allItems(){
+  const m = me();
+  const trips = DB.trips.filter(t => t.end >= TODAY).map(t => {
+    const tr = TR[t.trail], leading = t.leaders.includes(m.id), r = leading ? null : readiness(m, t);
+    return {k:'trip', kind:'trips', t, date:t.start, text:`${t.title} ${tr.name} ${tr.region}`, grade:tr.grade, where:tr.country === 'SG' ? 'sg' : 'overseas', beginner:tr.grade <= 2, friends:friendsOnTrip(t).length, spots:spotsLeftTrip(t), status:leading ? 'leading' : r.status === 'notyet' ? 'locked' : 'ready'};
+  });
+  const sess = SESSIONS.filter(isFuture).map(s => ({k:'session', kind:catOf(s), s, date:s.date, text:`${sessTitle(s)} ${TYPES[s.type].label} ${TYPES[s.type].short} ${s.place}`, grade:s.trail ? TR[s.trail].grade : 0, where:'sg', beginner:isBeginnerSess(s), friends:friendsGoing(s).length, spots:spotsLeftSess(s), status:'ready'}));
+  return [...trips, ...sess];
+}
+function browseItems(b){
+  const q = b.q.trim().toLowerCase(), end = b.when === 'week' ? addDays(TODAY, 6) : b.when === 'month' ? addDays(TODAY, 30) : '9999';
+  const items = allItems().filter(i => (b.kind === 'all' || i.kind === b.kind) && (!q || i.text.toLowerCase().includes(q)) && (!b.grade || i.grade === b.grade) && i.date <= end
+    && (b.where === 'any' || i.where === b.where) && (b.status === 'any' || i.status === b.status) && (!b.friends || i.friends > 0) && (!b.beginner || i.beginner));
+  const by = {soonest:(a, c) => 0, friends:(a, c) => c.friends - a.friends, spots:(a, c) => c.spots - a.spots}[b.sort];
+  return items.sort((a, c) => by(a, c) || a.date.localeCompare(c.date));
+}
+const placeRow = t => { const nt = nextTrip(t.id); return `<button class="card tap trailrow" data-a="push" data-v="place" data-id="${t.id}"><div class="mini">${photoImg(t) || silhouette(t, 72, 40, {top:.12, sw:1.5})}</div>
+  <div style="min-width:0"><h3>${esc(t.name)}</h3><div class="meta">${esc(t.region)}</div><div class="meta">${nt ? 'ALT trip ' + fmt(nt.start) : 'No ALT trip yet · interest check'}</div></div>${gradeBadge(t.grade)}</button>`; };
+function browseResults(b){
+  const items = browseItems(b), q = b.q.trim().toLowerCase();
+  const places = q && (b.kind === 'all' || b.kind === 'trips') ? TRAILS.filter(t => onMap(t) && `${t.name} ${t.region}`.toLowerCase().includes(q) && !items.some(i => i.k === 'trip' && i.t.trail === t.id)) : [];
+  return `<div class="meta num">${items.length} result${items.length === 1 ? '' : 's'}</div>
+    ${items.map(i => i.k === 'trip' ? tripCard(i.t) : sessionCard(i.s)).join('') || '<div class="card muted">Nothing matches these filters. Try clearing one.</div>'}
+    ${places.length ? `<div class="eyebrow">Places</div>${places.map(placeRow).join('')}` : ''}`;
+}
+function screenBrowse(){
+  const b = S.browse, n = (b.grade ? 1 : 0) + (b.when !== 'any' ? 1 : 0) + (b.where !== 'any' ? 1 : 0) + (b.status !== 'any' ? 1 : 0);
+  const chip = (on, attrs, label) => `<button class="chip" aria-pressed="${on}" ${attrs}>${label}</button>`;
+  const group = (label, k, opts) => `<div class="fgroup"><span class="lab">${label}</span><div class="chips wrap">${opts.map(([v, l]) => chip(b[k] === v, `data-a="bset" data-k="${k}" data-v="${v}"`, l)).join('')}</div></div>`;
+  return `<div class="pad">
+    <div class="chips" role="group" aria-label="Type">${[['all','All'],['trips','Trips'],['training','Training'],['skills','Skills']].map(([k, l]) => chip(b.kind === k, `data-a="bset" data-k="kind" data-v="${k}"`, l)).join('')}</div>
+    <div class="field"><label class="visually-hidden" for="b-q">Search</label><input type="search" id="b-q" placeholder="Search trips, sessions, places" value="${esc(b.q)}" autocomplete="off"></div>
+    <div class="row"><div class="field grow"><label class="visually-hidden" for="b-sort">Sort by</label><select id="b-sort">${[['soonest','Sort: Soonest'],['friends','Sort: Friends going'],['spots','Sort: Most spots left']].map(([v, l]) => `<option value="${v}" ${b.sort === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+      <button class="btn sm ${b.open ? '' : 'soft'}" data-a="btoggle" data-k="open" aria-expanded="${b.open}">Filters${n ? ' · ' + n : ''}</button></div>
+    <div class="chips wrap">${chip(b.friends, 'data-a="btoggle" data-k="friends"', 'Friends going')}${chip(b.beginner, 'data-a="btoggle" data-k="beginner"', 'Beginner friendly')}</div>
+    ${b.open ? `<section class="card stack">
+      ${group('Grade', 'grade', [[0, 'Any'], [1, 'G1'], [2, 'G2'], [3, 'G3'], [4, 'G4'], [5, 'G5']])}
+      ${group('When', 'when', [['any', 'Any time'], ['week', 'This week'], ['month', 'Next 30 days']])}
+      ${group('Where', 'where', [['any', 'Anywhere'], ['sg', 'Singapore'], ['overseas', 'Overseas']])}
+      ${group('Readiness', 'status', [['any', 'Any'], ['ready', 'Ready for me'], ['locked', 'Not yet']])}
+      <button class="link" style="align-self:flex-start" data-a="bclear">Clear filters</button></section>` : ''}
+    ${note('This is the full list behind every <b>See all</b>. Search finds trips, sessions and places, so typing a mountain the club has not planned yet (try <b>Fuji</b>) leads to its interest check.')}
+    <div class="stack" id="b-results">${browseResults(b)}</div>
   </div>`;
+}
+
+/* Calendar: week planner, with the month grid as a switch */
+function weekView(m){
+  const ws = weekStartOf(S.calDay), days = Array.from({length:7}, (_, i) => addDays(ws, i));
+  const evs = days.map(iso => dayEvents(iso, m));
+  const strip = days.map((iso, i) => {
+    const ev = evs[i], n = ev.trips.length + ev.sess.length;
+    const dots = [...ev.trips.map(() => 'trip'), ...ev.sess.map(s => TYPES[s.type].cat)].slice(0, 3);
+    return `<button class="wd${iso === TODAY ? ' today' : ''}${iso === S.calDay ? ' on' : ''}" aria-pressed="${iso === S.calDay}" data-a="calday" data-id="${iso}" aria-label="${fmt(iso, {weekday:'long', day:'numeric', month:'long'})}, ${n} event${n === 1 ? '' : 's'}"><span>${fmt(iso, {weekday:'narrow'})}</span><b>${d(iso).getDate()}</b><span class="dots2">${dots.map(c => `<i class="${c}"></i>`).join('')}</span></button>`;
+  }).join('');
+  const cards = ev => [...ev.trips.map(tripCard), ...ev.sess.map(s => sessionCard(s))].join('');
+  const sel = evs[days.indexOf(S.calDay)];
+  const rest = days.map((iso, i) => ({iso, ev:evs[i]})).filter(x => x.iso !== S.calDay && (x.ev.trips.length || x.ev.sess.length));
+  let nx = null;
+  if (!sel.trips.length && !sel.sess.length) for (let i = 1; i < 150 && !nx; i++){ const iso = addDays(S.calDay, i), ev = dayEvents(iso, m); if (ev.trips.length || ev.sess.length) nx = iso; }
+  return `<div class="wkbar"><button class="iconbtn" data-a="calweek" data-id="-1" aria-label="Previous week">${icon('back')}</button>
+      <b class="grow" style="text-align:center">${fmt(ws, {day:'numeric', month:'short'})} – ${fmt(addDays(ws, 6), {day:'numeric', month:'short', year:'numeric'})}</b>
+      <button class="iconbtn" data-a="calweek" data-id="1" aria-label="Next week">${icon('next')}</button></div>
+    <div class="card wkstrip">${strip}</div>
+    <div class="legend"><span><i style="background:var(--forest)"></i>Trip</span><span><i style="background:var(--blaze)"></i>Training</span><span><i style="background:var(--g2)"></i>Skills &amp; social</span></div>
+    <section class="sec"><div class="sec-h"><h2 style="font-size:17px">${fmt(S.calDay, {weekday:'long', day:'numeric', month:'long'})}</h2>${S.calDay !== TODAY ? '<button class="link" data-a="caltoday">Today</button>' : ''}</div>
+      ${cards(sel) || `<div class="card muted">Nothing on this day.${nx ? ` <button class="link" data-a="calgo" data-id="${nx}" data-keep="1">Next: ${fmt(nx)}</button>` : ''}</div>`}</section>
+    ${rest.length ? `<section class="sec"><h2 style="font-size:17px">Rest of the week</h2>${rest.map(x => `<div class="eyebrow">${fmt(x.iso)}</div>${cards(x.ev)}`).join('')}</section>` : ''}`;
+}
+function calendarBody(){
+  const m = me(), mode = S.calMode;
+  const chips = [['all','All'],['trips','Trips'],['physical','Training'],['skills','Skills'],['mine','My plans'],['friends','Friends going'],['beginner','Beginner friendly']];
+  return `<div class="sec-h" style="align-items:center"><h2 style="font-size:17px">Schedule</h2>
+      <div class="seg" style="width:150px" role="group" aria-label="Calendar layout"><button aria-pressed="${mode === 'week'}" data-a="calmode" data-id="week">Week</button><button aria-pressed="${mode === 'month'}" data-a="calmode" data-id="month">Month</button></div></div>
+    <div class="chips" role="group" aria-label="Filter calendar">${chips.map(([k, l]) => `<button class="chip" aria-pressed="${S.calFilter === k}" data-a="calfilter" data-id="${k}">${l}</button>`).join('')}</div>
+    ${mode === 'month' ? monthView(m) : weekView(m)}
+    ${note('Every trip and weekly session sits on one schedule. The week view shows what is on each day, and Month shows the whole grid. Prep sessions count towards any trip that needs them, so people pick the weeks that suit them.')}`;
+}
+
+/* My plan + prep roadmap */
+function planSteps(t, m){
+  const r = readiness(m, t), steps = [], brief = t.briefing ? SE[t.briefing] : null;
+  if (r.expDone && !r.prepDone) steps.push({kind:'exp', done:true, title:'Proven experience', sub:`Verified ${TR[r.best.trail].short} (G${TR[r.best.trail].grade}) climb. Prep sessions are optional.`});
+  else if (r.override && !r.prepDone) steps.push({kind:'ok', done:true, title:'Approved by a leader', sub:'A trip leader decided you can go.'});
+  else r.prep.forEach(p => {
+    const pool = SESSIONS.filter(s => s.type === p.type && isFuture(s) && s.date < t.start && !m.attended.includes(s.id));
+    const order = [...pool.filter(s => m.rsvps.includes(s.id)), ...pool.filter(s => !m.rsvps.includes(s.id))];
+    const assigned = order.slice(0, p.need - p.have);
+    for (let i = 0; i < p.need; i++){
+      const title = p.need > 1 ? `${TYPES[p.type].label} ${i + 1} of ${p.need}` : TYPES[p.type].label;
+      if (i < p.have) steps.push({kind:'prep', done:true, title, sub:'Done'});
+      else steps.push({kind:'prep', done:false, title, session:assigned[i - p.have] || null, id:`${t.id}-${p.type}-${i}`, alts:order.filter(x => !assigned.includes(x))});
+    }
+  });
+  if (brief) steps.push({kind:'brief', done:m.attended.includes(brief.id), title:'Trip briefing', session:brief, id:`${t.id}-brief`, alts:[], sub:m.attended.includes(brief.id) ? 'Attended' : ''});
+  else steps.push({kind:'brief', done:false, title:'Trip briefing', sub:'Date to be confirmed'});
+  const todo = steps.filter(x => !x.done).sort((a, b) => (a.session ? a.session.date : '9999').localeCompare(b.session ? b.session.date : '9999'));
+  return [...steps.filter(x => x.done), ...todo, {kind:'trip', done:false, title:'Trip day'}];
+}
+function roadmapHtml(t, targets){
+  const m = me(), r = readiness(m, t), steps = planSteps(t, m), core = steps.filter(x => x.kind !== 'trip');
+  const doneN = core.filter(x => x.done).length, pending = core.filter(x => !x.done && x.session);
+  const readyBy = pending.reduce((a, x) => x.session.date > a ? x.session.date : a, '');
+  const joined = t.participants.includes(m.id), canJoin = r.status !== 'notyet';
+  const toAdd = pending.filter(x => !m.rsvps.includes(x.session.id)).length;
+  const row = st => {
+    if (st.kind === 'trip') return `<div class="step goal"><div class="sh2"><div class="grow"><b>Trip day</b><div class="meta">${t.dates} · ${esc(TR[t.trail].short)}</div></div>${joined ? '<span class="pill verified">You\'re going</span>' : `<button class="btn sm ${canJoin ? 'blaze' : 'soft'}" data-a="join" data-id="${t.id}" ${canJoin ? '' : 'disabled'}>Join</button>`}</div>${!joined && !canJoin ? '<div class="meta">Join opens when the steps above are done.</div>' : ''}</div>`;
+    if (st.done) return `<div class="step done"><div class="sh2"><div class="grow"><b>${esc(st.title)}</b><div class="meta">${esc(st.sub || 'Done')}</div></div><span class="done">✓</span></div></div>`;
+    const s = st.session, going = s && m.rsvps.includes(s.id), alts = st.alts || [], open = !!S.altsOpen[st.id];
+    return `<div class="step"><div class="sh2"><div class="grow"><b>${esc(st.title)}</b><div class="meta">${s ? `${fmt(s.date)} · ${s.time} · ${esc(s.place)}` : esc(st.sub || 'No dates scheduled yet')}</div></div>
+      ${s ? `<button class="btn sm ${going ? 'ghost' : ''}" data-a="rsvp" data-id="${s.id}">${going ? 'Going ✓' : 'RSVP'}</button>` : ''}</div>
+      ${going ? `<div><button class="btn sm blaze" data-a="checkin" data-id="${s.id}">Check in (demo)</button></div>` : ''}
+      ${alts.length ? `<button class="link" style="align-self:flex-start" data-a="toggleAlts" data-id="${st.id}" aria-expanded="${open}">${open ? 'Hide other dates' : alts.length + ' more date' + (alts.length > 1 ? 's' : '')}</button>` : ''}
+      ${open ? `<div class="alts">${alts.map(x => `<div class="altrow"><span class="grow">${fmt(x.date)} · ${x.time}</span><button class="btn sm ${m.rsvps.includes(x.id) ? 'ghost' : 'soft'}" data-a="rsvp" data-id="${x.id}">${m.rsvps.includes(x.id) ? 'Going ✓' : 'RSVP'}</button></div>`).join('')}</div>` : ''}</div>`;
+  };
+  return `${targets ? `<div class="field"><label for="plan-trip">Planning for</label><select id="plan-trip">${targets.map(x => `<option value="${x.id}" ${x.id === t.id ? 'selected' : ''}>${esc(x.title)} · ${x.dates}</option>`).join('')}</select></div>` : ''}
+    <section class="card stack"><div class="row"><b class="grow">${doneN} of ${core.length} steps done</b>${statusPill(r)}</div>
+      <div class="bar"><i style="width:${core.length ? doneN / core.length * 100 : 0}%"></i></div>
+      <div class="meta">${readyBy ? `You can be ready by ${fmt(readyBy)} if you book the dates below.` : core.every(x => x.done) ? 'Every step is done.' : 'Dates are still to be confirmed for the rest.'}</div></section>
+    <div class="tl2">${steps.map(row).join('')}</div>
+    <button class="btn wide ${toAdd ? 'blaze' : 'soft'}" data-a="planall" data-id="${t.id}" ${toAdd ? '' : 'disabled'}>${toAdd ? `Add ${toAdd} suggested date${toAdd > 1 ? 's' : ''} to my plan` : 'Nothing left to add'}</button>
+    ${note('The roadmap starts from a trip and lists everything needed before it. Sessions repeat every week, so each step shows the next date and lets you pick another. Beginners work down the list. Someone with a verified climb at this grade only needs the briefing.')}`;
+}
+function planBody(){
+  const m = me();
+  const targets = DB.trips.filter(t => t.end >= TODAY && !t.leaders.includes(m.id));
+  const target = targets.find(t => t.id === S.planTrip) || targets.find(t => t.participants.includes(m.id)) || targets.find(t => t.trail === m.dream) || targets[0];
+  const mine = [...myTrips(m).map(t => ({date:t.start, html:tripCard(t)})), ...m.rsvps.map(id => SE[id]).filter(isFuture).map(s => ({date:s.date, html:sessionCard(s)}))].sort((a, b) => a.date.localeCompare(b.date));
+  return `${target ? `<section class="sec"><div class="sec-h"><h2>Prep plan</h2><button class="link" data-a="push" data-v="trip" data-id="${target.id}">Trip page</button></div>${roadmapHtml(target, targets)}</section>` : ''}
+    <section class="sec"><div class="sec-h"><h2>On my calendar</h2><button class="link" data-a="tripsview" data-id="calendar">Schedule</button></div>
+      ${mine.map(x => x.html).join('') || '<div class="card muted">Nothing booked yet. RSVP to a session in Discover, or add the suggested dates above.</div>'}</section>`;
 }
 
 /* ---------- trip & trail detail ---------- */
@@ -1225,19 +1475,21 @@ function screenTrip(id){
         <div class="meta">${brief ? `${fmt(brief.date)} · ${brief.time} · ${esc(brief.place)}` : 'Date to be confirmed'}</div></div>
       ${joined ? `<button class="btn wide ghost" data-a="leave" data-id="${t.id}">You're on this trip · Leave</button>`
         : `<button class="btn wide${canJoin ? ' blaze' : ''}" data-a="join" data-id="${t.id}" ${canJoin ? '' : 'disabled'}>${canJoin ? 'Join this trip' : 'Complete a path to join'}</button>`}
-      ${!r.prepDone && !r.expDone ? `<button class="btn soft wide" data-a="calgo" data-id="${TODAY}">Find prep sessions in the calendar</button>` : ''}
+      ${!r.prepDone && !r.expDone ? `<button class="btn soft wide" data-a="triptab" data-id="plan">See your prep plan</button>` : ''}
     </section>`;
   }
   const friends = t.participants.filter(id => id !== m.id && m.follows.includes(id)).map(M);
+  const tripSeg = `<div class="seg" role="group" aria-label="Trip sections"><button aria-pressed="${S.tripTab !== 'plan'}" data-a="triptab" data-id="overview">Overview</button><button aria-pressed="${S.tripTab === 'plan'}" data-a="triptab" data-id="plan">Prep plan</button></div>`;
   return `<div>${photoHero(tr, t.title, t.dates)}
     <div class="pad">
       <div class="facts"><div><b>${tr.dist} km</b><span>distance</span></div><div><b>${n0(tr.gain)} m</b><span>climb</span></div>
         <div><b>${n0(tr.max)} m</b><span>summit</span></div><div><b class="num">${t.participants.length + t.others}/${t.cap}</b><span>spots</span></div></div>
       ${friends.length ? `<div class="row">${friends.map(f => av(f)).join('')}<span class="meta grow">${esc(friends.map(f => f.first).join(', '))} ${friends.length > 1 ? 'are' : 'is'} going</span></div>` : ''}
-      <section class="sec"><h2>Elevation profile</h2><div class="card">${elevationChart(tr)}</div>
+      ${leading ? '' : tripSeg}
+      ${!leading && S.tripTab === 'plan' ? roadmapHtml(t, null) : `<section class="sec"><h2>Elevation profile</h2><div class="card">${elevationChart(tr)}</div>
         <button class="link" style="align-self:flex-start" data-a="push" data-v="trail" data-id="${tr.id}">Trail details &amp; grade breakdown ›</button></section>
       ${body}
-      <section class="sec"><h2>Leaders</h2>${leaders}${lcHtml}</section>
+      <section class="sec"><h2>Leaders</h2>${leaders}${lcHtml}</section>`}
     </div></div>`;
 }
 function screenTrails(){
@@ -1452,7 +1704,7 @@ function screenMissions(){
    Shell
    ========================================================================= */
 const TABS = [['home','Home','home'],['cal','Trips','cal'],['log','Log','plus'],['trails','Trails','trails'],['profile','Profile','user']];
-const TITLES = {cal:'Trips & training', trails:'Trail library', profile:'Profile'};
+const TITLES = {cal:'Trips', trails:'Trail library', profile:'Profile'};
 const STATUSBAR = over => `<div class="statusbar${over ? ' over' : ''}" aria-hidden="true"><span>9:41</span><span class="island"></span><span class="icons">
   <svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
   <svg viewBox="0 0 16 12"><path d="M8 2.2c2.4 0 4.6.9 6.2 2.5l1.3-1.3A10.6 10.6 0 0 0 8 .4 10.6 10.6 0 0 0 .5 3.4l1.3 1.3A8.8 8.8 0 0 1 8 2.2zm0 3.6c1.4 0 2.7.5 3.7 1.5L13 6a7 7 0 0 0-10 0l1.3 1.3c1-1 2.3-1.5 3.7-1.5zM8 9.4l2.1-2.1a3 3 0 0 0-4.2 0z"/></svg>
@@ -1463,7 +1715,9 @@ function renderGuide(){
     ['mei','tab:home','The social home','Friends\' hikes, sign-ups and check-ins in one feed. Give kudos, follow people, or join a friend\'s trip.'],
     ['mei','notifs','Notifications','See when friends sign up or finish a hike. Press "Simulate a friend\'s activity" to get a live one.'],
     ['mei','explore','Explore the map','Spin the globe or switch to the flat map, zoom in, and switch between friends, the ALT community and your own hikes.'],
-    ['mei','tab:cal','Trips & training calendar','Every trip and weekly session by month. Tap a day to RSVP.'],
+    ['mei','discover','Discover trips & training','Rows of what Mei can do now, what to work towards, and what is on this week. See all opens a searchable list.'],
+    ['mei','plan:ledang','Prep roadmap','Every step Mei needs before Gunung Ledang, with dates to RSVP to. One tap adds the suggested dates to her plan.'],
+    ['mei','calendar','Week planner','The week at a glance with filters for friends going and beginner friendly. Month is one tap away.'],
     ['mei','trip:ledang','The readiness check','Mei can\'t join Gunung Ledang (G3) until she does the prep or proves experience.'],
     ['jun','tab:profile','Profile & journal','Photo, credits, bio, dream mountain, upcoming plans, and a journal linked to the map.'],
     ['mei','missions','Missions & credits','Mei can claim a reward straight away, then spend credits.'],
@@ -1503,10 +1757,11 @@ function render(keepScroll){
     trip:() => [trip(top.id).title, screenTrip(top.id)], trail:() => [TR[top.id].name, screenTrail(top.id)],
     log:() => ['Add a journey', screenLog()], missions:() => ['Missions & rewards', screenMissions()],
     notifs:() => ['Notifications', screenNotifs()], friends:() => ['Find friends', screenFriends()],
+    browse:() => [{all:'All trips & training', trips:'All trips', training:'All training', skills:'All skills'}[S.browse.kind], screenBrowse()],
     attention:() => ['Needs your attention', screenAttention()], place:() => [TR[top.id].name, screenPlace(top.id)], editprofile:() => ['Edit profile', screenEditProfile()],
   };
   if (top) [title, html] = views[top.v]();
-  else html = {home:screenHome, cal:screenCalendar, trails:screenTrails, profile:screenProfile}[S.tab]();
+  else html = {home:screenHome, cal:screenTrips, trails:screenTrails, profile:screenProfile}[S.tab]();
   const n = unread(m);
   const bell = `<button class="iconbtn" data-a="push" data-v="notifs" aria-label="Notifications, ${n} new">${icon('bell')}${n ? `<span class="badge-n">${n}</span>` : ''}</button>`;
   let bar;
@@ -1535,7 +1790,10 @@ function go(to){
   S.stack = [];
   const [k, v] = to.split(':');
   if (k === 'tab') S.tab = v;
-  else if (k === 'trip'){ S.tab = 'cal'; S.stack = [{v:'trip', id:v}]; }
+  else if (k === 'trip'){ S.tab = 'cal'; S.tripTab = 'overview'; S.stack = [{v:'trip', id:v}]; }
+  else if (k === 'discover'){ S.tab = 'cal'; S.tripsView = 'discover'; }
+  else if (k === 'calendar'){ S.tab = 'cal'; S.tripsView = 'calendar'; S.calMode = 'week'; S.calDay = TODAY; S.calFilter = 'all'; }
+  else if (k === 'plan'){ S.tab = 'cal'; S.tripsView = 'plan'; S.planTrip = v; S.altsOpen = {}; }
   else if (k === 'explore'){ S.tab = 'home'; Object.assign(MV, {who:'friends', layer:'globe', gk:1.4, rot:[-108, -6], sel:null}); S.stack = [{v:'explore'}]; }
   else if (k === 'notifs'){ S.tab = 'home'; openNotifs(); }
   else { S.tab = k === 'attention' ? 'home' : 'profile'; S.stack = [{v:k}]; }
@@ -1572,6 +1830,7 @@ function act(a, ds){
     case 'tab': S.tab = ds.id; S.stack = []; break;
     case 'push':
       if (ds.v === 'notifs'){ openNotifs(); break; }
+      if (ds.v === 'trip') S.tripTab = 'overview';
       if (ds.v === 'log') S.form = ds.trail ? {trail:ds.trail, date:TODAY, diff:3, fun:4, note:'', evidence:true, photos:[]} : null;
       S.stack.push({v:ds.v, id:ds.id}); break;
     case 'back': S.stack.pop(); break;
@@ -1583,7 +1842,23 @@ function act(a, ds){
     case 'tour': S.persona = ds.p; go(ds.to); break;
     case 'simulate': simulate(); return render(true);
     case 'calday': S.calDay = ds.id; return render(true);
-    case 'calgo': S.stack = []; S.tab = 'cal'; S.calDay = ds.id; S.calMonth = MONTHS.includes(ds.id.slice(0, 7)) ? ds.id.slice(0, 7) : MONTHS[0]; if (!ds.keep) S.calFilter = 'all'; break;
+    case 'tripsview': S.tripsView = ds.id; if (ds.id === 'calendar' && !S.stack.length) S.calMode = S.calMode || 'week'; return render(false);
+    case 'calmode': S.calMode = ds.id; if (ds.id === 'month') S.calMonth = MONTHS.includes(S.calDay.slice(0, 7)) ? S.calDay.slice(0, 7) : MONTHS[0]; return render(true);
+    case 'calweek': { const n = addDays(S.calDay, 7 * +ds.id); if (n >= '2026-09-01' && n <= '2027-04-30') S.calDay = n; return render(true); }
+    case 'caltoday': S.calDay = TODAY; S.calMonth = TODAY.slice(0, 7); return render(true);
+    case 'browse': S.browse = newBrowse({kind:ds.kind || 'all', status:ds.status || 'any'}); S.stack.push({v:'browse'}); break;
+    case 'bset': S.browse[ds.k] = ds.k === 'grade' ? +ds.v : ds.v; return render(true);
+    case 'btoggle': S.browse[ds.k] = !S.browse[ds.k]; return render(true);
+    case 'bclear': Object.assign(S.browse, {grade:0, when:'any', where:'any', status:'any', friends:false, beginner:false, q:''}); return render(true);
+    case 'triptab': S.tripTab = ds.id; return render(true);
+    case 'toggleAlts': S.altsOpen[ds.id] = !S.altsOpen[ds.id]; return render(true);
+    case 'planall': {
+      const t = trip(ds.id), add = planSteps(t, m).filter(st => !st.done && st.session && !m.rsvps.includes(st.session.id));
+      add.forEach(st => m.rsvps.push(st.session.id));
+      if (add.length){ addEvent({who:m.id, kind:'session', session:add[0].session.id}); toast(`${add.length} session${add.length > 1 ? 's' : ''} added to your plan. Your friends can see them.`); }
+      return render(true);
+    }
+    case 'calgo': S.stack = []; S.tab = 'cal'; S.tripsView = 'calendar'; S.calMode = 'week'; S.calDay = ds.id; S.calMonth = MONTHS.includes(ds.id.slice(0, 7)) ? ds.id.slice(0, 7) : MONTHS[0]; if (!ds.keep) S.calFilter = 'all'; break;
     case 'calmonth': if (ds.id){ S.calMonth = ds.id; S.calDay = ds.id === TODAY.slice(0, 7) ? TODAY : ds.id + '-01'; } return render(true);
     case 'calfilter': S.calFilter = ds.id; return render(true);
     case 'gradefilter': S.gradeFilter = +ds.id; return render(true);
@@ -1652,6 +1927,7 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('input', e => {
   const t = e.target;
+  if (t.id === 'b-q'){ S.browse.q = t.value; const el = document.getElementById('b-results'); if (el) el.innerHTML = browseResults(S.browse); return; }
   if (t.id === 'f-find'){ const q = t.value.trim().toLowerCase(); document.querySelectorAll('#people [data-name]').forEach(r => { r.hidden = !!q && !r.dataset.name.includes(q); }); return; }
   if (!S.form || !t.closest('#logform')) return;
   if (t.name === 'trail') S.form.trail = t.value;
@@ -1671,6 +1947,8 @@ function readImage(file, max, cb){
 }
 document.addEventListener('change', e => {
   const t = e.target, files = t.files ? [...t.files] : [];
+  if (t.id === 'b-sort'){ S.browse.sort = t.value; return render(true); }
+  if (t.id === 'plan-trip'){ S.planTrip = t.value; S.altsOpen = {}; return render(true); }
   if (t.name === 'evidence' && S.form){ S.form.evidence = t.checked; return; }
   if (!files.length) return;
   if (t.dataset.photo) readImage(files[0], 1000, src => { savePhoto(t.dataset.photo, src); toast(`Photo added to ${TR[t.dataset.photo].short}`); render(true); });
