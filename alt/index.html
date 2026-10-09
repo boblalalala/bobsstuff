@@ -665,7 +665,7 @@ const SEED_MEMBERS = {
     bio:'Trail runner turning hiker.', dream:'batur', goal:'First overseas summit', follows:['mei','jun','sarah'], claimed:[], redeemed:[],
     attended:['p1','p3','p4','p6'], rsvps:[], journal:[J('j21','bt','2026-07-11',2,4,'','alt','verified'), J('j29','sr','2026-10-04',1,5,'Golden hour on Henderson Waves. Brought my parents along.','self','verified','GPS track')]},
   ravi:{id:'ravi', name:'Ravi Kumar', first:'Ravi', initials:'RK', hue:5, role:'member', joined:'Sep 2026', certs:[], credits:150, kudosGiven:1,
-    bio:'Just moved to Singapore and looking for hiking buddies.', dream:'fuji', goal:'Meet people who hike', follows:['jun'], claimed:[], redeemed:[],
+    bio:'Just moved to Singapore and looking for hiking buddies.', dream:'fuji', goal:'Meet people who hike', follows:['jun','mei'], claimed:[], redeemed:[],
     attended:['p3'], rsvps:[], journal:[
       J('j23','ledang','2026-07-11',4,4,'Climbed with colleagues from the Asahan side before joining ALT.','self','pending','GPS track'),
       J('j24','bt','2026-08-22',1,3,'','self','verified','GPS track')]},
@@ -706,7 +706,8 @@ function load(){
 function save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(DB)); } catch (e) {} }
 DB = load();
 if (!DB.interest) DB.interest = freshDB().interest;
-S = {persona:'mei', tab:'home', stack:[], notes:true, calMonth:'2026-10', calDay:TODAY, calFilter:'all', calMode:'week', tripsView:'discover', planTrip:null, tripTab:'overview', altsOpen:{}, browse:newBrowse(), gradeFilter:0, form:null, toast:null, banner:null};
+if (!DB.migFollow){ DB.migFollow = true; const rv = DB.members.ravi; if (rv && !rv.follows.includes('mei')) rv.follows.push('mei'); } // so Mei has someone to follow back
+S = {persona:'mei', tab:'home', stack:[], notes:true, calMonth:'2026-10', calDay:TODAY, calFilter:'all', calMode:'week', tripsView:'discover', planTrip:null, tripTab:'overview', peopleTab:'followers', altsOpen:{}, browse:newBrowse(), gradeFilter:0, form:null, toast:null, banner:null};
 const me = () => DB.members[S.persona];
 const M = id => DB.members[id];
 const trip = id => DB.trips.find(t => t.id === id);
@@ -1182,6 +1183,22 @@ function screenNotifs(){
   const m = me(), items = notifItems(m), seen = S.seenBefore || '';
   return `<div>${note('Push notifications tell you when people you follow sign up for trips and sessions or finish a hike.').replace('class="note"', 'class="note" style="margin:12px 16px"')}
     ${items.map(n => `<button class="notif${n.at > seen ? ' unread' : ''}" ${n.link}>${n.who ? av(n.who) : `<span class="av">${icon('bell', 'width="18" height="18"')}</span>`}<span class="grow">${n.text}<div class="meta">${ago(n.at)}</div></span>${n.at > seen ? '<span class="dot"></span>' : ''}</button>`).join('') || '<div class="pad muted">No notifications yet.</div>'}</div>`;
+}
+const followersOf = m => Object.values(DB.members).filter(x => x.id !== m.id && x.follows.includes(m.id));
+function screenPeople(){
+  const m = me(), tab = S.peopleTab, fl = followersOf(m), fg = m.follows.map(M);
+  const list = tab === 'followers' ? fl : fg;
+  const rows = list.map(x => {
+    const f = m.follows.includes(x.id), back = !f && x.follows.includes(m.id);
+    return `<div class="card row">${av(x)}<div class="grow"><b>${esc(x.name)}</b><div class="meta">${x.role === 'leader' ? 'Trip leader · ' : ''}${stats(x).summits} summits${x.follows.includes(m.id) && tab === 'following' ? ' · follows you' : ''}</div></div>
+      <button class="btn sm ${f ? 'ghost' : ''}" data-a="follow" data-id="${x.id}">${f ? 'Following' : back ? 'Follow back' : 'Follow'}</button></div>`;
+  }).join('');
+  return `<div class="pad">
+    <div class="seg" role="group" aria-label="Followers or following"><button aria-pressed="${tab === 'followers'}" data-a="ptab" data-id="followers">Followers · ${fl.length}</button><button aria-pressed="${tab === 'following'}" data-a="ptab" data-id="following">Following · ${fg.length}</button></div>
+    ${note('Followers are the people who see your hikes, trip sign-ups and sessions in their feed. You can follow anyone back, and they get a notification when you follow them.')}
+    <div class="stack">${rows || `<div class="card muted">${tab === 'followers' ? 'No followers yet. Log a hike or join a session so people can find you.' : 'You are not following anyone yet.'}</div>`}</div>
+    <button class="btn soft wide" data-a="push" data-v="friends">${icon('search')}Find more people</button>
+  </div>`;
 }
 function screenFriends(){
   const m = me(), all = Object.values(DB.members).filter(x => x.id !== m.id);
@@ -1663,7 +1680,7 @@ function screenProfile(){
         <div class="goal topo">${dream ? `<span class="eyebrow">Dream mountain</span><b>${esc(dream.name)}</b><small>${gradeBadge(dream.grade)} ${n0(dream.max)} m</small><small>${gap <= 0 ? 'You have the experience. Time to plan it.' : `${gap} grade${gap > 1 ? 's' : ''} above your best climb so far.`}</small>` : ''}</div>
         <div class="goal topo"><span class="eyebrow">Next goal</span><b>${esc(m.goal)}</b></div>
       </div>
-      <div class="row"><button class="btn sm soft" data-a="push" data-v="editprofile">Edit profile</button><button class="btn sm soft" data-a="push" data-v="friends">${st.friends} following</button></div>
+      <div class="row" style="flex-wrap:wrap"><button class="btn sm soft" data-a="push" data-v="editprofile">Edit profile</button><button class="btn sm soft" data-a="people" data-id="followers"><span class="num">${followersOf(m).length}</span> followers</button><button class="btn sm soft" data-a="people" data-id="following"><span class="num">${st.friends}</span> following</button></div>
       <div class="stats"><div class="stat"><b>${st.summits}</b><span>summits</span></div><div class="stat"><b>${n0(st.km)}</b><span>km hiked</span></div><div class="stat"><b>${n0(st.gain)}</b><span>m climbed</span></div></div>
     </section>
     <button class="card tap row" data-a="push" data-v="missions" style="border-color:var(--coin)"><span class="coinv" style="font-size:22px">${COIN}</span><span class="grow"><b>Missions &amp; rewards</b><div class="meta">${claimable ? `${claimable} reward${claimable > 1 ? 's' : ''} ready to claim` : 'Earn credits by training, hiking and bringing friends'}</div></span>${claimable ? `<span class="pill ontrack">${claimable}</span>` : ''}${icon('next', 'width="18" height="18"')}</button>
@@ -1756,7 +1773,7 @@ function render(keepScroll){
   const views = {
     trip:() => [trip(top.id).title, screenTrip(top.id)], trail:() => [TR[top.id].name, screenTrail(top.id)],
     log:() => ['Add a journey', screenLog()], missions:() => ['Missions & rewards', screenMissions()],
-    notifs:() => ['Notifications', screenNotifs()], friends:() => ['Find friends', screenFriends()],
+    notifs:() => ['Notifications', screenNotifs()], friends:() => ['Find friends', screenFriends()], people:() => ['Followers & following', screenPeople()],
     browse:() => [{all:'All trips & training', trips:'All trips', training:'All training', skills:'All skills'}[S.browse.kind], screenBrowse()],
     attention:() => ['Needs your attention', screenAttention()], place:() => [TR[top.id].name, screenPlace(top.id)], editprofile:() => ['Edit profile', screenEditProfile()],
   };
@@ -1867,9 +1884,16 @@ function act(a, ds){
       if (i >= 0){ list.splice(i, 1); m.kudosGiven = Math.max(0, m.kudosGiven - 1); } else { list.push(m.id); m.kudosGiven++; }
       return render(true);
     }
+    case 'people': S.peopleTab = ds.id; S.stack.push({v:'people'}); break;
+    case 'ptab': S.peopleTab = ds.id; return render(true);
     case 'follow': {
       const i = m.follows.indexOf(ds.id);
-      if (i >= 0) m.follows.splice(i, 1); else { m.follows.push(ds.id); toast(`Following ${M(ds.id).first}. Their activity will show in your feed.`); }
+      if (i >= 0) m.follows.splice(i, 1);
+      else {
+        m.follows.push(ds.id);
+        (DB.notes[ds.id] = DB.notes[ds.id] || []).push({at:tick(), text:`<b>${esc(m.first)}</b> started following you.`});
+        toast(`Following ${M(ds.id).first}. Their activity will show in your feed.`);
+      }
       return render(true);
     }
     case 'rsvp': {
