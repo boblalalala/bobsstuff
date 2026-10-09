@@ -3,6 +3,7 @@
 Clickable front-end prototype of the ALT hiking club app. It runs from one file (`index.html`) with example data. There is no backend and no login yet. Open it in a browser to try it. It loads d3 from cdnjs for the maps.
 
 Tabs:
+- **Search**: the magnifier on Home opens a search across trips, hikes and places, training and skills, and people. It matches names, regions and countries, so "Malaysia" or "Japan" finds the hikes there. The Trips tab has its own search bar for trips, hikes and sessions.
 - **Home**: a social feed in the style of Strava. It shows hikes, trip sign-ups and session RSVPs from people you follow, with kudos, plus "Find friends", a "Next up" card and a map widget. The bell shows notifications. Leaders also get a "Needs your attention" card.
 - **Explore map** (opened from the home widget): switch between a globe and a flat map, both of which pan and zoom. Tabs show your friends' hikes, the ALT community's hikes, or only your own. Singapore practice hikes are left off. Tap a pin for a preview, then open the place page for journals, ratings and the next ALT trip or an interest check.
 - **Trips** has three views.

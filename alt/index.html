@@ -454,6 +454,8 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;f
 .alts{display:flex;flex-direction:column;gap:6px;border-top:1px dashed var(--line);padding-top:8px}
 .altrow{display:flex;align-items:center;gap:8px;font-size:13px}
 
+.col18{display:flex;flex-direction:column;gap:18px}
+
 /* ---------- small screens ---------- */
 @media (max-width: 900px){
   .stage{grid-template-columns:minmax(0,1fr);gap:12px;padding-inline:0;padding-block:0}
@@ -707,7 +709,7 @@ function save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(DB)); } ca
 DB = load();
 if (!DB.interest) DB.interest = freshDB().interest;
 if (!DB.migFollow){ DB.migFollow = true; const rv = DB.members.ravi; if (rv && !rv.follows.includes('mei')) rv.follows.push('mei'); } // so Mei has someone to follow back
-S = {persona:'mei', tab:'home', stack:[], notes:true, calMonth:'2026-10', calDay:TODAY, calFilter:'all', calMode:'week', tripsView:'discover', planTrip:null, tripTab:'overview', peopleTab:'followers', altsOpen:{}, browse:newBrowse(), gradeFilter:0, form:null, toast:null, banner:null};
+S = {persona:'mei', tab:'home', stack:[], notes:true, calMonth:'2026-10', calDay:TODAY, calFilter:'all', calMode:'week', tripsView:'discover', planTrip:null, tripTab:'overview', peopleTab:'followers', tripsQ:'', search:{q:''}, altsOpen:{}, browse:newBrowse(), gradeFilter:0, form:null, toast:null, banner:null};
 const me = () => DB.members[S.persona];
 const M = id => DB.members[id];
 const trip = id => DB.trips.find(t => t.id === id);
@@ -1210,6 +1212,10 @@ function screenFriends(){
 
 /* ---------- calendar ---------- */
 /* ---------- Trips tab helpers ---------- */
+const COUNTRY = {SG:'Singapore', MY:'Malaysia', ID:'Indonesia', JP:'Japan', TZ:'Tanzania', NP:'Nepal'};
+const trailText = t => `${t.name} ${t.short} ${t.region} ${COUNTRY[t.country]}`.toLowerCase();
+const sessText = s => `${sessTitle(s)} ${TYPES[s.type].label} ${TYPES[s.type].short} ${s.place} ${s.trail ? trailText(TR[s.trail]) : ''}`.toLowerCase();
+const matches = (text, q) => { const t = text.toLowerCase(); return q.toLowerCase().split(/\s+/).filter(Boolean).every(w => t.includes(w)); };
 function newBrowse(o){ return Object.assign({kind:'all', q:'', sort:'soonest', grade:0, when:'any', where:'any', status:'any', friends:false, beginner:false, open:false}, o || {}); }
 const friendsGoing = s => { const m = me(); return [...new Set([
   ...DB.feed.filter(e => e.kind === 'session' && e.session === s.id && e.who !== m.id && m.follows.includes(e.who)).map(e => e.who),
@@ -1259,10 +1265,42 @@ function monthView(m){
 }
 
 /* ---------- Trips tab ---------- */
+function searchResults(q, o){
+  o = o || {}; q = q.trim();
+  if (!q){
+    if (!o.suggest) return '';
+    return `<div class="eyebrow">Try searching for</div><div class="chips wrap">${['Malaysia','Indonesia','Japan','Singapore','Kinabalu','Stairs','Packing'].map(x => `<button class="chip" data-a="sq" data-q="${x}">${x}</button>`).join('')}</div>`;
+  }
+  const m = me();
+  const trips = DB.trips.filter(t => t.end >= TODAY && matches(`${t.title} ${trailText(TR[t.trail])}`, q));
+  const hikes = TRAILS.filter(t => matches(trailText(t), q) && !trips.some(x => x.trail === t.id));
+  const sess = SESSIONS.filter(isFuture).filter(s => matches(sessText(s), q));
+  const people = o.people ? Object.values(DB.members).filter(x => x.id !== m.id && matches(x.name, q)) : [];
+  const head = (label, n) => `<div class="eyebrow">${label} · ${n}</div>`;
+  const out = [];
+  if (trips.length) out.push(`<section class="sec">${head('Trips', trips.length)}${trips.map(tripCard).join('')}</section>`);
+  if (hikes.length) out.push(`<section class="sec">${head('Hikes & places', hikes.length)}${hikes.map(placeRow).join('')}</section>`);
+  if (sess.length) out.push(`<section class="sec">${head('Training & skills', sess.length)}${sess.slice(0, 4).map(s => sessionCard(s)).join('')}${sess.length > 4 ? `<button class="btn soft" data-a="browse" data-q="${esc(q)}">See all ${sess.length} sessions</button>` : ''}</section>`);
+  if (people.length) out.push(`<section class="sec">${head('People', people.length)}${people.map(x => { const f = m.follows.includes(x.id); return `<div class="card row">${av(x)}<div class="grow"><b>${esc(x.name)}</b><div class="meta">${x.role === 'leader' ? 'Trip leader · ' : ''}${stats(x).summits} summits</div></div><button class="btn sm ${f ? 'ghost' : ''}" data-a="follow" data-id="${x.id}">${f ? 'Following' : 'Follow'}</button></div>`; }).join('')}</section>`);
+  return out.join('') || `<div class="card muted">No matches for “${esc(q)}”. Try a mountain name, a country or a session type.</div>`;
+}
+const tripsBodyHtml = () => S.tripsView === 'calendar' ? calendarBody() : S.tripsView === 'plan' ? planBody() : discoverBody();
+function tripsSearchUpdate(){
+  const q = S.tripsQ.trim(), seg = document.getElementById('trips-seg'), body = document.getElementById('trips-body');
+  if (seg) seg.hidden = !!q;
+  if (body) body.innerHTML = q ? searchResults(q) : tripsBodyHtml();
+}
+function screenSearch(){
+  return `<div class="pad">
+    <div class="field"><label class="visually-hidden" for="s-q">Search</label><input type="search" id="s-q" placeholder="Hikes, trips, sessions, people" value="${esc(S.search.q)}" autocomplete="off"></div>
+    <div class="stack" id="s-results">${searchResults(S.search.q, {people:true, suggest:true})}</div>
+  </div>`;
+}
 function screenTrips(){
   const v = S.tripsView;
-  const seg = `<div class="seg" role="group" aria-label="Trips views">${[['discover','Discover'],['calendar','Calendar'],['plan','My plan']].map(([k, l]) => `<button aria-pressed="${v === k}" data-a="tripsview" data-id="${k}">${l}</button>`).join('')}</div>`;
-  return `<div class="pad">${seg}${v === 'calendar' ? calendarBody() : v === 'plan' ? planBody() : discoverBody()}</div>`;
+  const seg = `<div class="seg" id="trips-seg" ${S.tripsQ.trim() ? 'hidden' : ''} role="group" aria-label="Trips views">${[['discover','Discover'],['calendar','Calendar'],['plan','My plan']].map(([k, l]) => `<button aria-pressed="${v === k}" data-a="tripsview" data-id="${k}">${l}</button>`).join('')}</div>`;
+  const q = S.tripsQ.trim();
+  return `<div class="pad"><div class="field"><label class="visually-hidden" for="t-q">Search trips</label><input type="search" id="t-q" placeholder="Search trips, hikes or countries" value="${esc(S.tripsQ)}" autocomplete="off"></div>${seg}<div class="col18" id="trips-body">${q ? searchResults(q) : tripsBodyHtml()}</div></div>`;
 }
 
 /* Discover: shelves that mix trips, training and skills */
@@ -1325,23 +1363,23 @@ function allItems(){
   const m = me();
   const trips = DB.trips.filter(t => t.end >= TODAY).map(t => {
     const tr = TR[t.trail], leading = t.leaders.includes(m.id), r = leading ? null : readiness(m, t);
-    return {k:'trip', kind:'trips', t, date:t.start, text:`${t.title} ${tr.name} ${tr.region}`, grade:tr.grade, where:tr.country === 'SG' ? 'sg' : 'overseas', beginner:tr.grade <= 2, friends:friendsOnTrip(t).length, spots:spotsLeftTrip(t), status:leading ? 'leading' : r.status === 'notyet' ? 'locked' : 'ready'};
+    return {k:'trip', kind:'trips', t, date:t.start, text:`${t.title} ${trailText(tr)}`, grade:tr.grade, where:tr.country === 'SG' ? 'sg' : 'overseas', beginner:tr.grade <= 2, friends:friendsOnTrip(t).length, spots:spotsLeftTrip(t), status:leading ? 'leading' : r.status === 'notyet' ? 'locked' : 'ready'};
   });
-  const sess = SESSIONS.filter(isFuture).map(s => ({k:'session', kind:catOf(s), s, date:s.date, text:`${sessTitle(s)} ${TYPES[s.type].label} ${TYPES[s.type].short} ${s.place}`, grade:s.trail ? TR[s.trail].grade : 0, where:'sg', beginner:isBeginnerSess(s), friends:friendsGoing(s).length, spots:spotsLeftSess(s), status:'ready'}));
+  const sess = SESSIONS.filter(isFuture).map(s => ({k:'session', kind:catOf(s), s, date:s.date, text:sessText(s), grade:s.trail ? TR[s.trail].grade : 0, where:'sg', beginner:isBeginnerSess(s), friends:friendsGoing(s).length, spots:spotsLeftSess(s), status:'ready'}));
   return [...trips, ...sess];
 }
 function browseItems(b){
   const q = b.q.trim().toLowerCase(), end = b.when === 'week' ? addDays(TODAY, 6) : b.when === 'month' ? addDays(TODAY, 30) : '9999';
-  const items = allItems().filter(i => (b.kind === 'all' || i.kind === b.kind) && (!q || i.text.toLowerCase().includes(q)) && (!b.grade || i.grade === b.grade) && i.date <= end
+  const items = allItems().filter(i => (b.kind === 'all' || i.kind === b.kind) && (!q || matches(i.text.toLowerCase(), q)) && (!b.grade || i.grade === b.grade) && i.date <= end
     && (b.where === 'any' || i.where === b.where) && (b.status === 'any' || i.status === b.status) && (!b.friends || i.friends > 0) && (!b.beginner || i.beginner));
   const by = {soonest:(a, c) => 0, friends:(a, c) => c.friends - a.friends, spots:(a, c) => c.spots - a.spots}[b.sort];
   return items.sort((a, c) => by(a, c) || a.date.localeCompare(c.date));
 }
 const placeRow = t => { const nt = nextTrip(t.id); return `<button class="card tap trailrow" data-a="push" data-v="place" data-id="${t.id}"><div class="mini">${photoImg(t) || silhouette(t, 72, 40, {top:.12, sw:1.5})}</div>
-  <div style="min-width:0"><h3>${esc(t.name)}</h3><div class="meta">${esc(t.region)}</div><div class="meta">${nt ? 'ALT trip ' + fmt(nt.start) : 'No ALT trip yet · interest check'}</div></div>${gradeBadge(t.grade)}</button>`; };
+  <div style="min-width:0"><h3>${esc(t.name)}</h3><div class="meta">${esc(t.region)}</div><div class="meta">${nt ? 'ALT trip ' + fmt(nt.start) : onMap(t) ? 'No ALT trip yet · interest check' : 'ALT practice hikes here'}</div></div>${gradeBadge(t.grade)}</button>`; };
 function browseResults(b){
   const items = browseItems(b), q = b.q.trim().toLowerCase();
-  const places = q && (b.kind === 'all' || b.kind === 'trips') ? TRAILS.filter(t => onMap(t) && `${t.name} ${t.region}`.toLowerCase().includes(q) && !items.some(i => i.k === 'trip' && i.t.trail === t.id)) : [];
+  const places = q && (b.kind === 'all' || b.kind === 'trips') ? TRAILS.filter(t => matches(trailText(t), q) && !items.some(i => i.k === 'trip' && i.t.trail === t.id)) : [];
   return `<div class="meta num">${items.length} result${items.length === 1 ? '' : 's'}</div>
     ${items.map(i => i.k === 'trip' ? tripCard(i.t) : sessionCard(i.s)).join('') || '<div class="card muted">Nothing matches these filters. Try clearing one.</div>'}
     ${places.length ? `<div class="eyebrow">Places</div>${places.map(placeRow).join('')}` : ''}`;
@@ -1352,7 +1390,7 @@ function screenBrowse(){
   const group = (label, k, opts) => `<div class="fgroup"><span class="lab">${label}</span><div class="chips wrap">${opts.map(([v, l]) => chip(b[k] === v, `data-a="bset" data-k="${k}" data-v="${v}"`, l)).join('')}</div></div>`;
   return `<div class="pad">
     <div class="chips" role="group" aria-label="Type">${[['all','All'],['trips','Trips'],['training','Training'],['skills','Skills']].map(([k, l]) => chip(b.kind === k, `data-a="bset" data-k="kind" data-v="${k}"`, l)).join('')}</div>
-    <div class="field"><label class="visually-hidden" for="b-q">Search</label><input type="search" id="b-q" placeholder="Search trips, sessions, places" value="${esc(b.q)}" autocomplete="off"></div>
+    <div class="field"><label class="visually-hidden" for="b-q">Search</label><input type="search" id="b-q" placeholder="Search by name or country" value="${esc(b.q)}" autocomplete="off"></div>
     <div class="row"><div class="field grow"><label class="visually-hidden" for="b-sort">Sort by</label><select id="b-sort">${[['soonest','Sort: Soonest'],['friends','Sort: Friends going'],['spots','Sort: Most spots left']].map(([v, l]) => `<option value="${v}" ${b.sort === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
       <button class="btn sm ${b.open ? '' : 'soft'}" data-a="btoggle" data-k="open" aria-expanded="${b.open}">Filters${n ? ' · ' + n : ''}</button></div>
     <div class="chips wrap">${chip(b.friends, 'data-a="btoggle" data-k="friends"', 'Friends going')}${chip(b.beginner, 'data-a="btoggle" data-k="beginner"', 'Beginner friendly')}</div>
@@ -1362,7 +1400,7 @@ function screenBrowse(){
       ${group('Where', 'where', [['any', 'Anywhere'], ['sg', 'Singapore'], ['overseas', 'Overseas']])}
       ${group('Readiness', 'status', [['any', 'Any'], ['ready', 'Ready for me'], ['locked', 'Not yet']])}
       <button class="link" style="align-self:flex-start" data-a="bclear">Clear filters</button></section>` : ''}
-    ${note('This is the full list behind every <b>See all</b>. Search finds trips, sessions and places, so typing a mountain the club has not planned yet (try <b>Fuji</b>) leads to its interest check.')}
+    ${note('This is the full list behind every <b>See all</b>. Search matches names, regions and countries, so <b>Malaysia</b> finds every Malaysian hike. A mountain the club has not planned yet (try <b>Fuji</b>) leads to its interest check.')}
     <div class="stack" id="b-results">${browseResults(b)}</div>
   </div>`;
 }
@@ -1559,7 +1597,10 @@ function screenPlace(id){
   const avg = k => rated.length ? (rated.reduce((a, p) => a + p.j[k], 0) / rated.length).toFixed(1) : '–';
   const trips = DB.trips.filter(x => x.trail === id && x.end >= TODAY);
   let altBlock;
-  if (trips.length){
+  if (!onMap(t)){
+    const ss = SESSIONS.filter(x => x.trail === id && isFuture(x)).slice(0, 3);
+    altBlock = `<section class="sec"><div class="sec-h"><h2>ALT practice hikes</h2></div>${ss.map(x => sessionCard(x)).join('') || '<div class="card muted">No practice hikes are scheduled here yet.</div>'}</section>`;
+  } else if (trips.length){
     altBlock = `<section class="sec"><div class="sec-h"><h2>ALT trip</h2><span class="pill verified">ALT runs this hike</span></div>
       <div class="meta">Next trip: <b>${trips[0].dates}</b>. Open it to check whether you're ready and to sign up.</div>${trips.map(tripCard).join('')}</section>`;
   } else {
@@ -1773,7 +1814,7 @@ function render(keepScroll){
   const views = {
     trip:() => [trip(top.id).title, screenTrip(top.id)], trail:() => [TR[top.id].name, screenTrail(top.id)],
     log:() => ['Add a journey', screenLog()], missions:() => ['Missions & rewards', screenMissions()],
-    notifs:() => ['Notifications', screenNotifs()], friends:() => ['Find friends', screenFriends()], people:() => ['Followers & following', screenPeople()],
+    notifs:() => ['Notifications', screenNotifs()], friends:() => ['Find friends', screenFriends()], search:() => ['Search', screenSearch()], people:() => ['Followers & following', screenPeople()],
     browse:() => [{all:'All trips & training', trips:'All trips', training:'All training', skills:'All skills'}[S.browse.kind], screenBrowse()],
     attention:() => ['Needs your attention', screenAttention()], place:() => [TR[top.id].name, screenPlace(top.id)], editprofile:() => ['Edit profile', screenEditProfile()],
   };
@@ -1785,7 +1826,7 @@ function render(keepScroll){
   if (top) bar = `<header class="appbar"><button class="iconbtn" data-a="back" aria-label="Back">${icon('back')}</button><h1>${esc(title)}</h1></header>`;
   else if (S.tab === 'home') bar = `<header class="appbar home">
       <button class="av h${m.hue}" data-a="tab" data-id="profile" aria-label="Your profile">${m.photo ? `<img src="${m.photo}" alt="">` : esc(m.initials)}</button>
-      <button class="iconbtn" data-a="push" data-v="friends" aria-label="Find friends">${icon('search')}</button>
+      <button class="iconbtn" data-a="push" data-v="search" aria-label="Search">${icon('search')}</button>
       <span class="logo">ALT</span><span style="width:38px"></span>${bell}</header>`;
   else bar = `<header class="appbar"><span class="logo">ALT</span><h1>${esc(TITLES[S.tab])}</h1>${bell}</header>`;
   phone.innerHTML = `${STATUSBAR(false)}${bar}<div class="screen">${html}</div>
@@ -1794,6 +1835,7 @@ function render(keepScroll){
       : `<button data-a="tab" data-id="${k}" ${!top && S.tab === k ? 'aria-current="page"' : ''}>${icon(ic)}${l}</button>`).join('')}</nav>
     ${banner}${toastHtml}`;
   phone.querySelector('.screen').scrollTop = y;
+  if (top && top.v === 'search' && !keepScroll){ const si = document.getElementById('s-q'); if (si) si.focus({preventScroll:true}); }
   if (!keepScroll && window.matchMedia('(max-width: 900px)').matches) window.scrollTo(0, 0);
   renderGuide(); save();
 }
@@ -1848,6 +1890,7 @@ function act(a, ds){
     case 'push':
       if (ds.v === 'notifs'){ openNotifs(); break; }
       if (ds.v === 'trip') S.tripTab = 'overview';
+      if (ds.v === 'search') S.search = {q:''};
       if (ds.v === 'log') S.form = ds.trail ? {trail:ds.trail, date:TODAY, diff:3, fun:4, note:'', evidence:true, photos:[]} : null;
       S.stack.push({v:ds.v, id:ds.id}); break;
     case 'back': S.stack.pop(); break;
@@ -1863,7 +1906,8 @@ function act(a, ds){
     case 'calmode': S.calMode = ds.id; if (ds.id === 'month') S.calMonth = MONTHS.includes(S.calDay.slice(0, 7)) ? S.calDay.slice(0, 7) : MONTHS[0]; return render(true);
     case 'calweek': { const n = addDays(S.calDay, 7 * +ds.id); if (n >= '2026-09-01' && n <= '2027-04-30') S.calDay = n; return render(true); }
     case 'caltoday': S.calDay = TODAY; S.calMonth = TODAY.slice(0, 7); return render(true);
-    case 'browse': S.browse = newBrowse({kind:ds.kind || 'all', status:ds.status || 'any'}); S.stack.push({v:'browse'}); break;
+    case 'sq': S.search.q = ds.q; return render(true);
+    case 'browse': S.browse = newBrowse({kind:ds.kind || 'all', status:ds.status || 'any', q:ds.q || ''}); S.stack.push({v:'browse'}); break;
     case 'bset': S.browse[ds.k] = ds.k === 'grade' ? +ds.v : ds.v; return render(true);
     case 'btoggle': S.browse[ds.k] = !S.browse[ds.k]; return render(true);
     case 'bclear': Object.assign(S.browse, {grade:0, when:'any', where:'any', status:'any', friends:false, beginner:false, q:''}); return render(true);
@@ -1951,6 +1995,8 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('input', e => {
   const t = e.target;
+  if (t.id === 's-q'){ S.search.q = t.value; const el = document.getElementById('s-results'); if (el) el.innerHTML = searchResults(t.value, {people:true, suggest:true}); return; }
+  if (t.id === 't-q'){ S.tripsQ = t.value; tripsSearchUpdate(); return; }
   if (t.id === 'b-q'){ S.browse.q = t.value; const el = document.getElementById('b-results'); if (el) el.innerHTML = browseResults(S.browse); return; }
   if (t.id === 'f-find'){ const q = t.value.trim().toLowerCase(); document.querySelectorAll('#people [data-name]').forEach(r => { r.hidden = !!q && !r.dataset.name.includes(q); }); return; }
   if (!S.form || !t.closest('#logform')) return;
