@@ -747,6 +747,11 @@ const SEED_GEAR = {
   ravi:[G('poles1',2,false,'Bought these on a sale and they have been a hassle.','The locks slip when I put weight on them.','2026-08-25')],
   hannah:[G('pack2',4,true,'Bought it for my first trips. Simple and light.','Add a sternum strap that does not slide.','2026-10-02')],
 };
+const SEED_SALES = [
+  {id:'L11', owner:'marcus', pid:'bag1', sale:true, ask:45, price:0, deposit:0, cond:'Good', loc:'Toa Payoh', note:'Used on four trips. Comes with its stuff sack.'},
+  {id:'L12', owner:'aisyah', pid:'stove1', sale:true, ask:30, price:0, deposit:0, cond:'Like new', loc:'Jurong East', note:'Bought a bigger one. Gas canister not included.'},
+  {id:'L13', owner:'hannah', pid:'boots1', sale:true, ask:70, price:0, deposit:0, cond:'Well used', loc:'Clementi', note:'UK 6 / EU 39. Resoled last year.'},
+];
 const SEED_LISTINGS = [
   {id:'L1', owner:'sarah', pid:'tent1', price:12, deposit:50, cond:'Like new', loc:'Tanjong Pagar', note:'2-person tent with footprint and 8 pegs. Sets up in five minutes.'},
   {id:'L2', owner:'jun', pid:'pack1', price:0, deposit:0, cond:'Good', loc:'Bishan', note:'Size M. The rain cover is not included.'},
@@ -758,6 +763,7 @@ const SEED_LISTINGS = [
   {id:'L8', owner:'daniel', pid:'stove1', price:0, deposit:0, cond:'Good', loc:'Bukit Timah', note:'Gas canister not included.'},
   {id:'L9', owner:'ravi', pid:'poles1', price:4, deposit:0, cond:'Well used', loc:'Queenstown', note:'The locks slip on one pole. Fine for light use.'},
   {id:'L10', owner:'hannah', pid:'pack2', price:0, deposit:0, cond:'Good', loc:'Clementi', note:'Light daypack, no hip belt pockets.'},
+  ...SEED_SALES,
 ];
 const SEED_REQS = [
   {id:'r1', listing:'L2', from:'hannah', to:'jun', start:'2026-12-04', end:'2026-12-07', msg:'For the Ledang weekend. I will return it washed.', status:'pending', at:'2026-10-06T20:10', checks:[false,false,false]},
@@ -767,6 +773,7 @@ const SEED_REQS = [
 function gearInit(db){
   db.listings = db.listings || structuredClone(SEED_LISTINGS);
   db.reqs = db.reqs || structuredClone(SEED_REQS);
+  SEED_SALES.forEach(x => { if (!db.listings.some(l => l.id === x.id)) db.listings.push(structuredClone(x)); });
   db.custom = db.custom || {};
   Object.values(db.members).forEach(m => { if (!m.gear) m.gear = structuredClone(SEED_GEAR[m.id] || []); });
   return db;
@@ -1740,7 +1747,7 @@ function aggOf(pid){
 }
 const stars = v => `<span class="stars" role="img" aria-label="${v.toFixed(1)} out of 5">${'★'.repeat(Math.round(v))}${'☆'.repeat(5 - Math.round(v))}</span>`;
 const money = n => 'S$' + n;
-const listingsOf = pid => DB.listings.filter(l => l.pid === pid);
+const listingsOf = pid => DB.listings.filter(l => l.pid === pid && !l.sold);
 const dayCount = (a, b) => Math.round((d(b) - d(a)) / 864e5) + 1;
 const loanNote = (toId, text, link) => (DB.notes[toId] = DB.notes[toId] || []).push({at:tick(), text, link:link || 'data-a="gearview" data-id="requests"'});
 
@@ -1758,14 +1765,14 @@ function listingCard(l){
     <span class="grow"><b>${esc(p.name)}</b><span class="meta" style="display:block">${esc(p.brand)} · ${p.cat}</span>
       <span class="row" style="gap:6px;margin-top:3px">${a.n ? `${stars(a.avg)}<span class="meta num">${a.avg.toFixed(1)} (${a.n})</span>` : '<span class="meta">No reviews yet</span>'}</span>
       <span class="row" style="gap:6px;margin-top:6px">${av(o, 'sm')}<span class="meta">${mine ? 'You' : esc(o.first)} · ${esc(l.loc)}</span></span></span>
-    <span class="stack" style="align-items:flex-end;gap:6px"><span class="pill ${l.price ? 'override' : 'ready'}">${l.price ? money(l.price) + '/day' : 'Free'}</span><span class="meta">${esc(l.cond)}</span>${booked ? `<span class="meta">Booked ${fmt(booked.start, {day:'numeric', month:'short'})}</span>` : ''}</span></button>`;
+    <span class="stack" style="align-items:flex-end;gap:6px"><span class="pill ${l.sale || l.price ? 'override' : 'ready'}">${l.sale ? money(l.ask) : l.price ? money(l.price) + '/day' : 'Free'}</span><span class="meta">${l.sale ? 'For sale · ' : ''}${esc(l.cond)}</span>${booked ? `<span class="meta">Booked ${fmt(booked.start, {day:'numeric', month:'short'})}</span>` : ''}</span></button>`;
 }
 function productCard(p){
   const a = aggOf(p.id), n = listingsOf(p.id).length;
   return `<button class="card tap gcard" data-a="push" data-v="product" data-id="${p.id}"><span class="gtile">${catIcon(p.cat)}</span>
     <span class="grow"><b>${esc(p.name)}</b><span class="meta" style="display:block">${esc(p.brand)} · ${p.cat}${p.price ? ' · about ' + money(p.price) : ''}</span>
       <span class="row" style="gap:6px;margin-top:3px">${a.n ? `${stars(a.avg)}<span class="meta num">${a.avg.toFixed(1)} · ${a.n} review${a.n > 1 ? 's' : ''}</span>` : '<span class="meta">No reviews yet</span>'}</span>
-      ${a.n ? `<span class="meta" style="display:block;margin-top:3px">${a.rec}% recommend${n ? ' · ' + n + ' to borrow or rent' : ''}</span>` : ''}</span>${icon('next', 'width="18" height="18"')}</button>`;
+      ${a.n ? `<span class="meta" style="display:block;margin-top:3px">${a.rec}% recommend${n ? ' · ' + n + ' to borrow, rent or buy' : ''}</span>` : ''}</span>${icon('next', 'width="18" height="18"')}</button>`;
 }
 function gearResults(){
   const q = S.gearQ.trim();
@@ -1774,7 +1781,7 @@ function gearResults(){
     const ps = allProducts().filter(p => (S.gearCat === 'All' || p.cat === S.gearCat) && (!q || matches(`${p.name} ${p.brand} ${p.cat}`, q))).map(p => ({p, a:aggOf(p.id)})).sort(sorts[S.gearSort]);
     return `<div class="meta num">${ps.length} product${ps.length === 1 ? '' : 's'}</div>${ps.map(x => productCard(x.p)).join('') || '<div class="card muted">No gear matches. Try another category or search.</div>'}`;
   }
-  const ls = DB.listings.filter(l => { const p = prodOf(l.pid); return (S.gearCat === 'All' || p.cat === S.gearCat) && (S.gearMode === 'all' || (S.gearMode === 'free' ? !l.price : !!l.price)) && (!q || matches(`${p.name} ${p.brand} ${p.cat} ${M(l.owner).name}`, q)); });
+  const ls = DB.listings.filter(l => { const p = prodOf(l.pid); return (S.gearCat === 'All' || p.cat === S.gearCat) && !l.sold && (S.gearMode === 'all' || (S.gearMode === 'sell' ? l.sale : !l.sale && !!l.price)) && (!q || matches(`${p.name} ${p.brand} ${p.cat} ${M(l.owner).name}`, q)); });
   return `<div class="meta num">${ls.length} item${ls.length === 1 ? '' : 's'} available</div>${ls.map(listingCard).join('') || '<div class="card muted">Nothing matches. Try another category, or list your own gear.</div>'}`;
 }
 function gearToolbar(extra){
@@ -1783,9 +1790,9 @@ function gearToolbar(extra){
     <div class="chips" role="group" aria-label="Category">${cats.map(c => `<button class="chip" aria-pressed="${S.gearCat === c}" data-a="gcat" data-id="${c}">${c}</button>`).join('')}</div>${extra || ''}`;
 }
 function gearBrowse(){
-  return `${gearToolbar(`<div class="chips" role="group" aria-label="Type">${[['all','All'],['rent','Rent']].map(([k, l]) => `<button class="chip" aria-pressed="${S.gearMode === k}" data-a="gmode" data-id="${k}">${l}</button>`).join('')}</div>`)}
-    <button class="btn blaze wide" data-a="listadd" data-id="">${icon('plus')}List my gear to lend or rent</button>
-    ${note('Members lend gear for free or rent it for a small daily price. Each item shows the community\'s reviews of that product, so you can try something before you buy it. Tap an item to send a request.')}
+  return `${gearToolbar(`<div class="chips" role="group" aria-label="Type">${[['all','All'],['rent','Rent'],['sell','For sale']].map(([k, l]) => `<button class="chip" aria-pressed="${S.gearMode === k}" data-a="gmode" data-id="${k}">${l}</button>`).join('')}</div>`)}
+    <button class="btn blaze wide" data-a="listadd" data-id="">${icon('plus')}List my gear to lend, rent or sell</button>
+    ${note('Members lend, rent or sell gear to each other. Each item shows the community\'s reviews of that product. Tap an item to send a request or message the seller.')}
     <div class="stack" id="g-results">${gearResults()}</div>`;
 }
 function gearReviews(){
@@ -1837,7 +1844,7 @@ function screenProduct(pid){
         <div class="grow stack" style="gap:3px">${[5, 4, 3, 2, 1].map(n => `<div class="dist"><span class="num">${n}</span><div class="bar"><i style="width:${a.n ? a.dist[n - 1] / a.n * 100 : 0}%;background:var(--coin)"></i></div><span class="num meta">${a.dist[n - 1]}</span></div>`).join('')}</div></div>
         <div class="row"><span class="pill ${a.rec >= 60 ? 'ready' : 'notyet'}">${a.rec}% would recommend</span></div>` : '<div class="meta">No one has reviewed this yet.</div>'}</section>
     <button class="btn wide ${have ? 'ghost' : 'blaze'}" data-a="gearadd" data-id="${pid}">${have ? 'Edit my review' : 'I use this · add my review'}</button>
-    ${ls.length ? `<section class="sec"><h2>Borrow or rent it</h2>${ls.map(listingCard).join('')}</section>` : `<div class="card muted">No one is lending this out right now.</div>`}
+    ${ls.length ? `<section class="sec"><h2>Borrow, rent or buy it</h2>${ls.map(listingCard).join('')}</section>` : `<div class="card muted">No one is lending this out right now.</div>`}
     ${betters.length ? `<section class="sec"><h2>What members say could be better</h2><div class="card stack">${betters.map(r => `<div class="row" style="align-items:flex-start">${av(r.m, 'sm')}<span style="font-size:14px">${esc(r.g.better)}</span></div>`).join('')}</div></section>` : ''}
     <section class="sec"><h2>Reviews</h2>${a.rs.map(reviewHtml).join('') || '<div class="card muted">Be the first to review it.</div>'}</section>
   </div>`;
@@ -1859,7 +1866,12 @@ function screenListing(id){
   const my = DB.reqs.filter(r => r.listing === id && r.from === m.id && ['pending', 'approved'].includes(r.status));
   const forThis = DB.reqs.filter(r => r.listing === id && r.to === m.id && ['pending', 'approved'].includes(r.status));
   let action;
-  if (mine) action = `<section class="sec"><h2>Requests for this item</h2>${forThis.map(r => reqCard(r)).join('') || '<div class="card muted">No open requests.</div>'}<button class="btn soft wide" data-a="listremove" data-id="${l.id}">Remove this listing</button></section>`;
+  if (l.sale){
+    const asks = l.asks || [], asked = asks.find(x => x.from === m.id);
+    if (mine) action = `<section class="sec"><h2>Interested buyers</h2>${asks.map(x => `<div class="card row">${av(M(x.from))}<div class="grow"><b>${esc(M(x.from).name)}</b><div class="meta">${esc(x.msg || 'Wants to buy this.')}</div></div></div>`).join('') || '<div class="card muted">No messages yet.</div>'}<button class="btn blaze wide" data-a="marksold" data-id="${l.id}">Mark as sold</button><button class="btn soft wide" data-a="listremove" data-id="${l.id}">Remove this listing</button></section>`;
+    else if (asked) action = `<div class="card stack"><b>Message sent</b><div class="meta">${esc(o.first)} has your note and will reply to arrange payment and pickup.</div></div>`;
+    else action = `<form class="card stack" id="buyform"><h2 style="font-size:17px">Ask to buy</h2><div class="field"><label for="by-msg">Message to ${esc(o.first)}</label><textarea id="by-msg" name="msg" placeholder="When can you meet? Any questions about the item?"></textarea></div><div class="meta">${money(l.ask)} · pay ${esc(o.first)} directly when you meet at ${esc(l.loc)}. ALT does not handle the payment.</div><button class="btn wide blaze" type="submit">Message seller</button></form>`;
+  } else if (mine) action = `<section class="sec"><h2>Requests for this item</h2>${forThis.map(r => reqCard(r)).join('') || '<div class="card muted">No open requests.</div>'}<button class="btn soft wide" data-a="listremove" data-id="${l.id}">Remove this listing</button></section>`;
   else if (my.length) action = `<section class="sec"><h2>Your request</h2>${my.map(r => reqCard(r)).join('')}</section>`;
   else action = `<form class="card stack" id="reqform"><h2 style="font-size:17px">${l.price ? 'Request to rent' : 'Request to borrow'}</h2>
       <div class="row"><div class="field grow"><label for="rq-from">Pickup</label><input type="date" id="rq-from" name="from" value="${f.from}" min="${TODAY}"></div><div class="field grow"><label for="rq-to">Return</label><input type="date" id="rq-to" name="to" value="${f.to}" min="${TODAY}"></div></div>
@@ -1867,8 +1879,8 @@ function screenListing(id){
       <div class="meta" id="req-total">${reqTotalText(l, f)}</div>
       <button class="btn wide blaze" type="submit">Send request</button></form>`;
   return `<div class="pad">
-    <section class="card topo stack"><div class="row"><span class="gtile">${catIcon(p.cat)}</span><div class="grow"><h2 style="font-size:20px">${esc(p.name)}</h2><div class="meta">${esc(p.brand)} · ${p.cat}</div></div><span class="pill ${l.price ? 'override' : 'ready'}">${l.price ? money(l.price) + '/day' : 'Free'}</span></div>
-      <div class="facts" style="grid-template-columns:repeat(3,1fr)"><div><b>${esc(l.cond)}</b><span>condition</span></div><div><b>${l.deposit ? money(l.deposit) : 'None'}</b><span>deposit</span></div><div><b>${esc(l.loc)}</b><span>pickup area</span></div></div>
+    <section class="card topo stack"><div class="row"><span class="gtile">${catIcon(p.cat)}</span><div class="grow"><h2 style="font-size:20px">${esc(p.name)}</h2><div class="meta">${esc(p.brand)} · ${p.cat}</div></div><span class="pill ${l.sale || l.price ? 'override' : 'ready'}">${l.sale ? money(l.ask) : l.price ? money(l.price) + '/day' : 'Free'}</span></div>
+      <div class="facts" style="grid-template-columns:repeat(3,1fr)"><div><b>${esc(l.cond)}</b><span>condition</span></div><div><b>${l.sale ? 'For sale' : l.deposit ? money(l.deposit) : 'None'}</b><span>${l.sale ? 'type' : 'deposit'}</span></div><div><b>${esc(l.loc)}</b><span>pickup area</span></div></div>
       <div class="row">${av(o)}<div class="grow"><b>${mine ? 'You' : esc(o.name)}</b><div class="meta">${o.role === 'leader' ? 'Trip leader · ' : ''}${stats(o).summits} summits</div></div></div>
       ${l.note ? `<p style="font-size:14px">${esc(l.note)}</p>` : ''}</section>
     ${action}
@@ -1905,20 +1917,21 @@ function screenGearForm(){
 /* list one of my items to lend or rent */
 function initListForm(pid){
   const m = me(), free = m.gear.filter(g => !DB.listings.some(l => l.owner === m.id && l.pid === g.pid));
-  return {pid:pid && free.some(g => g.pid === pid) ? pid : (free[0] ? free[0].pid : ''), mode:'lend', price:'8', deposit:'0', cond:'Good', loc:'', note:''};
+  return {pid:pid && free.some(g => g.pid === pid) ? pid : (free[0] ? free[0].pid : ''), mode:'lend', price:'8', ask:'40', deposit:'0', cond:'Good', loc:'', note:''};
 }
 function screenListForm(){
   const m = me(), f = S.listForm, free = m.gear.filter(g => !DB.listings.some(l => l.owner === m.id && l.pid === g.pid));
   if (!free.length) return `<div class="pad"><div class="card stack"><b>You have no unlisted gear</b><div class="meta">Add what you use to your profile first. Then you can list it here.</div></div><button class="btn wide blaze" data-a="gearadd" data-id="">Add gear I use</button></div>`;
   return `<form class="pad" id="listform">
-    ${note('Lend it for free, or rent it for a daily price. A deposit is optional and is returned when the gear comes back in good condition.')}
+    ${note('Lend it for free, rent it for a daily price, or sell it. A deposit on loans is optional and is returned when the gear comes back in good condition.')}
     <div class="field"><label for="lf-pid">Which item?</label><select id="lf-pid" name="pid">${free.map(g => { const p = prodOf(g.pid); return `<option value="${g.pid}" ${f.pid === g.pid ? 'selected' : ''}>${esc(p.name)} · ${esc(p.brand)}</option>`; }).join('')}</select></div>
-    <div class="field"><span class="lab">How do you want to share it?</span><div class="pick"><button type="button" aria-pressed="${f.mode === 'lend'}" data-a="lfpick" data-k="mode" data-id="lend">Lend for free</button><button type="button" aria-pressed="${f.mode === 'rent'}" data-a="lfpick" data-k="mode" data-id="rent">Rent it out</button></div></div>
+    <div class="field"><span class="lab">How do you want to share it?</span><div class="pick"><button type="button" aria-pressed="${f.mode === 'lend'}" data-a="lfpick" data-k="mode" data-id="lend">Lend for free</button><button type="button" aria-pressed="${f.mode === 'rent'}" data-a="lfpick" data-k="mode" data-id="rent">Rent it out</button><button type="button" aria-pressed="${f.mode === 'sell'}" data-a="lfpick" data-k="mode" data-id="sell">Sell it</button></div></div>
     ${f.mode === 'rent' ? `<div class="field"><label for="lf-price">Price per day (S$)</label><input type="number" min="1" max="200" id="lf-price" name="price" value="${esc(f.price)}"></div>` : ''}
-    <div class="row"><div class="field grow"><label for="lf-deposit">Deposit (S$)</label><input type="number" min="0" max="500" id="lf-deposit" name="deposit" value="${esc(f.deposit)}"></div>
+    ${f.mode === 'sell' ? `<div class="field"><label for="lf-ask">Asking price (S$)</label><input type="number" min="1" max="2000" id="lf-ask" name="ask" value="${esc(f.ask)}"></div>` : ''}
+    <div class="row">${f.mode === 'sell' ? '' : `<div class="field grow"><label for="lf-deposit">Deposit (S$)</label><input type="number" min="0" max="500" id="lf-deposit" name="deposit" value="${esc(f.deposit)}"></div>`}
       <div class="field grow"><label for="lf-cond">Condition</label><select id="lf-cond" name="cond">${['Like new', 'Good', 'Well used'].map(c => `<option ${f.cond === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div></div>
     <div class="field"><label for="lf-loc">Pickup area</label><input type="text" id="lf-loc" name="loc" value="${esc(f.loc)}" placeholder="e.g. Tanjong Pagar"></div>
-    <div class="field"><label for="lf-note">What is included? Anything to know?</label><textarea id="lf-note" name="note" placeholder="Size, accessories, what to clean before returning.">${esc(f.note)}</textarea></div>
+    <div class="field"><label for="lf-note">What is included? Anything to know?</label><textarea id="lf-note" name="note" placeholder="Size, accessories, wear and tear.">${esc(f.note)}</textarea></div>
     <button class="btn wide blaze" type="submit">Publish listing</button>
   </form>`;
 }
@@ -2245,6 +2258,7 @@ function act(a, ds){
     case 'gearremove': m.gear = m.gear.filter(g => g.pid !== ds.id); DB.listings = DB.listings.filter(l => !(l.owner === m.id && l.pid === ds.id)); S.stack.pop(); toast('Removed from your gear'); break;
     case 'listadd': S.listForm = initListForm(ds.id || ''); S.stack.push({v:'listform'}); break;
     case 'lfpick': S.listForm[ds.k] = ds.id; return render(true);
+    case 'marksold': { const l = DB.listings.find(x => x.id === ds.id); l.sold = true; (l.asks || []).forEach(x => loanNote(x.from, `<b>${esc(m.first)}</b> sold the ${esc(prodOf(l.pid).name)}.`)); S.stack.pop(); toast('Marked as sold. It is off the marketplace.'); break; }
     case 'listremove': { DB.listings = DB.listings.filter(l => l.id !== ds.id); DB.reqs.filter(r => r.listing === ds.id && ['pending', 'approved'].includes(r.status)).forEach(r => { r.status = 'cancelled'; loanNote(r.from, `<b>${esc(m.first)}</b> removed a listing, so your request was cancelled.`); }); S.stack.pop(); toast('Listing removed'); break; }
     case 'reqapprove': {
       const r = DB.reqs.find(x => x.id === ds.id), l = DB.listings.find(x => x.id === r.listing);
@@ -2387,8 +2401,15 @@ document.addEventListener('submit', e => {
     if (!f.pid) return;
     const price = f.mode === 'rent' ? Math.max(1, Math.min(200, Math.round(+f.price) || 0)) : 0;
     if (f.mode === 'rent' && !price){ toast('Set a price per day.'); return render(true); }
-    DB.listings.push({id:'L' + (++DB.seq), owner:m.id, pid:f.pid, price, deposit:Math.max(0, Math.round(+f.deposit) || 0), cond:f.cond, loc:f.loc.trim() || 'Central', note:f.note.trim()});
-    S.stack.pop(); S.tab = 'gear'; S.gearView = 'requests'; toast(`${prodOf(f.pid).name} is listed. Members can now ask to ${price ? 'rent' : 'borrow'} it.`); render(false);
+    const ask = f.mode === 'sell' ? Math.max(1, Math.min(2000, Math.round(+f.ask) || 0)) : 0;
+    if (f.mode === 'sell' && !ask){ toast('Set an asking price.'); return render(true); }
+    DB.listings.push({id:'L' + (++DB.seq), owner:m.id, pid:f.pid, price, deposit:f.mode === 'sell' ? 0 : Math.max(0, Math.round(+f.deposit) || 0), cond:f.cond, loc:f.loc.trim() || 'Central', note:f.note.trim(), ...(ask ? {sale:true, ask} : {})});
+    S.stack.pop(); S.tab = 'gear'; S.gearView = 'requests'; toast(`${prodOf(f.pid).name} is listed. Members can now ask to ${ask ? 'buy' : price ? 'rent' : 'borrow'} it.`); render(false);
+  } else if (e.target.id === 'buyform'){
+    const id = S.stack[S.stack.length - 1].id, l = DB.listings.find(x => x.id === id), msg = String(new FormData(e.target).get('msg') || '').trim();
+    (l.asks = l.asks || []).push({from:m.id, msg});
+    loanNote(l.owner, `<b>${esc(m.first)}</b> wants to buy your ${esc(prodOf(l.pid).name)} for ${money(l.ask)}.`);
+    toast(`Message sent to ${M(l.owner).first}.`); render(true);
   } else if (e.target.id === 'reqform'){
     const f = S.reqForm, l = DB.listings.find(x => x.id === f.listing);
     if (!f.from || !f.to || f.to < f.from || f.from < TODAY){ toast('Pick a pickup date, and a return date on or after it.'); return render(true); }
