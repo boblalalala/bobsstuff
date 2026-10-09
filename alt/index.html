@@ -456,6 +456,16 @@ ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;f
 
 .col18{display:flex;flex-direction:column;gap:18px}
 
+.stars{color:var(--coin);letter-spacing:1px;font-size:14px;white-space:nowrap}
+.gcard{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:12px;align-items:start}
+.gtile{width:48px;height:48px;border-radius:14px;background:var(--surface-2);display:grid;place-items:center;color:var(--forest);flex:none}
+.gtile svg{width:26px;height:26px}
+.bigscore{font:800 40px/1 var(--f-mono)}
+.dist{display:grid;grid-template-columns:12px minmax(0,1fr) 20px;gap:8px;align-items:center}
+.quote{border-left:3px solid var(--line);padding-left:10px}
+.better{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:8px 10px;font-size:13px}
+.field input[type=number]{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;width:100%}
+
 /* ---------- small screens ---------- */
 @media (max-width: 900px){
   .stage{grid-template-columns:minmax(0,1fr);gap:12px;padding-inline:0;padding-block:0}
@@ -692,11 +702,81 @@ const SEED_FEED = [
   {id:'e10', at:'2026-09-24T21:00', who:'mei', kind:'checkin', session:'p7', others:9},
   {id:'e11', at:'2026-08-09T18:00', who:'jun', kind:'climb', entry:'j7', kudos:37},
 ];
+/* ---------- gear: catalogue, example reviews, listings and requests (all example data, brands are made up) ---------- */
+const PRODUCTS = [
+  {id:'boots1', name:'Ridge Runner Mid Boots', brand:'Fernway', cat:'Footwear', price:189},
+  {id:'shoes1', name:'Gecko Trail Runners', brand:'Kestrel', cat:'Footwear', price:159},
+  {id:'pack1', name:'Nimbus 40L Pack', brand:'Alpenglow', cat:'Packs', price:229},
+  {id:'pack2', name:'Daybreak 20L Daypack', brand:'Fernway', cat:'Packs', price:99},
+  {id:'tent1', name:'Pocket 2P Tent', brand:'Hollow Pine', cat:'Shelter', price:349},
+  {id:'bag1', name:'Cirrus 0°C Sleeping Bag', brand:'Alpenglow', cat:'Sleep', price:199},
+  {id:'mat1', name:'AirLite Sleeping Mat', brand:'Kestrel', cat:'Sleep', price:89},
+  {id:'shell1', name:'Squall Rain Shell', brand:'Trailhead', cat:'Clothing', price:179},
+  {id:'down1', name:'Basecamp Down Jacket', brand:'Alpenglow', cat:'Clothing', price:259},
+  {id:'poles1', name:'Carbon Trek Poles', brand:'Kestrel', cat:'Poles', price:119},
+  {id:'lamp1', name:'Beacon 400 Headlamp', brand:'Trailhead', cat:'Lighting', price:59},
+  {id:'bottle1', name:'Flow 2L Hydration Bladder', brand:'Fernway', cat:'Hydration', price:45},
+  {id:'sat1', name:'Echo Satellite Messenger', brand:'Kestrel', cat:'Safety', price:499},
+  {id:'stove1', name:'Spark Mini Stove', brand:'Hollow Pine', cat:'Cooking', price:65},
+];
+const GEAR_CATS = ['Footwear','Packs','Shelter','Sleep','Clothing','Poles','Lighting','Hydration','Safety','Cooking','Other'];
+const G = (pid, rating, liked, note, better, date) => ({pid, rating, liked, note, better, date});
+const SEED_GEAR = {
+  mei:[G('shoes1',3,true,'Fine for the practice hikes around Singapore. Light and cheap.','Slippery on wet roots at Bukit Timah, and the toe box is narrow.','2026-09-06'),
+       G('bottle1',4,true,'Easy to drink from while walking. I forget it is even there.','The bite valve leaks if the pack gets squeezed.','2026-09-20')],
+  jun:[G('pack1',5,true,'Carries 12 kg comfortably over a full day. Fuji and Ledang were both fine.','Rain cover is not included.','2026-08-10'),
+       G('boots1',4,true,'Gripped well on Fuji scree and the wet rock on Ledang.','Two weeks to break in, and the laces fray.','2026-08-10'),
+       G('poles1',4,true,'Light and quick to set up. Saved my knees on the Fuji descent.','The wrist straps are fiddly with gloves.','2026-08-12'),
+       G('lamp1',5,true,'Bright enough for the Batur sunrise climb, and the battery lasted all night.','','2025-06-25'),
+       G('shell1',3,false,'Fine in a shower, but it wetted out after two hours of heavy rain.','Needs better pit zips. It gets clammy on climbs.','2026-08-12')],
+  sarah:[G('tent1',5,true,'1.6 kg and up in five minutes, even in wind. Used it at the Rinjani crater lake.','Only one porch, so wet boots end up inside.','2025-08-15'),
+         G('bag1',4,true,'Warm to about 2°C in practice, and it packs small.','The zip snags on the draught tube.','2025-08-15'),
+         G('sat1',5,true,'I carry this on every remote trip. Messages go out in under a minute.','The subscription is a monthly cost on top of the price.','2025-08-15'),
+         G('pack1',4,true,'Great for overnight trips.','The hip belt pockets are too small for a phone.','2025-02-01'),
+         G('mat1',3,false,'Comfortable, but slow to inflate.','Mine developed a slow leak after a year.','2025-09-03'),
+         G('shell1',4,true,'Kept me dry through a full day of Ledang rain.','The hood is a little tight over a helmet.','2024-02-01')],
+  daniel:[G('down1',5,true,'Summit night on Kilimanjaro at -10°C and I was warm in this plus a shell.','Pricey, and the zip is stiff in the cold.','2026-09-28'),
+          G('stove1',4,true,'Boils half a litre in about three minutes.','The base is small, so a tall pot wobbles.','2026-03-02'),
+          G('boots1',3,false,'Good grip, but too stiff for my feet. Blisters on day one.','A wider fit option would help.','2025-01-15')],
+  marcus:[G('shoes1',4,true,'Light, dries fast, and the grip is surprisingly good.','Wears out faster than boots. Mine lasted about 400 km.','2026-05-01'),
+          G('pack2',4,true,'Holds my camera and lunch without sagging.','The side pockets are shallow.','2026-05-01'),
+          G('lamp1',4,true,'Does the job and is light.','The red mode is hard to switch to in the dark.','2026-10-05')],
+  aisyah:[G('shoes1',5,true,'I run in these and hike in these. Comfortable from the first step.','Not waterproof.','2026-08-01'),
+          G('bottle1',4,true,'Holds plenty, and the hose clip is neat.','Hard to clean the inside.','2026-08-01'),
+          G('pack2',3,true,'Okay for short days.','The hip belt is flimsy and the shoulder straps rub.','2026-08-01')],
+  ravi:[G('poles1',2,false,'Bought these on a sale and they have been a hassle.','The locks slip when I put weight on them.','2026-08-25')],
+  hannah:[G('pack2',4,true,'Bought it for my first trips. Simple and light.','Add a sternum strap that does not slide.','2026-10-02')],
+};
+const SEED_LISTINGS = [
+  {id:'L1', owner:'sarah', pid:'tent1', price:12, deposit:50, cond:'Like new', loc:'Tanjong Pagar', note:'2-person tent with footprint and 8 pegs. Sets up in five minutes.'},
+  {id:'L2', owner:'jun', pid:'pack1', price:0, deposit:0, cond:'Good', loc:'Bishan', note:'Size M. The rain cover is not included.'},
+  {id:'L3', owner:'jun', pid:'boots1', price:6, deposit:30, cond:'Good', loc:'Bishan', note:'UK 8 / EU 42. Already broken in.'},
+  {id:'L4', owner:'daniel', pid:'down1', price:0, deposit:80, cond:'Good', loc:'Bukit Timah', note:'Size L. Meant for summit-night trips like Kinabalu. Please wash before returning.'},
+  {id:'L5', owner:'marcus', pid:'lamp1', price:0, deposit:0, cond:'Like new', loc:'Toa Payoh', note:'Comes with spare batteries.'},
+  {id:'L6', owner:'sarah', pid:'sat1', price:25, deposit:200, cond:'Good', loc:'Tanjong Pagar', note:'Subscription is active. Overseas trips get priority.'},
+  {id:'L7', owner:'sarah', pid:'bag1', price:8, deposit:40, cond:'Good', loc:'Tanjong Pagar', note:'Comes in its stuff sack. Please air it out before returning.'},
+  {id:'L8', owner:'daniel', pid:'stove1', price:0, deposit:0, cond:'Good', loc:'Bukit Timah', note:'Gas canister not included.'},
+  {id:'L9', owner:'ravi', pid:'poles1', price:4, deposit:0, cond:'Well used', loc:'Queenstown', note:'The locks slip on one pole. Fine for light use.'},
+  {id:'L10', owner:'hannah', pid:'pack2', price:0, deposit:0, cond:'Good', loc:'Clementi', note:'Light daypack, no hip belt pockets.'},
+];
+const SEED_REQS = [
+  {id:'r1', listing:'L2', from:'hannah', to:'jun', start:'2026-12-04', end:'2026-12-07', msg:'For the Ledang weekend. I will return it washed.', status:'pending', at:'2026-10-06T20:10', checks:[false,false,false]},
+  {id:'r2', listing:'L5', from:'mei', to:'marcus', start:'2026-12-04', end:'2026-12-07', msg:'For the early start on Ledang. Thanks!', status:'approved', at:'2026-10-05T09:30', checks:[false,false,false]},
+  {id:'r3', listing:'L1', from:'aisyah', to:'sarah', start:'2026-09-12', end:'2026-09-14', msg:'', status:'returned', at:'2026-09-10T18:00', checks:[true,true,true]},
+];
+function gearInit(db){
+  db.listings = db.listings || structuredClone(SEED_LISTINGS);
+  db.reqs = db.reqs || structuredClone(SEED_REQS);
+  db.custom = db.custom || {};
+  Object.values(db.members).forEach(m => { if (!m.gear) m.gear = structuredClone(SEED_GEAR[m.id] || []); });
+  return db;
+}
 const PERSONAS = [{id:'mei', blurb:'Beginner'}, {id:'jun', blurb:'Experienced'}, {id:'sarah', blurb:'Trip leader'}];
 
 /* ---------- state (saved in this browser so photos and changes survive a reload) ---------- */
 let DB, S;
-function freshDB(){
+function freshDB(){ return gearInit(freshBase()); }
+function freshBase(){
   return {members:structuredClone(SEED_MEMBERS), trips:structuredClone(TRIPS), feed:structuredClone(SEED_FEED), overrides:{}, kudos:{},
     interest:{fuji:['jun','marcus','ravi'], batur:['aisyah','marcus','hannah','ravi','jun'], rinjani:['jun','marcus'], ebc:['jun','sarah','daniel','marcus'], kili:['marcus'], mac:[], sr:[], bt:[]},
     seen:{mei:'2026-10-05T00:00', jun:'2026-10-06T00:00', sarah:'2026-10-06T00:00'}, now:'2026-10-07T18:30', seq:100, sim:0, notes:{}};
@@ -708,8 +788,9 @@ function load(){
 function save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(DB)); } catch (e) {} }
 DB = load();
 if (!DB.interest) DB.interest = freshDB().interest;
+gearInit(DB);
 if (!DB.migFollow){ DB.migFollow = true; const rv = DB.members.ravi; if (rv && !rv.follows.includes('mei')) rv.follows.push('mei'); } // so Mei has someone to follow back
-S = {persona:'mei', tab:'home', stack:[], notes:true, calMonth:'2026-10', calDay:TODAY, calFilter:'all', calMode:'week', tripsView:'discover', planTrip:null, tripTab:'overview', peopleTab:'followers', tripsQ:'', search:{q:''}, altsOpen:{}, browse:newBrowse(), gradeFilter:0, form:null, toast:null, banner:null};
+S = {persona:'mei', tab:'home', stack:[], notes:true, calMonth:'2026-10', calDay:TODAY, calFilter:'all', calMode:'week', tripsView:'discover', planTrip:null, tripTab:'overview', peopleTab:'followers', tripsQ:'', search:{q:''}, gearView:'browse', gearCat:'All', gearMode:'all', gearQ:'', gearSort:'top', gearForm:null, listForm:null, reqForm:null, altsOpen:{}, browse:newBrowse(), gradeFilter:0, form:null, toast:null, banner:null};
 const me = () => DB.members[S.persona];
 const M = id => DB.members[id];
 const trip = id => DB.trips.find(t => t.id === id);
@@ -1133,7 +1214,7 @@ function notifItems(m){
   const verb = e => e.kind === 'climb' ? `completed ${TR[entryById(e.entry)?.j.trail || 'bt'].name}` : e.kind === 'trip' ? `signed up for ${trip(e.trip).title}` : e.kind === 'session' ? `is going to ${sessTitle(SE[e.session])} on ${fmt(SE[e.session].date)}` : 'joined ALT';
   const link = e => e.kind === 'trip' ? `data-a="push" data-v="trip" data-id="${e.trip}"` : e.kind === 'session' ? `data-a="calgo" data-id="${SE[e.session].date}"` : e.kind === 'climb' ? (onMap(TR[entryById(e.entry)?.j.trail || 'bt']) ? `data-a="showonmap" data-id="${entryById(e.entry)?.j.trail}" data-who="community"` : `data-a="tab" data-id="home"`) : `data-a="push" data-v="friends"`;
   return [...evs.map(e => ({at:e.at, who:M(e.who), text:`<b>${esc(M(e.who).first)}</b> ${esc(verb(e))}`, link:link(e)})),
-          ...(DB.notes[m.id] || []).map(n => ({at:n.at, who:null, text:n.text, link:''}))].sort((a, b) => b.at.localeCompare(a.at));
+          ...(DB.notes[m.id] || []).map(n => ({at:n.at, who:null, text:n.text, link:n.link || ''}))].sort((a, b) => b.at.localeCompare(a.at));
 }
 const unread = m => notifItems(m).filter(n => n.at > (DB.seen[m.id] || '')).length;
 
@@ -1354,7 +1435,7 @@ function discoverBody(){
       <div class="shelf2">${levelCards.join('') || '<div class="card muted">You are ready for every trip on the list.</div>'}</div></section>
     <section class="sec"><div class="sec-h"><h2>This week</h2><button class="link" data-a="tripsview" data-id="calendar">Calendar</button></div>${week.map(srow).join('')}</section>
     ${fr.length ? `<section class="sec"><h2>Friends are going</h2>${fr.map(x => `<button class="card tap row" ${x.a}><span class="row" style="gap:0">${x.who.slice(0, 3).map((f, i) => `<span style="margin-left:${i ? -8 : 0}px">${av(f, 'sm')}</span>`).join('')}</span><span class="grow"><b>${esc(x.who.map(f => f.first).join(', '))}</b> ${x.who.length > 1 ? 'are' : 'is'} going to ${esc(x.what)}<div class="meta">${x.when}</div></span>${icon('next', 'width="18" height="18"')}</button>`).join('')}</section>` : ''}
-    <section class="sec"><h2>Browse all</h2><div class="tiles3">
+    <section class="sec"><h2>Browse all</h2><button class="card tap row" data-a="push" data-v="trails"><span class="grow"><b>Trail library</b><div class="meta">Every hike, its grade and elevation</div></span>${icon('next', 'width="18" height="18"')}</button><div class="tiles3">
       ${tile('trips', 'Trips', 'peak', DB.trips.filter(t => t.end >= TODAY).length + ' upcoming')}${tile('training', 'Training', 'stairs', cnt30('training') + ' in 30 days')}${tile('skills', 'Skills', 'flag', cnt30('skills') + ' in 30 days')}</div></section>`;
 }
 
@@ -1635,6 +1716,226 @@ function screenPlace(id){
     </div></div>`;
 }
 
+/* ---------- Gear: marketplace, community reviews, requests ---------- */
+Object.assign(I, {
+  gFootwear:'<path d="M5 4h6v7l7 3v4H5z"/><path d="M5 18h13"/>',
+  gPacks:'<path d="M9 6a3 3 0 0 1 6 0"/><rect x="5" y="6" width="14" height="15" rx="4"/><path d="M9 13h6"/>',
+  gShelter:'<path d="M3 20L12 5l9 15z"/><path d="M12 5v15"/>',
+  gSleep:'<rect x="3" y="8" width="18" height="9" rx="4.5"/><path d="M8 8v9"/>',
+  gClothing:'<path d="M8 4L3 8l3 3 2-1v10h8V10l2 1 3-3-5-4a4 4 0 0 1-8 0z"/>',
+  gPoles:'<path d="M6 21L18 3"/><path d="M14.5 8.5l3 2"/>',
+  gLighting:'<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
+  gHydration:'<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',
+  gSafety:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',
+  gCooking:'<path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-6 1-9z"/>',
+  gOther:'<rect x="4" y="6" width="16" height="14" rx="2"/><path d="M9 6V4h6v2"/>',
+  gear:'<path d="M9 6a3 3 0 0 1 6 0"/><rect x="5" y="6" width="14" height="15" rx="4"/><path d="M9 13h6"/>',
+});
+const catIcon = c => icon('g' + c);
+const prodOf = id => PRODUCTS.find(p => p.id === id) || DB.custom[id];
+const allProducts = () => [...PRODUCTS, ...Object.values(DB.custom)];
+const reviewsOf = pid => Object.values(DB.members).flatMap(x => (x.gear || []).filter(g => g.pid === pid).map(g => ({m:x, g}))).sort((a, b) => b.g.date.localeCompare(a.g.date));
+function aggOf(pid){
+  const rs = reviewsOf(pid), n = rs.length, dist = [0, 0, 0, 0, 0];
+  rs.forEach(r => dist[r.g.rating - 1]++);
+  return {n, rs, dist, avg:n ? rs.reduce((a, r) => a + r.g.rating, 0) / n : 0, rec:n ? Math.round(rs.filter(r => r.g.liked).length / n * 100) : 0};
+}
+const stars = v => `<span class="stars" role="img" aria-label="${v.toFixed(1)} out of 5">${'★'.repeat(Math.round(v))}${'☆'.repeat(5 - Math.round(v))}</span>`;
+const money = n => 'S$' + n;
+const listingsOf = pid => DB.listings.filter(l => l.pid === pid);
+const dayCount = (a, b) => Math.round((d(b) - d(a)) / 864e5) + 1;
+const loanNote = (toId, text, link) => (DB.notes[toId] = DB.notes[toId] || []).push({at:tick(), text, link:link || 'data-a="gearview" data-id="requests"'});
+
+function reviewHtml(r){
+  const mine = r.m.id === me().id;
+  return `<article class="card stack"><div class="row">${av(r.m)}<div class="grow"><b>${mine ? 'You' : esc(r.m.name)}</b><div class="meta">${fmtLong(r.g.date)}</div></div>${stars(r.g.rating)}</div>
+    <div><span class="pill ${r.g.liked ? 'ready' : 'notyet'}">${r.g.liked ? 'Would recommend' : 'Would not recommend'}</span></div>
+    ${r.g.note ? `<p style="font-size:14px">${esc(r.g.note)}</p>` : ''}
+    ${r.g.better ? `<div class="better"><b>Could be better:</b> ${esc(r.g.better)}</div>` : ''}</article>`;
+}
+function listingCard(l){
+  const p = prodOf(l.pid), a = aggOf(l.pid), o = M(l.owner), mine = l.owner === me().id;
+  const booked = DB.reqs.filter(r => r.listing === l.id && r.status === 'approved').sort((x, y) => x.start.localeCompare(y.start))[0];
+  return `<button class="card tap gcard" data-a="push" data-v="listing" data-id="${l.id}"><span class="gtile">${catIcon(p.cat)}</span>
+    <span class="grow"><b>${esc(p.name)}</b><span class="meta" style="display:block">${esc(p.brand)} · ${p.cat}</span>
+      <span class="row" style="gap:6px;margin-top:3px">${a.n ? `${stars(a.avg)}<span class="meta num">${a.avg.toFixed(1)} (${a.n})</span>` : '<span class="meta">No reviews yet</span>'}</span>
+      <span class="row" style="gap:6px;margin-top:6px">${av(o, 'sm')}<span class="meta">${mine ? 'You' : esc(o.first)} · ${esc(l.loc)}</span></span></span>
+    <span class="stack" style="align-items:flex-end;gap:6px"><span class="pill ${l.price ? 'override' : 'ready'}">${l.price ? money(l.price) + '/day' : 'Free'}</span><span class="meta">${esc(l.cond)}</span>${booked ? `<span class="meta">Booked ${fmt(booked.start, {day:'numeric', month:'short'})}</span>` : ''}</span></button>`;
+}
+function productCard(p){
+  const a = aggOf(p.id), n = listingsOf(p.id).length;
+  return `<button class="card tap gcard" data-a="push" data-v="product" data-id="${p.id}"><span class="gtile">${catIcon(p.cat)}</span>
+    <span class="grow"><b>${esc(p.name)}</b><span class="meta" style="display:block">${esc(p.brand)} · ${p.cat}${p.price ? ' · about ' + money(p.price) : ''}</span>
+      <span class="row" style="gap:6px;margin-top:3px">${a.n ? `${stars(a.avg)}<span class="meta num">${a.avg.toFixed(1)} · ${a.n} review${a.n > 1 ? 's' : ''}</span>` : '<span class="meta">No reviews yet</span>'}</span>
+      ${a.n ? `<span class="meta" style="display:block;margin-top:3px">${a.rec}% recommend${n ? ' · ' + n + ' to borrow or rent' : ''}</span>` : ''}</span>${icon('next', 'width="18" height="18"')}</button>`;
+}
+function gearResults(){
+  const q = S.gearQ.trim();
+  if (S.gearView === 'reviews'){
+    const sorts = {top:(a, b) => b.a.avg - a.a.avg || b.a.n - a.a.n, most:(a, b) => b.a.n - a.a.n || b.a.avg - a.a.avg, rec:(a, b) => b.a.rec - a.a.rec || b.a.n - a.a.n};
+    const ps = allProducts().filter(p => (S.gearCat === 'All' || p.cat === S.gearCat) && (!q || matches(`${p.name} ${p.brand} ${p.cat}`, q))).map(p => ({p, a:aggOf(p.id)})).sort(sorts[S.gearSort]);
+    return `<div class="meta num">${ps.length} product${ps.length === 1 ? '' : 's'}</div>${ps.map(x => productCard(x.p)).join('') || '<div class="card muted">No gear matches. Try another category or search.</div>'}`;
+  }
+  const ls = DB.listings.filter(l => { const p = prodOf(l.pid); return (S.gearCat === 'All' || p.cat === S.gearCat) && (S.gearMode === 'all' || (S.gearMode === 'free' ? !l.price : !!l.price)) && (!q || matches(`${p.name} ${p.brand} ${p.cat} ${M(l.owner).name}`, q)); });
+  return `<div class="meta num">${ls.length} item${ls.length === 1 ? '' : 's'} available</div>${ls.map(listingCard).join('') || '<div class="card muted">Nothing matches. Try another category, or list your own gear.</div>'}`;
+}
+function gearToolbar(extra){
+  const cats = ['All', ...GEAR_CATS.filter(c => allProducts().some(p => p.cat === c))];
+  return `<div class="field"><label class="visually-hidden" for="g-q">Search gear</label><input type="search" id="g-q" placeholder="${S.gearView === 'reviews' ? 'Search gear and brands' : 'Search gear, brands or owners'}" value="${esc(S.gearQ)}" autocomplete="off"></div>
+    <div class="chips" role="group" aria-label="Category">${cats.map(c => `<button class="chip" aria-pressed="${S.gearCat === c}" data-a="gcat" data-id="${c}">${c}</button>`).join('')}</div>${extra || ''}`;
+}
+function gearBrowse(){
+  return `${gearToolbar(`<div class="chips" role="group" aria-label="Type">${[['all','All'],['free','Free to borrow'],['rent','Rent']].map(([k, l]) => `<button class="chip" aria-pressed="${S.gearMode === k}" data-a="gmode" data-id="${k}">${l}</button>`).join('')}</div>`)}
+    <button class="btn blaze wide" data-a="listadd" data-id="">${icon('plus')}List my gear to lend or rent</button>
+    ${note('Members lend gear for free or rent it for a small daily price. Each item shows the community\'s reviews of that product, so you can try something before you buy it. Tap an item to send a request.')}
+    <div class="stack" id="g-results">${gearResults()}</div>`;
+}
+function gearReviews(){
+  return `${gearToolbar(`<div class="field"><label class="visually-hidden" for="g-sort">Sort by</label><select id="g-sort">${[['top','Sort: Top rated'],['most','Sort: Most reviewed'],['rec','Sort: Most recommended']].map(([v, l]) => `<option value="${v}" ${S.gearSort === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>`)}
+    ${note('These ratings come from members\' own gear. Every review says whether they would recommend it and what could be better, so the list shows what is worth buying.')}
+    <div class="stack" id="g-results">${gearResults()}</div>`;
+}
+const REQ_LABEL = {pending:'Waiting for a reply', approved:'Approved', declined:'Declined', cancelled:'Cancelled', returned:'Returned'};
+const REQ_PILL = {pending:'pending', approved:'ready', declined:'notyet', cancelled:'override', returned:'verified'};
+function reqCard(r, view){
+  const l = DB.listings.find(x => x.id === r.listing), p = prodOf(l.pid), m = me();
+  const incoming = r.to === m.id, other = M(incoming ? r.from : r.to), days = dayCount(r.start, r.end);
+  const cost = l.price ? `${money(l.price * days)} for ${days} day${days > 1 ? 's' : ''}${l.deposit ? ` + ${money(l.deposit)} deposit` : ''}` : `Free for ${days} day${days > 1 ? 's' : ''}${l.deposit ? ` · ${money(l.deposit)} deposit` : ''}`;
+  const checks = ['Photo of the item\'s condition at pickup', 'Everything in the listing is included', 'Cleaned and dried before returning'];
+  let actions = '';
+  if (r.status === 'pending') actions = incoming ? `<button class="btn sm" data-a="reqapprove" data-id="${r.id}">Approve</button><button class="btn sm soft" data-a="reqdecline" data-id="${r.id}">Decline</button>` : `<button class="btn sm soft" data-a="reqcancel" data-id="${r.id}">Cancel request</button>`;
+  else if (r.status === 'approved') actions = incoming ? `<button class="btn sm blaze" data-a="reqreturned" data-id="${r.id}">Mark as returned</button>` : `<button class="btn sm soft" data-a="reqcancel" data-id="${r.id}">Cancel</button>`;
+  else if (r.status === 'returned' && !incoming && !m.gear.some(g => g.pid === l.pid)) actions = `<button class="btn sm" data-a="gearadd" data-id="${l.pid}">Review it</button>`;
+  return `<article class="card stack"><div class="row"><span class="gtile" style="width:40px;height:40px">${catIcon(p.cat)}</span><div class="grow"><b>${esc(p.name)}</b><div class="meta">${incoming ? esc(other.first) + ' wants to ' + (l.price ? 'rent' : 'borrow') : 'From ' + esc(other.first)} · ${fmt(r.start, {day:'numeric', month:'short'})} – ${fmt(r.end, {day:'numeric', month:'short'})}</div></div><span class="pill ${REQ_PILL[r.status]}">${REQ_LABEL[r.status]}</span></div>
+    <div class="meta">${cost}</div>
+    ${r.msg ? `<div class="quote meta">“${esc(r.msg)}”</div>` : ''}
+    ${r.status === 'approved' ? `<div class="path"><h4><span>Handover checklist</span></h4>${checks.map((c, i) => `<label class="cb" style="padding:3px 0"><input type="checkbox" data-chk="${r.id}:${i}" ${r.checks[i] ? 'checked' : ''}><span>${c}</span></label>`).join('')}<div class="meta" style="margin-top:6px">Pickup: ${esc(l.loc)}. Agree the time in person or by message.</div></div>` : ''}
+    ${actions ? `<div class="actions" style="margin-top:0">${actions}</div>` : ''}</article>`;
+}
+function gearRequests(){
+  const m = me(), mine = DB.reqs.filter(r => r.from === m.id || r.to === m.id).sort((a, b) => b.at.localeCompare(a.at));
+  const group = (label, list) => list.length ? `<section class="sec"><h2 style="font-size:17px">${label}</h2>${list.map(r => reqCard(r)).join('')}</section>` : '';
+  const toMe = mine.filter(r => r.to === m.id && r.status === 'pending'), active = mine.filter(r => r.status === 'approved'), mineOut = mine.filter(r => r.from === m.id && r.status === 'pending');
+  const done = mine.filter(r => ['returned', 'declined', 'cancelled'].includes(r.status));
+  const listed = DB.listings.filter(l => l.owner === m.id);
+  return `${note('Requests go to the owner, who approves or declines. After approval, both people tick off the handover checklist at pickup. The owner marks the item returned when it is back.')}
+    ${group('Asking for your gear', toMe)}${group('On loan', active)}${group('Waiting for a reply', mineOut)}${group('History', done)}
+    ${mine.length ? '' : '<div class="card muted">No requests yet. Find something in Browse, or list your own gear.</div>'}
+    <section class="sec"><div class="sec-h"><h2 style="font-size:17px">My listings</h2><button class="link" data-a="listadd" data-id="">List gear</button></div>${listed.map(listingCard).join('') || '<div class="card muted">You have not listed anything yet. Lending out gear earns credits.</div>'}</section>`;
+}
+function screenGear(){
+  const m = me(), v = S.gearView, pend = DB.reqs.filter(r => r.to === m.id && r.status === 'pending').length;
+  const seg = `<div class="seg" role="group" aria-label="Gear views">${[['browse','Browse'],['reviews','Reviews'],['requests','Requests' + (pend ? ' · ' + pend : '')]].map(([k, l]) => `<button aria-pressed="${v === k}" data-a="gearview" data-id="${k}">${l}</button>`).join('')}</div>`;
+  return `<div class="pad">${seg}${v === 'reviews' ? gearReviews() : v === 'requests' ? gearRequests() : gearBrowse()}</div>`;
+}
+
+/* a product: collective review, every member's review, and who has one to lend */
+function screenProduct(pid){
+  const p = prodOf(pid), a = aggOf(pid), ls = listingsOf(pid), m = me(), have = m.gear.find(g => g.pid === pid);
+  const betters = a.rs.filter(r => r.g.better);
+  return `<div class="pad">
+    <section class="card topo stack"><div class="row"><span class="gtile">${catIcon(p.cat)}</span><div class="grow"><h2 style="font-size:20px">${esc(p.name)}</h2><div class="meta">${esc(p.brand)} · ${p.cat}${p.price ? ' · about ' + money(p.price) : ''}</div></div></div>
+      ${a.n ? `<div class="row" style="align-items:flex-start;gap:16px"><div><div class="bigscore">${a.avg.toFixed(1)}</div>${stars(a.avg)}<div class="meta">${a.n} review${a.n > 1 ? 's' : ''}</div></div>
+        <div class="grow stack" style="gap:3px">${[5, 4, 3, 2, 1].map(n => `<div class="dist"><span class="num">${n}</span><div class="bar"><i style="width:${a.n ? a.dist[n - 1] / a.n * 100 : 0}%;background:var(--coin)"></i></div><span class="num meta">${a.dist[n - 1]}</span></div>`).join('')}</div></div>
+        <div class="row"><span class="pill ${a.rec >= 60 ? 'ready' : 'notyet'}">${a.rec}% would recommend</span></div>` : '<div class="meta">No one has reviewed this yet.</div>'}</section>
+    <button class="btn wide ${have ? 'ghost' : 'blaze'}" data-a="gearadd" data-id="${pid}">${have ? 'Edit my review' : 'I use this · add my review'}</button>
+    ${ls.length ? `<section class="sec"><h2>Borrow or rent it</h2>${ls.map(listingCard).join('')}</section>` : `<div class="card muted">No one is lending this out right now.</div>`}
+    ${betters.length ? `<section class="sec"><h2>What members say could be better</h2><div class="card stack">${betters.map(r => `<div class="row" style="align-items:flex-start">${av(r.m, 'sm')}<span style="font-size:14px">${esc(r.g.better)}</span></div>`).join('')}</div></section>` : ''}
+    <section class="sec"><h2>Reviews</h2>${a.rs.map(reviewHtml).join('') || '<div class="card muted">Be the first to review it.</div>'}</section>
+  </div>`;
+}
+
+/* a listing: details, request form (or the owner's view) */
+function newReq(id){ const t = myTrips(me())[0], from = t ? t.start : addDays(TODAY, 7); return {listing:id, from, to:t ? t.end : addDays(from, 2), msg:''}; }
+function reqTotalText(l, f){
+  if (!f.from || !f.to || f.to < f.from) return 'Pick a pickup and return date.';
+  const days = dayCount(f.from, f.to);
+  return `${days} day${days > 1 ? 's' : ''} · ${l.price ? money(l.price * days) : 'Free'}${l.deposit ? ` + ${money(l.deposit)} refundable deposit` : ''}`;
+}
+function screenListing(id){
+  const l = DB.listings.find(x => x.id === id);
+  if (!l) return '<div class="pad"><div class="card muted">This listing is no longer available.</div></div>';
+  const p = prodOf(l.pid), a = aggOf(l.pid), o = M(l.owner), m = me(), mine = l.owner === m.id;
+  if (!S.reqForm || S.reqForm.listing !== id) S.reqForm = newReq(id);
+  const f = S.reqForm, ownRev = o.gear.find(g => g.pid === l.pid);
+  const my = DB.reqs.filter(r => r.listing === id && r.from === m.id && ['pending', 'approved'].includes(r.status));
+  const forThis = DB.reqs.filter(r => r.listing === id && r.to === m.id && ['pending', 'approved'].includes(r.status));
+  let action;
+  if (mine) action = `<section class="sec"><h2>Requests for this item</h2>${forThis.map(r => reqCard(r)).join('') || '<div class="card muted">No open requests.</div>'}<button class="btn soft wide" data-a="listremove" data-id="${l.id}">Remove this listing</button></section>`;
+  else if (my.length) action = `<section class="sec"><h2>Your request</h2>${my.map(r => reqCard(r)).join('')}</section>`;
+  else action = `<form class="card stack" id="reqform"><h2 style="font-size:17px">${l.price ? 'Request to rent' : 'Request to borrow'}</h2>
+      <div class="row"><div class="field grow"><label for="rq-from">Pickup</label><input type="date" id="rq-from" name="from" value="${f.from}" min="${TODAY}"></div><div class="field grow"><label for="rq-to">Return</label><input type="date" id="rq-to" name="to" value="${f.to}" min="${TODAY}"></div></div>
+      <div class="field"><label for="rq-msg">Message to ${esc(o.first)}</label><textarea id="rq-msg" name="msg" placeholder="What is it for? When can you pick it up?">${esc(f.msg)}</textarea></div>
+      <div class="meta" id="req-total">${reqTotalText(l, f)}</div>
+      <button class="btn wide blaze" type="submit">Send request</button></form>`;
+  return `<div class="pad">
+    <section class="card topo stack"><div class="row"><span class="gtile">${catIcon(p.cat)}</span><div class="grow"><h2 style="font-size:20px">${esc(p.name)}</h2><div class="meta">${esc(p.brand)} · ${p.cat}</div></div><span class="pill ${l.price ? 'override' : 'ready'}">${l.price ? money(l.price) + '/day' : 'Free'}</span></div>
+      <div class="facts" style="grid-template-columns:repeat(3,1fr)"><div><b>${esc(l.cond)}</b><span>condition</span></div><div><b>${l.deposit ? money(l.deposit) : 'None'}</b><span>deposit</span></div><div><b>${esc(l.loc)}</b><span>pickup area</span></div></div>
+      <div class="row">${av(o)}<div class="grow"><b>${mine ? 'You' : esc(o.name)}</b><div class="meta">${o.role === 'leader' ? 'Trip leader · ' : ''}${stats(o).summits} summits</div></div></div>
+      ${l.note ? `<p style="font-size:14px">${esc(l.note)}</p>` : ''}</section>
+    ${action}
+    <section class="sec"><div class="sec-h"><h2>What the community says</h2><button class="link" data-a="push" data-v="product" data-id="${l.pid}">All reviews</button></div>
+      ${a.n ? `<div class="card row" style="gap:14px"><div><div class="bigscore" style="font-size:30px">${a.avg.toFixed(1)}</div>${stars(a.avg)}</div><div class="grow meta">${a.n} review${a.n > 1 ? 's' : ''} · ${a.rec}% would recommend</div></div>` : '<div class="card muted">No reviews yet.</div>'}
+      ${ownRev ? `<div class="meta">${mine ? 'Your' : esc(o.first) + '\'s'} review</div>${reviewHtml({m:o, g:ownRev})}` : ''}</section>
+  </div>`;
+}
+
+/* add or edit a review of gear I use */
+function initGearForm(pid){
+  const m = me(), ex = m.gear.find(g => g.pid === pid);
+  const free = allProducts().find(p => !m.gear.some(g => g.pid === p.id));
+  return {pid:pid || (free ? free.id : '__new'), name:'', brand:'', cat:'Other', rating:ex ? ex.rating : 4, liked:ex ? ex.liked : true, note:ex ? ex.note : '', better:ex ? ex.better : '', edit:!!ex};
+}
+function screenGearForm(){
+  const f = S.gearForm;
+  const opts = GEAR_CATS.map(c => { const ps = allProducts().filter(p => p.cat === c); return ps.length ? `<optgroup label="${c}">${ps.map(p => `<option value="${p.id}" ${f.pid === p.id ? 'selected' : ''}>${esc(p.name)} · ${esc(p.brand)}</option>`).join('')}</optgroup>` : ''; }).join('');
+  const pick = (k, vals) => `<div class="pick">${vals.map(([v, l]) => `<button type="button" aria-pressed="${f[k] === v}" data-a="gfpick" data-k="${k}" data-id="${v}">${l}</button>`).join('')}</div>`;
+  return `<form class="pad" id="gearform">
+    ${note('Review gear you actually use. Your rating, description and what could be better are added to the community reviews in the Gear tab, so other members can decide what to buy.')}
+    <div class="field"><label for="gf-pid">Gear</label><select id="gf-pid" name="pid" ${f.edit ? 'disabled' : ''}>${opts}<option value="__new" ${f.pid === '__new' ? 'selected' : ''}>Something else…</option></select></div>
+    ${f.pid === '__new' ? `<div class="field"><label for="gf-name">Name</label><input type="text" id="gf-name" name="name" value="${esc(f.name)}" placeholder="e.g. Trail gaiters"></div>
+      <div class="row"><div class="field grow"><label for="gf-brand">Brand</label><input type="text" id="gf-brand" name="brand" value="${esc(f.brand)}"></div><div class="field grow"><label for="gf-cat">Type</label><select id="gf-cat" name="cat">${GEAR_CATS.map(c => `<option ${f.cat === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div></div>` : ''}
+    <div class="field"><span class="lab">Rating out of 5</span>${pick('rating', [1, 2, 3, 4, 5].map(n => [n, n]))}</div>
+    <div class="field"><span class="lab">Do you like it?</span>${pick('liked', [[true, 'Yes, I would recommend it'], [false, 'No']])}</div>
+    <div class="field"><label for="gf-note">Describe it</label><textarea id="gf-note" name="note" placeholder="How do you use it, and how does it hold up?">${esc(f.note)}</textarea></div>
+    <div class="field"><label for="gf-better">What could have been better?</label><textarea id="gf-better" name="better" placeholder="Anything that annoyed you, wore out, or you would change.">${esc(f.better)}</textarea></div>
+    <button class="btn wide blaze" type="submit">${f.edit ? 'Save changes' : 'Add to my gear'}</button>
+    ${f.edit ? `<button class="btn soft wide" type="button" data-a="gearremove" data-id="${f.pid}">Remove from my gear</button>` : ''}
+  </form>`;
+}
+
+/* list one of my items to lend or rent */
+function initListForm(pid){
+  const m = me(), free = m.gear.filter(g => !DB.listings.some(l => l.owner === m.id && l.pid === g.pid));
+  return {pid:pid && free.some(g => g.pid === pid) ? pid : (free[0] ? free[0].pid : ''), mode:'lend', price:'8', deposit:'0', cond:'Good', loc:'', note:''};
+}
+function screenListForm(){
+  const m = me(), f = S.listForm, free = m.gear.filter(g => !DB.listings.some(l => l.owner === m.id && l.pid === g.pid));
+  if (!free.length) return `<div class="pad"><div class="card stack"><b>You have no unlisted gear</b><div class="meta">Add what you use to your profile first. Then you can list it here.</div></div><button class="btn wide blaze" data-a="gearadd" data-id="">Add gear I use</button></div>`;
+  return `<form class="pad" id="listform">
+    ${note('Lend it for free, or rent it for a daily price. A deposit is optional and is returned when the gear comes back in good condition.')}
+    <div class="field"><label for="lf-pid">Which item?</label><select id="lf-pid" name="pid">${free.map(g => { const p = prodOf(g.pid); return `<option value="${g.pid}" ${f.pid === g.pid ? 'selected' : ''}>${esc(p.name)} · ${esc(p.brand)}</option>`; }).join('')}</select></div>
+    <div class="field"><span class="lab">How do you want to share it?</span><div class="pick"><button type="button" aria-pressed="${f.mode === 'lend'}" data-a="lfpick" data-k="mode" data-id="lend">Lend for free</button><button type="button" aria-pressed="${f.mode === 'rent'}" data-a="lfpick" data-k="mode" data-id="rent">Rent it out</button></div></div>
+    ${f.mode === 'rent' ? `<div class="field"><label for="lf-price">Price per day (S$)</label><input type="number" min="1" max="200" id="lf-price" name="price" value="${esc(f.price)}"></div>` : ''}
+    <div class="row"><div class="field grow"><label for="lf-deposit">Deposit (S$)</label><input type="number" min="0" max="500" id="lf-deposit" name="deposit" value="${esc(f.deposit)}"></div>
+      <div class="field grow"><label for="lf-cond">Condition</label><select id="lf-cond" name="cond">${['Like new', 'Good', 'Well used'].map(c => `<option ${f.cond === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div></div>
+    <div class="field"><label for="lf-loc">Pickup area</label><input type="text" id="lf-loc" name="loc" value="${esc(f.loc)}" placeholder="e.g. Tanjong Pagar"></div>
+    <div class="field"><label for="lf-note">What is included? Anything to know?</label><textarea id="lf-note" name="note" placeholder="Size, accessories, what to clean before returning.">${esc(f.note)}</textarea></div>
+    <button class="btn wide blaze" type="submit">Publish listing</button>
+  </form>`;
+}
+
+/* "Gear I use" on the profile */
+function gearSection(m){
+  const items = m.gear.slice().sort((a, b) => b.date.localeCompare(a.date));
+  return `<section class="sec"><div class="sec-h"><h2>Gear I use</h2><button class="btn sm blaze" data-a="gearadd" data-id="">${icon('plus')}Add gear</button></div>
+    ${note('List the gear you use and review it out of 5. Your reviews feed the community ratings in the Gear tab.')}
+    ${items.map(g => { const p = prodOf(g.pid), listed = DB.listings.some(l => l.owner === m.id && l.pid === g.pid); return `<article class="card stack"><div class="row" style="align-items:flex-start"><span class="gtile" style="width:40px;height:40px">${catIcon(p.cat)}</span><div class="grow"><button class="link" style="text-align:left;font-size:15px;color:var(--ink);text-decoration:none" data-a="push" data-v="product" data-id="${g.pid}"><b>${esc(p.name)}</b></button><div class="meta">${esc(p.brand)} · ${p.cat}</div></div>${stars(g.rating)}</div>
+      <div><span class="pill ${g.liked ? 'ready' : 'notyet'}">${g.liked ? 'Would recommend' : 'Would not recommend'}</span></div>
+      ${g.note ? `<p style="font-size:14px">${esc(g.note)}</p>` : ''}${g.better ? `<div class="better"><b>Could be better:</b> ${esc(g.better)}</div>` : ''}
+      <div class="row" style="flex-wrap:wrap"><button class="btn sm soft" data-a="gearadd" data-id="${g.pid}">Edit</button>${listed ? '<span class="pill verified">Listed to lend or rent</span>' : `<button class="btn sm soft" data-a="listadd" data-id="${g.pid}">Lend or rent it</button>`}</div></article>`; }).join('') || '<div class="card muted">No gear yet. Add what you use and say what you think of it.</div>'}</section>`;
+}
+
 /* ---------- log a journey ---------- */
 function screenLog(){
   const f = S.form || (S.form = {trail:'datuk', date:'2026-09-27', diff:3, fun:4, note:'', evidence:true, photos:[]});
@@ -1679,6 +1980,8 @@ const MISSIONS = m => {
     {id:'kudos', title:'Give 5 kudos', have:Math.min(m.kudosGiven, 5), need:5, reward:50},
     {id:'signup', title:'Sign up for your first ALT trip', have:myTrips(m).length ? 1 : 0, need:1, reward:200},
     {id:'g2', title:'Complete a Grade 2 hike', have:maxG >= 2 ? 1 : 0, need:1, reward:300},
+    {id:'gear', title:'Review 3 pieces of gear you use', have:Math.min(m.gear.length, 3), need:3, reward:120},
+    {id:'lend', title:'List an item to lend or rent', have:DB.listings.some(l => l.owner === m.id) ? 1 : 0, need:1, reward:150},
     {id:'bring', title:'Bring a friend to their first session', have:0, need:1, reward:250},
   ];
 };
@@ -1727,6 +2030,7 @@ function screenProfile(){
     <button class="card tap row" data-a="push" data-v="missions" style="border-color:var(--coin)"><span class="coinv" style="font-size:22px">${COIN}</span><span class="grow"><b>Missions &amp; rewards</b><div class="meta">${claimable ? `${claimable} reward${claimable > 1 ? 's' : ''} ready to claim` : 'Earn credits by training, hiking and bringing friends'}</div></span>${claimable ? `<span class="pill ontrack">${claimable}</span>` : ''}${icon('next', 'width="18" height="18"')}</button>
     <section class="sec"><div class="sec-h"><h2>Upcoming</h2><button class="link" data-a="tab" data-id="cal">Calendar</button></div>
       ${up.map(x => x.html).join('') || '<div class="card muted">Nothing booked yet. Find a session in the calendar.</div>'}</section>
+    ${gearSection(m)}
     <section class="sec"><div class="sec-h"><h2>Journal</h2><button class="btn sm blaze" data-a="push" data-v="log">${icon('plus')}Add journey</button></div>
       ${note('Every entry puts a pin on the map on the home page. Tap <b>Show on map</b> to jump to it.')}
       ${journal.map(entryCard).join('') || '<div class="card muted">No hikes logged yet.</div>'}</section>
@@ -1761,8 +2065,8 @@ function screenMissions(){
 /* =========================================================================
    Shell
    ========================================================================= */
-const TABS = [['home','Home','home'],['cal','Trips','cal'],['log','Log','plus'],['trails','Trails','trails'],['profile','Profile','user']];
-const TITLES = {cal:'Trips', trails:'Trail library', profile:'Profile'};
+const TABS = [['home','Home','home'],['cal','Trips','cal'],['log','Log','plus'],['gear','Gear','gear'],['profile','Profile','user']];
+const TITLES = {cal:'Trips', gear:'Gear', trails:'Trail library', profile:'Profile'};
 const STATUSBAR = over => `<div class="statusbar${over ? ' over' : ''}" aria-hidden="true"><span>9:41</span><span class="island"></span><span class="icons">
   <svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
   <svg viewBox="0 0 16 12"><path d="M8 2.2c2.4 0 4.6.9 6.2 2.5l1.3-1.3A10.6 10.6 0 0 0 8 .4 10.6 10.6 0 0 0 .5 3.4l1.3 1.3A8.8 8.8 0 0 1 8 2.2zm0 3.6c1.4 0 2.7.5 3.7 1.5L13 6a7 7 0 0 0-10 0l1.3 1.3c1-1 2.3-1.5 3.7-1.5zM8 9.4l2.1-2.1a3 3 0 0 0-4.2 0z"/></svg>
@@ -1778,6 +2082,9 @@ function renderGuide(){
     ['mei','calendar','Week planner','The week at a glance with filters for friends going and beginner friendly. Month is one tap away.'],
     ['mei','trip:ledang','The readiness check','Mei can\'t join Gunung Ledang (G3) until she does the prep or proves experience.'],
     ['jun','tab:profile','Profile & journal','Photo, credits, bio, dream mountain, upcoming plans, and a journal linked to the map.'],
+    ['mei','gear:reviews','Gear reviews','What the community thinks of each product, with what could be better. Tap one to see every review and who lends it.'],
+    ['mei','gear:browse','Borrow & rent gear','Members lend gear free or rent it. Mei has a headlamp request approved, with a handover checklist.'],
+    ['jun','gear:requests','Approve a request','Hannah has asked to borrow Jun\'s pack. Approve it and she gets a notification.'],
     ['mei','missions','Missions & credits','Mei can claim a reward straight away, then spend credits.'],
     ['sarah','attention','Leader view','Verify climbs, see who isn\'t ready, and get warned about an expiring certification.'],
   ];
@@ -1816,10 +2123,13 @@ function render(keepScroll){
     log:() => ['Add a journey', screenLog()], missions:() => ['Missions & rewards', screenMissions()],
     notifs:() => ['Notifications', screenNotifs()], friends:() => ['Find friends', screenFriends()], search:() => ['Search', screenSearch()], people:() => ['Followers & following', screenPeople()],
     browse:() => [{all:'All trips & training', trips:'All trips', training:'All training', skills:'All skills'}[S.browse.kind], screenBrowse()],
+    trails:() => ['Trail library', screenTrails()],
+    product:() => [prodOf(top.id).name, screenProduct(top.id)], listing:() => [prodOf((DB.listings.find(x => x.id === top.id) || {pid:'boots1'}).pid).name, screenListing(top.id)],
+    gearform:() => [S.gearForm.edit ? 'Edit my review' : 'Add gear', screenGearForm()], listform:() => ['List my gear', screenListForm()],
     attention:() => ['Needs your attention', screenAttention()], place:() => [TR[top.id].name, screenPlace(top.id)], editprofile:() => ['Edit profile', screenEditProfile()],
   };
   if (top) [title, html] = views[top.v]();
-  else html = {home:screenHome, cal:screenTrips, trails:screenTrails, profile:screenProfile}[S.tab]();
+  else html = {home:screenHome, cal:screenTrips, gear:screenGear, trails:screenTrails, profile:screenProfile}[S.tab]();
   const n = unread(m);
   const bell = `<button class="iconbtn" data-a="push" data-v="notifs" aria-label="Notifications, ${n} new">${icon('bell')}${n ? `<span class="badge-n">${n}</span>` : ''}</button>`;
   let bar;
@@ -1850,6 +2160,7 @@ function go(to){
   const [k, v] = to.split(':');
   if (k === 'tab') S.tab = v;
   else if (k === 'trip'){ S.tab = 'cal'; S.tripTab = 'overview'; S.stack = [{v:'trip', id:v}]; }
+  else if (k === 'gear'){ S.tab = 'gear'; S.gearView = v || 'browse'; S.gearCat = 'All'; S.gearMode = 'all'; S.gearQ = ''; }
   else if (k === 'discover'){ S.tab = 'cal'; S.tripsView = 'discover'; }
   else if (k === 'calendar'){ S.tab = 'cal'; S.tripsView = 'calendar'; S.calMode = 'week'; S.calDay = TODAY; S.calFilter = 'all'; }
   else if (k === 'plan'){ S.tab = 'cal'; S.tripsView = 'plan'; S.planTrip = v; S.altsOpen = {}; }
@@ -1928,6 +2239,25 @@ function act(a, ds){
       if (i >= 0){ list.splice(i, 1); m.kudosGiven = Math.max(0, m.kudosGiven - 1); } else { list.push(m.id); m.kudosGiven++; }
       return render(true);
     }
+    case 'gearview': S.gearView = ds.id; S.tab = 'gear'; S.stack = []; return render(false);
+    case 'gcat': S.gearCat = ds.id; return render(true);
+    case 'gmode': S.gearMode = ds.id; return render(true);
+    case 'gearadd': S.gearForm = initGearForm(ds.id || ''); S.stack.push({v:'gearform'}); break;
+    case 'gfpick': S.gearForm[ds.k] = ds.k === 'rating' ? +ds.id : ds.id === 'true'; return render(true);
+    case 'gearremove': m.gear = m.gear.filter(g => g.pid !== ds.id); DB.listings = DB.listings.filter(l => !(l.owner === m.id && l.pid === ds.id)); S.stack.pop(); toast('Removed from your gear'); break;
+    case 'listadd': S.listForm = initListForm(ds.id || ''); S.stack.push({v:'listform'}); break;
+    case 'lfpick': S.listForm[ds.k] = ds.id; return render(true);
+    case 'listremove': { DB.listings = DB.listings.filter(l => l.id !== ds.id); DB.reqs.filter(r => r.listing === ds.id && ['pending', 'approved'].includes(r.status)).forEach(r => { r.status = 'cancelled'; loanNote(r.from, `<b>${esc(m.first)}</b> removed a listing, so your request was cancelled.`); }); S.stack.pop(); toast('Listing removed'); break; }
+    case 'reqapprove': {
+      const r = DB.reqs.find(x => x.id === ds.id), l = DB.listings.find(x => x.id === r.listing);
+      const clash = DB.reqs.some(x => x !== r && x.listing === r.listing && x.status === 'approved' && x.start <= r.end && r.start <= x.end);
+      if (clash){ toast('Those dates overlap with a loan you already approved.'); return render(true); }
+      r.status = 'approved'; loanNote(r.from, `<b>${esc(m.first)}</b> approved your request for the ${esc(prodOf(l.pid).name)}. Pickup in ${esc(l.loc)}.`);
+      toast(`Approved. ${M(r.from).first} will get a notification.`); return render(true);
+    }
+    case 'reqdecline': { const r = DB.reqs.find(x => x.id === ds.id), l = DB.listings.find(x => x.id === r.listing); r.status = 'declined'; loanNote(r.from, `<b>${esc(m.first)}</b> can't lend the ${esc(prodOf(l.pid).name)} on those dates.`); toast('Request declined'); return render(true); }
+    case 'reqcancel': { const r = DB.reqs.find(x => x.id === ds.id), l = DB.listings.find(x => x.id === r.listing); r.status = 'cancelled'; loanNote(r.to, `<b>${esc(m.first)}</b> cancelled their request for the ${esc(prodOf(l.pid).name)}.`); toast('Request cancelled'); return render(true); }
+    case 'reqreturned': { const r = DB.reqs.find(x => x.id === ds.id), l = DB.listings.find(x => x.id === r.listing); r.status = 'returned'; loanNote(r.from, `<b>${esc(m.first)}</b> marked the ${esc(prodOf(l.pid).name)} as returned. How was it? Add your review.`, `data-a="push" data-v="product" data-id="${l.pid}"`); toast('Marked as returned. Thanks for lending!'); return render(true); }
     case 'people': S.peopleTab = ds.id; S.stack.push({v:'people'}); break;
     case 'ptab': S.peopleTab = ds.id; return render(true);
     case 'follow': {
@@ -1995,6 +2325,10 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('input', e => {
   const t = e.target;
+  if (t.id === 'g-q'){ S.gearQ = t.value; const el = document.getElementById('g-results'); if (el) el.innerHTML = gearResults(); return; }
+  if (t.closest && t.closest('#gearform') && S.gearForm && t.name){ if (t.name !== 'pid') S.gearForm[t.name] = t.value; return; }
+  if (t.closest && t.closest('#listform') && S.listForm && t.name){ S.listForm[t.name] = t.value; return; }
+  if (t.closest && t.closest('#reqform') && S.reqForm && t.name){ S.reqForm[t.name] = t.value; const l = DB.listings.find(x => x.id === S.reqForm.listing), el = document.getElementById('req-total'); if (l && el) el.textContent = reqTotalText(l, S.reqForm); return; }
   if (t.id === 's-q'){ S.search.q = t.value; const el = document.getElementById('s-results'); if (el) el.innerHTML = searchResults(t.value, {people:true, suggest:true}); return; }
   if (t.id === 't-q'){ S.tripsQ = t.value; tripsSearchUpdate(); return; }
   if (t.id === 'b-q'){ S.browse.q = t.value; const el = document.getElementById('b-results'); if (el) el.innerHTML = browseResults(S.browse); return; }
@@ -2017,6 +2351,9 @@ function readImage(file, max, cb){
 }
 document.addEventListener('change', e => {
   const t = e.target, files = t.files ? [...t.files] : [];
+  if (t.id === 'g-sort'){ S.gearSort = t.value; return render(true); }
+  if (t.id === 'gf-pid'){ S.gearForm.pid = t.value; return render(true); }
+  if (t.dataset && t.dataset.chk){ const [rid, i] = t.dataset.chk.split(':'); DB.reqs.find(x => x.id === rid).checks[+i] = t.checked; save(); return; }
   if (t.id === 'b-sort'){ S.browse.sort = t.value; return render(true); }
   if (t.id === 'plan-trip'){ S.planTrip = t.value; S.altsOpen = {}; return render(true); }
   if (t.name === 'evidence' && S.form){ S.form.evidence = t.checked; return; }
@@ -2037,6 +2374,29 @@ document.addEventListener('submit', e => {
     S.stack = []; S.tab = 'profile'; S.form = null;
     toast(`${TR[f.trail].short} added to your journal and map. A leader will verify it${f.evidence ? '' : ' once you add a GPS track or photo'}.`);
     render(false);
+  } else if (e.target.id === 'gearform'){
+    const f = S.gearForm; let pid = f.pid;
+    if (pid === '__new'){
+      if (!f.name.trim()){ toast('Give the gear a name.'); return render(true); }
+      pid = 'c' + (++DB.seq); DB.custom[pid] = {id:pid, name:f.name.trim(), brand:f.brand.trim() || 'Unbranded', cat:f.cat, price:0, custom:true};
+    }
+    const entry = {pid, rating:f.rating, liked:f.liked, note:f.note.trim(), better:f.better.trim(), date:TODAY};
+    const i = m.gear.findIndex(g => g.pid === pid);
+    if (i >= 0) m.gear[i] = entry; else m.gear.push(entry);
+    S.stack.pop(); toast(`${prodOf(pid).name} saved. It now counts in the community reviews.`); render(false);
+  } else if (e.target.id === 'listform'){
+    const f = S.listForm;
+    if (!f.pid) return;
+    const price = f.mode === 'rent' ? Math.max(1, Math.min(200, Math.round(+f.price) || 0)) : 0;
+    if (f.mode === 'rent' && !price){ toast('Set a price per day.'); return render(true); }
+    DB.listings.push({id:'L' + (++DB.seq), owner:m.id, pid:f.pid, price, deposit:Math.max(0, Math.round(+f.deposit) || 0), cond:f.cond, loc:f.loc.trim() || 'Central', note:f.note.trim()});
+    S.stack.pop(); S.tab = 'gear'; S.gearView = 'requests'; toast(`${prodOf(f.pid).name} is listed. Members can now ask to ${price ? 'rent' : 'borrow'} it.`); render(false);
+  } else if (e.target.id === 'reqform'){
+    const f = S.reqForm, l = DB.listings.find(x => x.id === f.listing);
+    if (!f.from || !f.to || f.to < f.from || f.from < TODAY){ toast('Pick a pickup date, and a return date on or after it.'); return render(true); }
+    DB.reqs.push({id:'r' + (++DB.seq), listing:l.id, from:m.id, to:l.owner, start:f.from, end:f.to, msg:f.msg.trim(), status:'pending', at:tick(), checks:[false, false, false]});
+    loanNote(l.owner, `<b>${esc(m.first)}</b> asked to ${l.price ? 'rent' : 'borrow'} your ${esc(prodOf(l.pid).name)} (${fmt(f.from, {day:'numeric', month:'short'})} – ${fmt(f.to, {day:'numeric', month:'short'})}).`);
+    S.reqForm = null; toast(`Request sent to ${M(l.owner).first}.`); render(false);
   } else if (e.target.id === 'profileform'){
     const fd = new FormData(e.target);
     m.bio = String(fd.get('bio')).trim(); m.dream = fd.get('dream'); m.goal = String(fd.get('goal')).trim();
